@@ -33,14 +33,4 @@ public class ChatController {
     }
 
 
-//    @RequestMapping(method = RequestMethod.POST)
-//    public String updateChatRoom(@RequestBody User user){
-//        try {
-//            return userService.addUser(user).toString();
-//        } catch (SQLDataException e) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.BAD_REQUEST, "Email already exists", e);
-//        }
-//    }
-
 }

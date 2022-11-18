@@ -62,17 +62,17 @@ public class chatApp {
 //            chatRoomRepo.save(chat);
 //        };
 //    }
-
-    @Bean
-    CommandLineRunner commandLineRunner(ChatRoomRepository chatRoomRepo){
-        return args -> {
-            ChatRoom cr = chatRoomRepo.findById(1L).get();
-            List<User> users = cr.getParticipants();
-            Message message = new Message(users.get(0).getName(), " test");
-            List<Message> messages = cr.getMessages();
-            messages.add(message);
-            cr.setMessages(messages);
-            chatRoomRepo.save(cr);
-        };
-    }
+//
+//    @Bean
+//    CommandLineRunner commandLineRunner(ChatRoomRepository chatRoomRepo){
+//        return args -> {
+//            ChatRoom cr = chatRoomRepo.findById(1L).get();
+//            List<User> users = cr.getParticipants();
+//            Message message = new Message(users.get(0).getName(), " test");
+//            List<Message> messages = cr.getMessages();
+//            messages.add(message);
+//            cr.setMessages(messages);
+//            chatRoomRepo.save(cr);
+//        };
+//    }
 }
