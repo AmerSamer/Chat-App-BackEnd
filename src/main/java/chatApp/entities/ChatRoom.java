@@ -1,5 +1,6 @@
 package chatApp.entities;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -7,12 +8,11 @@ import javax.persistence.*;
 import java.util.List;
 @Entity
 @Table(name = "chatRoom")
+@DynamicUpdate
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
-    private Long room_id;
 
     @OneToMany(cascade = {CascadeType.ALL})
     @LazyCollection(LazyCollectionOption.FALSE)
