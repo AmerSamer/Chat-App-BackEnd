@@ -1,79 +1,36 @@
 package chatApp.controller;
 
+import chatApp.entities.Message;
+import chatApp.entities.User;
+import chatApp.service.ChatRoomService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-@Controller
+import java.sql.SQLDataException;
+
+@RestController
+@CrossOrigin
+@RequestMapping("/chat")
 public class ChatController {
+//
+//    @Autowired
+//    private ChatRoomService chatRoomService;
+
     @MessageMapping("/hello")
     @SendTo("/topic/mainChat")
-    public ChatMessage greeting(HelloMessage message) throws Exception {
-        return new ChatMessage("SYSTEM", message.getName() + "joined the chat");
+    public Message greeting(Message.HelloMessage message) throws Exception {
+        return new Message("SYSTEM", message.getName() + "joined the chat");
     }
 
     @MessageMapping("/plain")
     @SendTo("/topic/mainChat")
-    public ChatMessage sendPlainMessage(ChatMessage message) {
+    public Message sendPlainMessage(User user, Message message) {
         return message;
     }
 
-    static class ChatMessage {
-        private String sender;
-        private String content;
 
-        public ChatMessage() {
-        }
-
-        public ChatMessage(String sender, String content) {
-            this.sender = sender;
-            this.content = content;
-        }
-
-        public String getSender() {
-            return sender;
-        }
-
-        public void setSender(String sender) {
-            this.sender = sender;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        @Override
-        public String toString() {
-            return "ChatMessage{" +
-                    "sender='" + sender + '\'' +
-                    ", content='" + content + '\'' +
-                    '}';
-        }
-    }
-    static class HelloMessage {
-
-        private String name;
-
-        public HelloMessage() {
-        }
-
-        public HelloMessage(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return "HelloMessage{" +
-                    "name='" + name + '\'' +
-                    '}';
-        }
-    }
 }
