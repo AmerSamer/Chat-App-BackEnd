@@ -8,7 +8,7 @@ import javax.persistence.*;
 //@Embeddable
 public class Message {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String sender; //String or User objs
     private String content;

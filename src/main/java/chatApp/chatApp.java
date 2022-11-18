@@ -21,29 +21,6 @@ public class chatApp {
     }
 
 //    @Bean
-//    CommandLineRunner commandLineRunner(UserRepository userRepo){
-//        return args -> {
-//            User user = new User("shai", "shai@gmail.com", "1234");
-//            User userTwo = new User("tal", "tal@gmail.com", "4321");
-//
-//            userRepo.save(user);
-//            userRepo.save(userTwo);
-//        };
-//    }
-
-//    @Bean
-//    CommandLineRunner commandLineRunner(MessageRepository messageRepo){
-//        return args -> {
-//         User user = new User("shai", "shai@gmail.com", "1234");
-//         User userTwo = new User("tal", "tal@gmail.com", "4321");
-//         Message message = new Message(user.getName(), " blah blah blah");
-//         Message messageTwo = new Message(userTwo.getName(), " no ");
-//         messageRepo.save(message);
-//         messageRepo.save(messageTwo);
-//        };
-//    }
-//
-//    @Bean
 //    CommandLineRunner commandLineRunner(ChatRoomRepository chatRoomRepo){
 //        return args -> {
 //            User user = new User("shai", "shai@gmail.com", "1234");
@@ -60,19 +37,6 @@ public class chatApp {
 //            messages.add(messageTwo);
 //            ChatRoom chat = new ChatRoom(users,messages);
 //            chatRoomRepo.save(chat);
-//        };
-//    }
-//
-//    @Bean
-//    CommandLineRunner commandLineRunner(ChatRoomRepository chatRoomRepo){
-//        return args -> {
-//            ChatRoom cr = chatRoomRepo.findById(1L).get();
-//            List<User> users = cr.getParticipants();
-//            Message message = new Message(users.get(0).getName(), " test");
-//            List<Message> messages = cr.getMessages();
-//            messages.add(message);
-//            cr.setMessages(messages);
-//            chatRoomRepo.save(cr);
 //        };
 //    }
 }
