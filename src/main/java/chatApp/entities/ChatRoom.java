@@ -11,7 +11,7 @@ import java.util.List;
 @DynamicUpdate
 public class ChatRoom {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToMany(cascade = {CascadeType.ALL})
