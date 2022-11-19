@@ -14,13 +14,15 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(cascade = {CascadeType.ALL})
     @LazyCollection(LazyCollectionOption.FALSE)
+    @Column(nullable = false, unique = true)
     private List<User> participants;
 
     @Embedded
-    @OneToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(cascade = {CascadeType.ALL})
     @LazyCollection(LazyCollectionOption.FALSE)
+    @Column(nullable = false, unique = true)
     private List<Message> messages;
 
 
