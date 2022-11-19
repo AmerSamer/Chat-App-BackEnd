@@ -3,7 +3,9 @@ package chatApp.service;
 import chatApp.entities.User;
 import chatApp.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
 import java.sql.SQLDataException;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -25,6 +27,22 @@ public class UserService {
         if(userRepository.findByEmail(user.getEmail())!=null){
             throw new SQLDataException(String.format("Email %s exists in users table", user.getEmail()));
         }
+
+//        BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
+//        String encoderPassword = bEncoder.encode(user.getPassword());
+//        user.setPassword(encoderPassword);
         return userRepository.save(user);
+    }
+
+    public String login(User user) throws SQLDataException {
+        User checkUser = userRepository.findByEmail(user.getEmail());
+        if(checkUser == null){
+            throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
+        }
+        else if(!checkUser.getPassword().equals(user.getPassword())){
+            throw new SQLDataException(String.format("Password %s doesn't match to email", user.getEmail()));
+        }
+
+        return "token";
     }
 }
