@@ -5,7 +5,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user")
-public class User implements UserDetails{
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -21,6 +21,11 @@ public class User implements UserDetails{
 
     public User(String name, String email, String password) {
         this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
+    public User(String email, String password) {
         this.email = email;
         this.password = password;
     }
