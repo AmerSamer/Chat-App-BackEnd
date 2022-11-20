@@ -4,6 +4,7 @@ import chatApp.entities.User;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
@@ -13,6 +14,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     public UserService() {
     }
