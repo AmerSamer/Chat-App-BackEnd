@@ -1,6 +1,9 @@
 package chatApp.entities;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 @Entity
@@ -15,6 +18,16 @@ public class User{
     private String email;
     @Column(nullable = false, length = 64)
     private String password;
+    @Column()
+    private String Photo;
+    @Column()
+    private LocalDate DateOfBirth;
+    @Column()
+    private int Age;
+    @Column()
+    private UserType type;
+
+    boolean isEnabled = false;
 
     public User() {
     }
@@ -32,6 +45,38 @@ public class User{
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getPhoto() {
+        return Photo;
+    }
+
+    public void setPhoto(String photo) {
+        Photo = photo;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return DateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        DateOfBirth = dateOfBirth;
+    }
+
+    public int getAge() {
+        return Age;
+    }
+
+    public void setAge(int age) {
+        Age = age;
+    }
+
+    public UserType getType() {
+        return type;
+    }
+
+    public void setType(UserType type) {
+        this.type = type;
     }
 
     public Long getId() {
