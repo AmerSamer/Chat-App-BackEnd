@@ -2,6 +2,7 @@ package chatApp.service;
 
 import chatApp.entities.User;
 import chatApp.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
@@ -34,7 +35,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public String login(User user) throws SQLDataException {
+    public ResponseEntity<String> login(User user) throws SQLDataException {
         User checkUser = userRepository.findByEmail(user.getEmail());
         if(checkUser == null){
             throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
@@ -43,6 +44,6 @@ public class UserService {
             throw new SQLDataException(String.format("Password %s doesn't match to email", user.getEmail()));
         }
 
-        return "token";
+        return ResponseEntity.ok().body("token");
     }
 }
