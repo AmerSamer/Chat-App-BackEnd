@@ -5,7 +5,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.*;
 @Entity
 @Table(name = "message")
-//@Embeddable
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

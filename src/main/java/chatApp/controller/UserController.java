@@ -5,7 +5,6 @@ import chatApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -47,6 +46,15 @@ public class UserController {
         } catch (SQLDataException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Email or Password are wrong", e);
+        }
+    }
+
+    @RequestMapping(value = "activate", method = RequestMethod.POST)
+    public ResponseEntity<String> verifyEmail(@RequestBody User user){
+        try {
+            return userService.verifyEmail(user);
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
         }
     }
 }

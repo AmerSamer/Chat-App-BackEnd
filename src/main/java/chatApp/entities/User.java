@@ -2,8 +2,6 @@ package chatApp.entities;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 @Entity
@@ -27,15 +25,23 @@ public class User{
     @Column()
     private UserType type;
 
-    boolean isEnabled = false;
+    @Column(name="enabled")
+    private boolean enabled;
+    @Column(name="verification_code")
+    private String verifyCode;
+    @Column(name="issue_date")
+    private LocalDate issueDate;
 
     public User() {
+        super();
+        this.enabled=false;
     }
 
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.enabled = false;
     }
 
     public User(String email, String password) {
@@ -107,6 +113,29 @@ public class User{
         this.password = password;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getVerifyCode() {
+        return verifyCode;
+    }
+
+    public void setVerifyCode(String verifyCode) {
+        this.verifyCode = verifyCode;
+    }
+
+    public LocalDate getIssueDate() {
+        return issueDate;
+    }
+
+    public void setIssueDate(LocalDate issueDate) {
+        this.issueDate = issueDate;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -130,6 +159,5 @@ public class User{
                 ", password='" + password + '\'' +
                 '}';
     }
-
 
 }

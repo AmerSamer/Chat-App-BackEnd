@@ -19,7 +19,6 @@ public class ChatRoom {
     @Column(nullable = false, unique = true)
     private List<User> participants;
 
-    @Embedded
     @ManyToMany(cascade = {CascadeType.ALL})
     @LazyCollection(LazyCollectionOption.FALSE)
     @Column(nullable = false, unique = true)

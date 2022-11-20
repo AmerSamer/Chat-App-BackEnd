@@ -1,20 +1,14 @@
 package chatApp.service;
-
-import chatApp.entities.ChatRoom;
-import chatApp.entities.Message;
-import chatApp.entities.User;
 import chatApp.repository.ChatRoomRepository;
-
-import java.sql.SQLDataException;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ChatRoomService {
+    @Autowired
+    private ChatRoomRepository chatRoomRepository;
 
-    private final ChatRoomRepository chatRoomRepository;
-
-    public ChatRoomService(ChatRoomRepository chatRoomRepository) {
-        this.chatRoomRepository = chatRoomRepository;
-    }
+//    public ChatRoomService(ChatRoomRepository chatRoomRepository) {
+//        this.chatRoomRepository = chatRoomRepository;
+//    }
 
 //    ChatRoom updateChatRoom(Long chatId, User user, Message msg) throws SQLDataException {
 //        ChatRoom cr = null;
