@@ -47,8 +47,8 @@ public class UserService {
         return ResponseEntity.ok().body("token");
     }
 
-    public void createVerificationToken(User user, String token) {
-        VerificationToken newUserToken = new VerificationToken(token, user);
-        userRepository.save(newUserToken);
-    }
+//    public void createVerificationToken(User user, String token) {
+//        VerificationToken newUserToken = new VerificationToken(token, user);
+//        userRepository.save(newUserToken);
+//    }
 }
