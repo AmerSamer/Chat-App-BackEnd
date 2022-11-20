@@ -1,6 +1,8 @@
 package chatApp.entities;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.util.Objects;
 
 @Entity
@@ -18,17 +20,21 @@ public class User{
 
     @Column(name="enabled")
     private boolean enabled;
+    @Column(name="verification")
+    private VerificationCode verificationCode;
 
     public User() {
         super();
         this.enabled=false;
+        this.verificationCode = VerificationCode.createVerificationCode();
     }
 
-    public User(String name, String email, String password, boolean enabled) {
+    public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.enabled = enabled;
+        this.enabled = false;
+        this.verificationCode = VerificationCode.createVerificationCode();
     }
 
     public User(String email, String password) {
@@ -76,6 +82,13 @@ public class User{
         this.enabled = enabled;
     }
 
+    public VerificationCode getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(VerificationCode verificationCode) {
+        this.verificationCode = verificationCode;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -101,4 +114,7 @@ public class User{
     }
 
 
+    public LocalDate getExpirationDate() {
+        return this.verificationCode.getIssueDate().plusDays(1);
+    }
 }

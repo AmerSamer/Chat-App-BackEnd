@@ -48,4 +48,9 @@ public class UserController {
                     HttpStatus.BAD_REQUEST, "Email or Password are wrong", e);
         }
     }
+
+    @RequestMapping(value = "activate", method = RequestMethod.POST)
+    public ResponseEntity<String> verifyEmail(@RequestBody User user, @RequestBody String verifyCode){
+        return userService.verifyEmail(user, verifyCode);
+    }
 }
