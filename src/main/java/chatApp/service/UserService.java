@@ -20,6 +20,7 @@ public class UserService {
 
     /**
      * Adds a user to the database if it has a unique email
+     *
      * @param user - the user's data
      * @return a saved user with it's generated id
      * @throws SQLDataException when the provided email already exists
