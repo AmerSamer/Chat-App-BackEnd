@@ -2,10 +2,6 @@ package chatApp.entities;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Locale;
-import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.Objects;
 
 @Entity
@@ -29,17 +25,16 @@ public class User{
     @Column()
     private UserType type;
 
-    boolean isEnabled = false;
-
     @Column(name="enabled")
     private boolean enabled;
-    @Column(name="verification")
-    private VerificationCode verificationCode;
+    @Column(name="verification_code")
+    private String verifyCode;
+    @Column(name="issue_date")
+    private LocalDate issueDate;
 
     public User() {
         super();
         this.enabled=false;
-        this.verificationCode = VerificationCode.createVerificationCode();
     }
 
     public User(String name, String email, String password) {
@@ -47,7 +42,6 @@ public class User{
         this.email = email;
         this.password = password;
         this.enabled = false;
-        this.verificationCode = VerificationCode.createVerificationCode();
     }
 
     public User(String email, String password) {
@@ -127,12 +121,20 @@ public class User{
         this.enabled = enabled;
     }
 
-    public VerificationCode getVerificationCode() {
-        return verificationCode;
+    public String getVerifyCode() {
+        return verifyCode;
     }
 
-    public void setVerificationCode(VerificationCode verificationCode) {
-        this.verificationCode = verificationCode;
+    public void setVerifyCode(String verifyCode) {
+        this.verifyCode = verifyCode;
+    }
+
+    public LocalDate getIssueDate() {
+        return issueDate;
+    }
+
+    public void setIssueDate(LocalDate issueDate) {
+        this.issueDate = issueDate;
     }
 
     @Override
@@ -158,8 +160,4 @@ public class User{
                 '}';
     }
 
-
-    public LocalDate getExpirationDate() {
-        return this.verificationCode.getIssueDate().plusDays(1);
-    }
 }

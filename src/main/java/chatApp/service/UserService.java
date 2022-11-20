@@ -1,7 +1,8 @@
 package chatApp.service;
 
+import chatApp.Utilities.Utility;
 import chatApp.entities.User;
-import chatApp.entities.VerificationCode;
+import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
+import java.time.LocalDate;
 
 @Service
 public class UserService {
@@ -39,6 +41,7 @@ public class UserService {
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         String encoderPassword = bEncoder.encode(user.getPassword());
         user.setPassword(encoderPassword);
+        user.setType(UserType.GUEST);
 
         sendMessage(user);
 
@@ -46,46 +49,52 @@ public class UserService {
     }
 
     public ResponseEntity<String> login(User user) throws SQLDataException {
-        User checkUser = userRepository.findByEmail(user.getEmail());
-        if (checkUser == null) {
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        if (dbUser == null) {
             throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
         }
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
-        if (!bEncoder.matches(user.getPassword(), checkUser.getPassword())) {
+        if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
             throw new SQLDataException(String.format("Password %s doesn't match to email", user.getEmail()));
         }
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<String> verifyEmail(User user, String verifyCode) {
-        if(user.isEnabled()){
-            throw new IllegalArgumentException("User already activate");
-        }
-        else if(user.getVerificationCode().getIssueDate().isAfter(user.getExpirationDate())){
-            sendMessage(user);
-            throw new IllegalArgumentException("More than 24 hours passed from last verification code, new verification code has been sent");
-        }
-        else if(!user.getVerificationCode().getVerifyCode().equals(verifyCode)){
-            throw new IllegalArgumentException("Verification code doesn't match");
+    public ResponseEntity<String> verifyEmail(User user) throws SQLDataException {
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        if (dbUser == null) {
+            throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
         }
 
-        user.setEnabled(true);
-        user.setVerificationCode(null);
-        userRepository.deleteById(user.getId());
-        userRepository.save(user);
+        if(dbUser.isEnabled()){
+            throw new SQLDataException("User already activate");
+        }
+        else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
+            sendMessage(user);
+            throw new SQLDataException("More than 24 hours passed from last verification code, new verification code has been sent");
+        }
+        else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
+            throw new SQLDataException("Verification code doesn't match");
+        }
+
+        dbUser.setEnabled(true);
+        dbUser.setVerifyCode(null);
+        dbUser.setType(UserType.REGISTERED);
+        userRepository.save(dbUser);
         return ResponseEntity.ok("success, email verified");
     }
 
     public void sendMessage(User user){
-        VerificationCode vc = VerificationCode.createVerificationCode();
-        user.setVerificationCode(vc);
+        String verifyCode = Utility.randomVerificationCode();
+        user.setVerifyCode(verifyCode);
+        user.setIssueDate(LocalDate.now());
         String from = "seselevtion@gmail.com";
         String to = user.getEmail();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
         message.setTo(to);
         message.setSubject("Chat App Verification Code");
-        message.setText(user.getVerificationCode().getVerifyCode());
+        message.setText(verifyCode);
         mailSender.send(message);
     }
 }

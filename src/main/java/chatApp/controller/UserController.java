@@ -50,7 +50,11 @@ public class UserController {
     }
 
     @RequestMapping(value = "activate", method = RequestMethod.POST)
-    public ResponseEntity<String> verifyEmail(@RequestBody User user, @RequestBody String verifyCode){
-        return userService.verifyEmail(user, verifyCode);
+    public ResponseEntity<String> verifyEmail(@RequestBody User user){
+        try {
+            return userService.verifyEmail(user);
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
