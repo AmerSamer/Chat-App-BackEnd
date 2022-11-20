@@ -5,7 +5,6 @@ import chatApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,7 +18,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(method = RequestMethod.POST)
+
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String createUser(@RequestBody User user) {
         try {
             return userService.addUser(user).toString();

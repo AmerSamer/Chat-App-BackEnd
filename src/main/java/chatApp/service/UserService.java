@@ -2,19 +2,19 @@ package chatApp.service;
 
 import chatApp.entities.User;
 import chatApp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
-import java.util.List;
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserService() {
     }
 
 
@@ -46,9 +46,4 @@ public class UserService {
 
         return ResponseEntity.ok().body("token");
     }
-
-//    public void createVerificationToken(User user, String token) {
-//        VerificationToken newUserToken = new VerificationToken(token, user);
-//        userRepository.save(newUserToken);
-//    }
 }
