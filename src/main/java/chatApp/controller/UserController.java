@@ -11,6 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLDataException;
 
+import static chatApp.Utilities.Utility.*;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/user")
@@ -19,17 +21,26 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public String createUser(@RequestBody User user) {
+    @RequestMapping(value = "register",method = RequestMethod.POST)
+    public ResponseEntity<String> createUser(@RequestBody User user){
         try {
-            return userService.addUser(user).toString();
+            if (!isValidEmail(user.getEmail())) {
+                return ResponseEntity.badRequest().body("Invalid Email!");
+        }
+        if (!isValidName(user.getName())) {
+            return ResponseEntity.badRequest().body("Invalid Name!");
+        }
+        if (!isValidPassword(user.getPassword())) {
+            return ResponseEntity.badRequest().body("Invalid Password!");
+        }
+            return ResponseEntity.ok(userService.addUser(user).toString());
         } catch (SQLDataException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Email already exists", e);
         }
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<String> login(@RequestBody User user) {
         try {
             return userService.login(user);
