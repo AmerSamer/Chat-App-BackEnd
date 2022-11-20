@@ -5,22 +5,36 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user")
-public class User {
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
+    @Column(nullable = false, length = 20)
     private String name;
-    @Column(unique = true)
+    @Column(nullable = false, unique = true, length = 45)
     private String email;
+    @Column(nullable = false, length = 64)
     private String password;
 
+    public User() {
+    }
 
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
 
-    public void setId(int id) {
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -48,26 +62,18 @@ public class User {
         this.password = password;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-
-        if (id != user.id) return false;
-        if (!Objects.equals(name, user.name)) return false;
-        if (!Objects.equals(email, user.email)) return false;
-        return Objects.equals(password, user.password);
+        return id.equals(user.id) && name.equals(user.name) && email.equals(user.email) && password.equals(user.password);
     }
 
     @Override
     public int hashCode() {
-        int result = id;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        return result;
+        return Objects.hash(id, name, email, password);
     }
 
     @Override
@@ -79,4 +85,6 @@ public class User {
                 ", password='" + password + '\'' +
                 '}';
     }
+
+
 }

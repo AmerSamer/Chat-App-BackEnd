@@ -3,19 +3,17 @@ package chatApp.entities;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.*;
+@Entity
+@Table(name = "message")
+//@Embeddable
 public class Message {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String sender; //String or User objs
     private String content;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    public Message() {
     }
 
     public Message(String sender, String content) {
@@ -37,6 +35,37 @@ public class Message {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public static class HelloMessage {
+
+        private String name;
+
+        public HelloMessage() {
+        }
+
+        public HelloMessage(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return "HelloMessage{" +
+                    "name='" + name + '\'' +
+                    '}';
+        }
     }
 
 }
