@@ -50,10 +50,6 @@ public class User {
         this.password = password;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getPhoto() {
         return photo;
     }
@@ -157,14 +153,14 @@ public class User {
 
         User user = (User) o;
 
-        if (Age != user.Age) return false;
+        if (age != user.age) return false;
         if (enabled != user.enabled) return false;
         if (!Objects.equals(id, user.id)) return false;
         if (!Objects.equals(name, user.name)) return false;
         if (!Objects.equals(email, user.email)) return false;
         if (!Objects.equals(password, user.password)) return false;
-        if (!Objects.equals(Photo, user.Photo)) return false;
-        if (!Objects.equals(DateOfBirth, user.DateOfBirth)) return false;
+        if (!Objects.equals(photo, user.photo)) return false;
+        if (!Objects.equals(dateOfBirth, user.dateOfBirth)) return false;
         if (type != user.type) return false;
         if (userStatus != user.userStatus) return false;
         if (!Objects.equals(verifyCode, user.verifyCode)) return false;
@@ -177,9 +173,9 @@ public class User {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (Photo != null ? Photo.hashCode() : 0);
-        result = 31 * result + (DateOfBirth != null ? DateOfBirth.hashCode() : 0);
-        result = 31 * result + Age;
+        result = 31 * result + (photo != null ? photo.hashCode() : 0);
+        result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
+        result = 31 * result + age;
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (userStatus != null ? userStatus.hashCode() : 0);
         result = 31 * result + (enabled ? 1 : 0);
