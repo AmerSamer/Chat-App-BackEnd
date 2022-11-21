@@ -1,14 +1,11 @@
 package chatApp.controller;
 
 import chatApp.entities.Message;
-import chatApp.entities.User;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
 
-@RestController
-@CrossOrigin
-@RequestMapping("/chat")
+@Controller
 public class ChatController {
 //
 //    @Autowired
