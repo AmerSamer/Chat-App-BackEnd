@@ -114,6 +114,32 @@ public class UserService {
         mailSender.send(message);
     }
 
+    public ResponseEntity<String> updateUser(User user) throws SQLDataException {
+        System.out.println("user: "+user);
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        if (dbUser == null) {
+            throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
+        }
+//        dbUser.setEmail(user.getEmail()); //for now the user can not change his email until we provide his own token instead his email as primarykey
+        if(user.getName() != null){
+            dbUser.setName(user.getName());
+        } else if (user.getPassword() != null) {
+            BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
+            String encoderPassword = bEncoder.encode(user.getPassword());
+            dbUser.setPassword(encoderPassword);
+        } else if (user.getDateOfBirth() != null) {
+            dbUser.setDateOfBirth(user.getDateOfBirth());
+            dbUser.setAge(calcAge(user.getDateOfBirth()));
+        }else if(user.getPhoto() != null) {
+            dbUser.setPhoto(user.getPhoto());
+        }
+        userRepository.save(dbUser);
+        return ResponseEntity.ok("user has updated successfully");
+    }
+    private int calcAge (LocalDate dateOfBirth){
+        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
+    }
+
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userRepository.findAll());
     }
