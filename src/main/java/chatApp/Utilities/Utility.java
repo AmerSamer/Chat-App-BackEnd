@@ -1,6 +1,7 @@
 package chatApp.Utilities;
 
 import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class Utility {
@@ -24,12 +25,9 @@ public class Utility {
                 .matches();
     }
 
-    public static String randomVerificationCode(){
-        String chars = "abcdefghijklmnopqrstuvwxyz123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        Random rnd = new Random();
-        StringBuilder sb = new StringBuilder(16);
-        for (int i = 0; i < 16; i++)
-            sb.append(chars.charAt(rnd.nextInt(chars.length())));
-        return sb.toString();
+  public static String randomString() {
+        UUID randomUUID = UUID.randomUUID();
+        return randomUUID.toString().replaceAll("_", "");
     }
+
 }

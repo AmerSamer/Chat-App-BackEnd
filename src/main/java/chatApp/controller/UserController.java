@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLDataException;
+import java.util.List;
 
 import static chatApp.Utilities.Utility.*;
 
@@ -54,7 +55,34 @@ public class UserController {
         try {
             return userService.verifyEmail(user);
         } catch (SQLDataException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Couldn't activate email", e);
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<User>> getAllUsers() {
+        return userService.getAllUsers();
+    }
+    @RequestMapping(value = "loginAsGuest", method = RequestMethod.POST)
+    public ResponseEntity<User> loginAsGuest(@RequestBody User user) {
+        try {
+            if (!isValidName(user.getName())) {
+                return ResponseEntity.badRequest().body(user);
+            }
+            return ResponseEntity.ok(userService.addGuest(user));
+        } catch (SQLDataException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Name already exists!", e);
+        }
+    }
+    @RequestMapping(value = "updateuser", method = RequestMethod.PUT)
+    public ResponseEntity<String> updateUser(@RequestBody User user){
+        try {
+            return userService.updateUser(user);
+        } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
     }
+
+
 }
