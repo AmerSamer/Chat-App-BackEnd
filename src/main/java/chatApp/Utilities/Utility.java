@@ -1,10 +1,15 @@
 package chatApp.Utilities;
 
-import java.util.Random;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class Utility {
+
+    public static String guestPrefix = "Guest-";
+    public static String systemEmail = "seselevtion@gmail.com";
+    public static String emailContent = "Chat App Verification Code";
+
     //The length of the password > 6
     //At least one capital letter
     public static boolean isValidPassword(String password) {
@@ -28,6 +33,11 @@ public class Utility {
   public static String randomString() {
         UUID randomUUID = UUID.randomUUID();
         return randomUUID.toString().replaceAll("_", "");
+    }
+
+    public static String encrypt(String stringToEncrypt){
+        BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
+        return bEncoder.encode(stringToEncrypt);
     }
 
 }

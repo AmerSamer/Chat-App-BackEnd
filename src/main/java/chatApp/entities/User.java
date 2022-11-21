@@ -24,7 +24,7 @@ public class User {
     private int age;
     @Column()
     private UserType type;
-    @Column()
+    @Column(name = "user_status")
     private UserStatuses userStatus;
     @Column(name = "enabled")
     private boolean enabled;
