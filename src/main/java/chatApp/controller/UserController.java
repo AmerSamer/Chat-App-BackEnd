@@ -57,4 +57,18 @@ public class UserController {
             throw new RuntimeException(e);
         }
     }
+    @RequestMapping(value = "loginAsGuest", method = RequestMethod.POST)
+    public ResponseEntity<String> loginAsGuest(@RequestBody User user) {
+        try {
+            if (!isValidName(user.getName())) {
+                return ResponseEntity.badRequest().body("Invalid Name!");
+            }
+            return ResponseEntity.ok(userService.addGuest(user).toString());
+        } catch (SQLDataException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Invalid Name!", e);
+        }
+    }
+
+
 }
