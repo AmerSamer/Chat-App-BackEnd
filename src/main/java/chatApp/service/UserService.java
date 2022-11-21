@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import java.sql.SQLDataException;
 import java.time.LocalDate;
+import java.util.List;
 import static chatApp.Utilities.Utility.randomString;
 
 
@@ -95,7 +96,7 @@ public class UserService {
         dbUser.setVerifyCode(null);
         dbUser.setType(UserType.REGISTERED);
         userRepository.save(dbUser);
-        return ResponseEntity.ok("success, email verified");
+        return ResponseEntity.ok("success, email activate");
     }
 
     public void sendMessage(User user){
@@ -110,5 +111,9 @@ public class UserService {
         message.setSubject("Chat App Verification Code");
         message.setText(verifyCode);
         mailSender.send(message);
+    }
+
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
     }
 }
