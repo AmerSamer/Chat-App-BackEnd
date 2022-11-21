@@ -11,6 +11,7 @@ log/
 target/
 
 src/main/resources/application.properties
+src/main/resources/mail.properties
 
 logs/
 
