@@ -17,11 +17,11 @@ public class User{
     @Column(nullable = false, length = 64)
     private String password;
     @Column()
-    private String Photo;
+    private String photo;
     @Column()
-    private LocalDate DateOfBirth;
+    private LocalDate dateOfBirth;
     @Column()
-    private int Age;
+    private int age;
     @Column()
     private UserType type;
 
@@ -49,32 +49,29 @@ public class User{
         this.password = password;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getPhoto() {
-        return Photo;
+        return photo;
     }
 
     public void setPhoto(String photo) {
-        Photo = photo;
+        this.photo = photo;
     }
 
     public LocalDate getDateOfBirth() {
-        return DateOfBirth;
+        return dateOfBirth;
     }
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
-        DateOfBirth = dateOfBirth;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public int getAge() {
-        return Age;
+        return age;
     }
 
     public void setAge(int age) {
-        Age = age;
+        this.age = age;
     }
 
     public UserType getType() {
@@ -87,6 +84,10 @@ public class User{
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -157,7 +158,13 @@ public class User{
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", photo='" + photo + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", age=" + age +
+                ", type=" + type +
+                ", enabled=" + enabled +
+                ", verifyCode='" + verifyCode + '\'' +
+                ", issueDate=" + issueDate +
                 '}';
     }
-
 }

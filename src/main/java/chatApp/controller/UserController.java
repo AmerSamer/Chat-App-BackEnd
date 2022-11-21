@@ -57,4 +57,12 @@ public class UserController {
             throw new RuntimeException(e);
         }
     }
+    @RequestMapping(value = "updateuser", method = RequestMethod.PUT)
+    public ResponseEntity<String> updateUser(@RequestBody User user){
+        try {
+            return userService.updateUser(user);
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
