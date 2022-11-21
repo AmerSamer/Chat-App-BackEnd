@@ -20,7 +20,7 @@ public class chatApp {
         mailSender.setPort(587);
 
         mailSender.setUsername("seselevtion@gmail.com");
-        mailSender.setPassword("quddboeuieghcocl");
+        mailSender.setPassword("");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
