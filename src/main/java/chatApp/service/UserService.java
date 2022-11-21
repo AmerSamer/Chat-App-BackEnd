@@ -1,6 +1,5 @@
 package chatApp.service;
 
-import chatApp.Utilities.Utility;
 import chatApp.entities.User;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
@@ -10,10 +9,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
 import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.util.List;
+import static chatApp.Utilities.Utility.randomString;
+
 
 @Service
 public class UserService {
@@ -48,6 +48,20 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public User addGuest(User user) throws SQLDataException {
+        if (userRepository.findByName(user.getName()) != null) {
+            throw new SQLDataException(String.format("Name %s exists in users table", user.getName()));
+        }
+
+        user.setName("Guest-" + user.getName());
+        user.setType(UserType.GUEST);
+        user.setEmail(randomString());
+        user.setPassword(randomString());
+        return userRepository.save(user);
+    }
+
+
 
     public ResponseEntity<String> login(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
@@ -86,7 +100,7 @@ public class UserService {
     }
 
     public void sendMessage(User user){
-        String verifyCode = Utility.randomVerificationCode();
+        String verifyCode = randomString();
         user.setVerifyCode(verifyCode);
         user.setIssueDate(LocalDate.now());
         String from = "seselevtion@gmail.com";
