@@ -3,11 +3,10 @@ package chatApp.controller;
 import chatApp.entities.User;
 import chatApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
+import static chatApp.Utilities.ExceptionHandler.*;
 import java.sql.SQLDataException;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class UserController {
         try {
             return userService.verifyEmail(user);
         } catch (SQLDataException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Couldn't activate email", e);
+            return ResponseEntity.badRequest().body(activationEmailFailedMessage);
         }
     }
 
@@ -38,7 +37,7 @@ public class UserController {
         try {
             return userService.updateUser(user);
         } catch (SQLDataException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().body(updateUserFailedMessage);
         }
     }
 

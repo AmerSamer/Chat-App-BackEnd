@@ -1,5 +1,6 @@
 package chatApp.service;
 
+import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
 import chatApp.entities.User;
 import chatApp.entities.UserType;
@@ -32,18 +33,18 @@ public class UserService {
     public ResponseEntity<String> verifyEmail(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
-            throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
+            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
 
         if(dbUser.isEnabled()){
-            throw new SQLDataException("User already activate");
+            throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
         }
         else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
             sendMessage(user);
-            throw new SQLDataException("More than 24 hours passed from last verification code, new verification code has been sent");
+            throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
         }
         else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
-            throw new SQLDataException("Verification code doesn't match");
+            throw new SQLDataException(verificationCodeNotMatch);
 
         }
 
@@ -51,13 +52,13 @@ public class UserService {
         dbUser.setVerifyCode(null);
         dbUser.setType(UserType.REGISTERED);
         userRepository.save(dbUser);
-        return ResponseEntity.ok("success, email activate");
+        return ResponseEntity.ok().build();
     }
 
     public ResponseEntity<String> updateUser(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
-            throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
+            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
 //        dbUser.setEmail(user.getEmail()); //for now the user can not change his email until we provide his own token instead his email as primarykey
         if(user.getName() != null){
@@ -71,7 +72,7 @@ public class UserService {
             dbUser.setPhoto(user.getPhoto());
         }
         userRepository.save(dbUser);
-        return ResponseEntity.ok("user has updated successfully");
+        return ResponseEntity.ok().build();
     }
     private int calcAge (LocalDate dateOfBirth){
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
@@ -83,13 +84,11 @@ public class UserService {
 
     public void sendMessage(User user){
         String verifyCode = randomString();
-        user.setVerifyCode(encrypt(verifyCode));
+        user.setVerifyCode(verifyCode);
         user.setIssueDate(LocalDate.now());
-        String from = "seselevtion@gmail.com";
-        String to = user.getEmail();
-        preConfiguredMessage.setFrom(from);
-        preConfiguredMessage.setTo(to);
-        preConfiguredMessage.setSubject("Chat App Verification Code");
+        preConfiguredMessage.setFrom(systemEmail);
+        preConfiguredMessage.setTo(user.getEmail());
+        preConfiguredMessage.setSubject(emailContent);
         preConfiguredMessage.setText(verifyCode);
         mailSender.send(preConfiguredMessage);
     }

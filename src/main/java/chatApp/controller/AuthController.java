@@ -3,13 +3,11 @@ package chatApp.controller;
 import chatApp.entities.User;
 import chatApp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLDataException;
-
+import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
 
 @RestController
@@ -24,18 +22,17 @@ public class AuthController {
     public ResponseEntity<String> createUser(@RequestBody User user){
         try {
             if (!isValidEmail(user.getEmail())) {
-                return ResponseEntity.badRequest().body("Invalid Email!");
+                return ResponseEntity.badRequest().body(invalidEmailMessage);
             }
             if (!isValidName(user.getName())) {
-                return ResponseEntity.badRequest().body("Invalid Name!");
+                return ResponseEntity.badRequest().body(invalidNameMessage);
             }
             if (!isValidPassword(user.getPassword())) {
-                return ResponseEntity.badRequest().body("Invalid Password!");
+                return ResponseEntity.badRequest().body(invalidPasswordMessage);
             }
             return ResponseEntity.ok(authService.addUser(user).toString());
         } catch (SQLDataException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Email already exists", e);
+            return ResponseEntity.badRequest().body(emailExistsInSystemMessage(user.getEmail()));
         }
     }
 
@@ -44,7 +41,7 @@ public class AuthController {
         try {
             return authService.login(user);
         } catch (SQLDataException e) {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Email or Password are wrong", e);
+            return ResponseEntity.badRequest().body(loginFailedMessage);
         }
     }
 
@@ -56,8 +53,9 @@ public class AuthController {
             }
             return ResponseEntity.ok(authService.addGuest(user));
         } catch (SQLDataException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Name already exists!", e);
+            return ResponseEntity.badRequest().body(user);
+            //loginAsGuestFailedMessage;
+            //maybe create out response entity with user and String message;
         }
     }
 

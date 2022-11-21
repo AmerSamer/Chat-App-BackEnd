@@ -6,6 +6,9 @@ import java.util.regex.Pattern;
 
 public class Utility {
 
+    public static String guestPrefix = "Guest-";
+    public static String systemEmail = "seselevtion@gmail.com";
+    public static String emailContent = "Chat App Verification Code";
 
     //The length of the password > 6
     //At least one capital letter

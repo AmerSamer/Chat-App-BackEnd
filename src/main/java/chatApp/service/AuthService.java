@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLDataException;
 import java.time.LocalDate;
 
-import static chatApp.Utilities.Utility.encrypt;
-import static chatApp.Utilities.Utility.randomString;
+import static chatApp.Utilities.ExceptionHandler.*;
+import static chatApp.Utilities.Utility.*;
 
 
 //import static chatApp.Utilities.Utility.*;
@@ -38,21 +38,21 @@ public class AuthService {
     public ResponseEntity<String> login(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
-            throw new SQLDataException(String.format("Email %s doesn't exists in users table", user.getEmail()));
+            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-            throw new SQLDataException(String.format("Password %s doesn't match to email", user.getEmail()));
+            throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
         }
         return ResponseEntity.ok().build();
     }
 
     public User addGuest(User user) throws SQLDataException {
-        if (!userRepository.findByName("Guest-" + user.getName()).isEmpty()) {
-            throw new SQLDataException(String.format("Name %s exists in users table", user.getName()));
+        if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
+            throw new SQLDataException(guestNameExistsMessage(user.getName()));
         }
 
-        user.setName("Guest-" + user.getName());
+        user.setName(guestPrefix + user.getName());
         user.setType(UserType.GUEST);
         user.setEmail(Utility.randomString());
         user.setPassword(Utility.randomString());
@@ -62,11 +62,10 @@ public class AuthService {
 
     public User addUser(User user) throws SQLDataException {
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new SQLDataException(String.format("Email %s exists in users table", user.getEmail()));
+            throw new SQLDataException(emailExistsInSystemMessage(user.getEmail()));
         }
         user.setPassword(Utility.encrypt((user.getPassword())));
         user.setType(UserType.GUEST);
-
         sendMessage(user);
 
         return userRepository.save(user);
@@ -76,11 +75,9 @@ public class AuthService {
         String verifyCode = randomString();
         user.setVerifyCode(verifyCode);
         user.setIssueDate(LocalDate.now());
-        String from = "seselevtion@gmail.com";
-        String to = user.getEmail();
-        preConfiguredMessage.setFrom(from);
-        preConfiguredMessage.setTo(to);
-        preConfiguredMessage.setSubject("Chat App Verification Code");
+        preConfiguredMessage.setFrom(systemEmail);
+        preConfiguredMessage.setTo(user.getEmail());
+        preConfiguredMessage.setSubject(emailContent);
         preConfiguredMessage.setText(verifyCode);
         mailSender.send(preConfiguredMessage);
     }
