@@ -50,9 +50,10 @@ public class UserService {
     }
 
     public User addGuest(User user) throws SQLDataException {
-        if (userRepository.findByName(user.getName()) != null) {
+        if (!userRepository.findByName("Guest-" + user.getName()).isEmpty()) {
             throw new SQLDataException(String.format("Name %s exists in users table", user.getName()));
         }
+
 
         user.setName("Guest-" + user.getName());
         user.setType(UserType.GUEST);

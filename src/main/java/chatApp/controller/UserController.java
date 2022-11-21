@@ -64,15 +64,15 @@ public class UserController {
         return userService.getAllUsers();
     }
     @RequestMapping(value = "loginAsGuest", method = RequestMethod.POST)
-    public ResponseEntity<String> loginAsGuest(@RequestBody User user) {
+    public ResponseEntity<User> loginAsGuest(@RequestBody User user) {
         try {
             if (!isValidName(user.getName())) {
-                return ResponseEntity.badRequest().body("Invalid Name!");
+                return ResponseEntity.badRequest().body(user);
             }
-            return ResponseEntity.ok(userService.addGuest(user).toString());
+            return ResponseEntity.ok(userService.addGuest(user));
         } catch (SQLDataException e) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Invalid Name!", e);
+                    HttpStatus.BAD_REQUEST, "Name already exists!", e);
         }
     }
 
