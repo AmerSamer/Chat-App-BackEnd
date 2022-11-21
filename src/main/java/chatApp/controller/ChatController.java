@@ -14,5 +14,15 @@ public class ChatController {
 //    @Autowired
 //    private ChatRoomService chatRoomService;
 
+    @MessageMapping("/hello")
+    @SendTo("/topic/mainChat")
+    public Message greeting(Message.HelloMessage message) throws Exception {
+        return new Message("SYSTEM", message.getName() + "joined the chat");
+    }
 
+    @MessageMapping("/plain")
+    @SendTo("/topic/mainChat")
+    public Message sendPlainMessage(Message message) {
+        return message;
+    }
 }

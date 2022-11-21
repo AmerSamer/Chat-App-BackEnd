@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLDataException;
+import java.util.List;
 
 import static chatApp.Utilities.Utility.*;
 
@@ -54,7 +55,12 @@ public class UserController {
         try {
             return userService.verifyEmail(user);
         } catch (SQLDataException e) {
-            throw new RuntimeException(e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Couldn't activate email", e);
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<User>> getAllUsers() {
+        return userService.getAllUsers();
     }
 }
