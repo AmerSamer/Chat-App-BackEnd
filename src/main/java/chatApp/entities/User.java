@@ -6,7 +6,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user")
-public class User{
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -24,17 +24,18 @@ public class User{
     private int Age;
     @Column()
     private UserType type;
-
-    @Column(name="enabled")
+    @Column()
+    private UserStatuses userStatus;
+    @Column(name = "enabled")
     private boolean enabled;
-    @Column(name="verification_code")
+    @Column(name = "verification_code")
     private String verifyCode;
-    @Column(name="issue_date")
+    @Column(name = "issue_date")
     private LocalDate issueDate;
 
     public User() {
         super();
-        this.enabled=false;
+        this.enabled = false;
     }
 
     public User(String name, String email, String password) {
@@ -137,17 +138,50 @@ public class User{
         this.issueDate = issueDate;
     }
 
+    public UserStatuses getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(UserStatuses userStatus) {
+        this.userStatus = userStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         User user = (User) o;
-        return id.equals(user.id) && name.equals(user.name) && email.equals(user.email) && password.equals(user.password);
+
+        if (Age != user.Age) return false;
+        if (enabled != user.enabled) return false;
+        if (!Objects.equals(id, user.id)) return false;
+        if (!Objects.equals(name, user.name)) return false;
+        if (!Objects.equals(email, user.email)) return false;
+        if (!Objects.equals(password, user.password)) return false;
+        if (!Objects.equals(Photo, user.Photo)) return false;
+        if (!Objects.equals(DateOfBirth, user.DateOfBirth)) return false;
+        if (type != user.type) return false;
+        if (userStatus != user.userStatus) return false;
+        if (!Objects.equals(verifyCode, user.verifyCode)) return false;
+        return Objects.equals(issueDate, user.issueDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, password);
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (Photo != null ? Photo.hashCode() : 0);
+        result = 31 * result + (DateOfBirth != null ? DateOfBirth.hashCode() : 0);
+        result = 31 * result + Age;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (userStatus != null ? userStatus.hashCode() : 0);
+        result = 31 * result + (enabled ? 1 : 0);
+        result = 31 * result + (verifyCode != null ? verifyCode.hashCode() : 0);
+        result = 31 * result + (issueDate != null ? issueDate.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -157,7 +191,14 @@ public class User{
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", Photo='" + Photo + '\'' +
+                ", DateOfBirth=" + DateOfBirth +
+                ", Age=" + Age +
+                ", type=" + type +
+                ", userStatus=" + userStatus +
+                ", enabled=" + enabled +
+                ", verifyCode='" + verifyCode + '\'' +
+                ", issueDate=" + issueDate +
                 '}';
     }
-
 }
