@@ -26,16 +26,14 @@ public class UserService {
     @Autowired
     private SimpleMailMessage preConfiguredMessage;
 
-
     public UserService() {
     }
 
-    public ResponseEntity<String> verifyEmail(User user) throws SQLDataException {
+    public User verifyEmail(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
-
         if(dbUser.isEnabled()){
             throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
         }
@@ -47,15 +45,13 @@ public class UserService {
             throw new SQLDataException(verificationCodeNotMatch);
 
         }
-
         dbUser.setEnabled(true);
         dbUser.setVerifyCode(null);
         dbUser.setType(UserType.REGISTERED);
-        userRepository.save(dbUser);
-        return ResponseEntity.ok().build();
+        return userRepository.save(dbUser);
     }
 
-    public ResponseEntity<String> updateUser(User user) throws SQLDataException {
+    public User updateUser(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
@@ -74,15 +70,14 @@ public class UserService {
         if(user.getPhoto() != null) {
             dbUser.setPhoto(user.getPhoto());
         }
-        userRepository.save(dbUser);
-        return ResponseEntity.ok().body("Update Success");
+        return userRepository.save(dbUser);
     }
     private int calcAge (LocalDate dateOfBirth){
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public void sendMessage(User user){
