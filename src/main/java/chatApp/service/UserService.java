@@ -63,16 +63,19 @@ public class UserService {
 //        dbUser.setEmail(user.getEmail()); //for now the user can not change his email until we provide his own token instead his email as primarykey
         if(user.getName() != null){
             dbUser.setName(user.getName());
-        } else if (user.getPassword() != null) {
+        }
+        if (user.getPassword() != null) {
             dbUser.setPassword(encrypt(user.getPassword()));
-        } else if (user.getDateOfBirth() != null) {
+        }
+        if (user.getDateOfBirth() != null) {
             dbUser.setDateOfBirth(user.getDateOfBirth());
             dbUser.setAge(calcAge(user.getDateOfBirth()));
-        }else if(user.getPhoto() != null) {
+        }
+        if(user.getPhoto() != null) {
             dbUser.setPhoto(user.getPhoto());
         }
         userRepository.save(dbUser);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("Update Success");
     }
     private int calcAge (LocalDate dateOfBirth){
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();

@@ -20,8 +20,6 @@ import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
 
 
-//import static chatApp.Utilities.Utility.*;
-
 @Service
 public class AuthService {
 
@@ -64,7 +62,7 @@ public class AuthService {
         if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new SQLDataException(emailExistsInSystemMessage(user.getEmail()));
         }
-        user.setPassword(Utility.encrypt((user.getPassword())));
+        user.setPassword(encrypt((user.getPassword())));
         user.setType(UserType.GUEST);
         sendMessage(user);
 
