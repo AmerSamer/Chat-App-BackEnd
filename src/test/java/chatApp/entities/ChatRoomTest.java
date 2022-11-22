@@ -1,6 +1,5 @@
 package chatApp.entities;
 
-import chatApp.repository.ChatRoomRepository;
 import chatApp.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,7 @@
 package chatApp.Utilities;
 
+import org.springframework.http.ResponseEntity;
+
 public class ExceptionHandler {
 
     public static String invalidEmailMessage = "Invalid Email, Please try again. Example: sample@test.com";
@@ -11,6 +13,10 @@ public class ExceptionHandler {
     public static String loginAsGuestFailedMessage = "Guest-Name already exists in the system, Please try again.";
 
     public static String verificationCodeNotMatch = "Verification code doesn't match. Please try again";
+    public static String tokenSessionExpired = "Token session expired, please log-in again.";
+
+    public static String getAllUsersFailed = "Couldn't get all users";
+
 
     public static String emailNotExistsMessage(String email) {
         return String.format("Email %s doesn't exists in users table", email);
@@ -34,5 +40,6 @@ public class ExceptionHandler {
     public static String emailIssueTokenPassedMessage(String issueDate) {
         return String.format( "More than 24 hours passed from last verification code issue at %s, new verification code has been sent", issueDate);
     }
+
 
 }
