@@ -36,7 +36,7 @@ public class AuthService {
     private SimpleMailMessage preConfiguredMessage;
 
 
-    public ResponseEntity<String> login(User user) throws SQLDataException {
+    public User login(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
@@ -45,7 +45,7 @@ public class AuthService {
         if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
             throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
         }
-        return ResponseEntity.ok().build();
+        return dbUser;
     }
 
     public User addGuest(User user) throws SQLDataException {
@@ -61,7 +61,6 @@ public class AuthService {
         user.setPassword(Utility.randomString());
         return userRepository.save(user);
     }
-
 
     public User addUser(User user) throws SQLDataException {
         if (userRepository.findByEmail(user.getEmail()) != null) {
