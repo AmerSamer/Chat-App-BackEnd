@@ -1,6 +1,11 @@
 package chatApp.Utilities;
 
+import chatApp.customEntities.UserDTO;
+import chatApp.entities.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -21,7 +26,6 @@ public class Utility {
         return Name.matches("^[ A-Za-z]+$");
     }
 
-
     public static boolean isValidEmail(String emailAddress) {
         String regexPattern = "^(.+)@(\\S+)$";
 
@@ -30,14 +34,31 @@ public class Utility {
                 .matches();
     }
 
-  public static String randomString() {
+    public static String randomString() {
         UUID randomUUID = UUID.randomUUID();
         return randomUUID.toString().replaceAll("_", "");
     }
 
-    public static String encrypt(String stringToEncrypt){
+    public static String encrypt(String stringToEncrypt) {
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         return bEncoder.encode(stringToEncrypt);
+    }
+
+    public static UserDTO userToUserDTO(User user) {
+        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
+    }
+
+    public static List<UserDTO> userListToUserListDTO(List<User> users) {
+        List<UserDTO> listUsers = new ArrayList<>();
+        for (User user: users) {
+            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
+            listUsers.add(userDTO);
+        }
+        return listUsers;
+    }
+
+    public static UserDTO userGuestToUserDTO(User user) {
+        return new UserDTO(user.getId(), user.getName());
     }
 
 }

@@ -1,5 +1,7 @@
 package chatApp.controller;
 
+import chatApp.customEntities.CustomResponse;
+import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import chatApp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
+
 import static chatApp.Utilities.ExceptionHandler.*;
+import static chatApp.Utilities.SuccessHandler.*;
 import static chatApp.Utilities.Utility.*;
 
 @RestController
@@ -18,46 +22,69 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @RequestMapping(value = "register",method = RequestMethod.POST)
-    public ResponseEntity<String> createUser(@RequestBody User user){
+    @RequestMapping(value = "register", method = RequestMethod.POST)
+    public ResponseEntity<CustomResponse<UserDTO>> createUser(@RequestBody User user) {
         try {
             if (!isValidEmail(user.getEmail())) {
-                return ResponseEntity.badRequest().body(invalidEmailMessage);
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
+                return ResponseEntity.badRequest().body(response);
             }
             if (!isValidName(user.getName())) {
-                return ResponseEntity.badRequest().body(invalidNameMessage);
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
+                return ResponseEntity.badRequest().body(response);
             }
             if (!isValidPassword(user.getPassword())) {
-                return ResponseEntity.badRequest().body(invalidPasswordMessage);
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
+                return ResponseEntity.badRequest().body(response);
             }
-            return ResponseEntity.ok(authService.addUser(user).toString());
+            User createUser = authService.addUser(user);
+            UserDTO userDTO = userToUserDTO(createUser);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, registrationSuccessfulMessage);
+            return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(emailExistsInSystemMessage(user.getEmail()));
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, emailExistsInSystemMessage(user.getEmail()));
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public ResponseEntity<User> login(@RequestBody User user) {
+    public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
         try {
+            if (!isValidEmail(user.getEmail())) {
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (!isValidPassword(user.getPassword())) {
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
+                return ResponseEntity.badRequest().body(response);
+            }
             User logUser = authService.login(user);
-            return ResponseEntity.ok().header("token", authService.getKeyEmailsValTokens().get(logUser.getEmail())) .body(logUser);
+            UserDTO userDTO = userToUserDTO(logUser);
+            String header = authService.getKeyEmailsValTokens().get(userDTO.getEmail());
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
+            return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(user);
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, loginFailedMessage);
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
     @RequestMapping(value = "login/guest", method = RequestMethod.POST)
-    public ResponseEntity<User> loginAsGuest(@RequestBody User user) {
+    public ResponseEntity<CustomResponse<UserDTO>> loginAsGuest(@RequestBody User user) {
         try {
             if (!isValidName(user.getName())) {
-                return ResponseEntity.badRequest().body(user);
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
+                return ResponseEntity.badRequest().body(response);
             }
-            return ResponseEntity.ok(authService.addGuest(user));
+            User userGuest = authService.addGuest(user);
+            UserDTO userDTO = userGuestToUserDTO(userGuest);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage);
+            return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(user);
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);
+            return ResponseEntity.badRequest().body(response);
             //loginAsGuestFailedMessage;
             //maybe create out response entity with user and String message;
         }
     }
-
 }
