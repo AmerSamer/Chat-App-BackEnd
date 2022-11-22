@@ -45,13 +45,13 @@ public class Utility {
     }
 
     public static UserDTO userToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus());
+        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
     }
 
     public static List<UserDTO> userListToUserListDTO(List<User> users) {
         List<UserDTO> listUsers = new ArrayList<>();
         for (User user: users) {
-            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus());
+            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
             listUsers.add(userDTO);
         }
         return listUsers;
