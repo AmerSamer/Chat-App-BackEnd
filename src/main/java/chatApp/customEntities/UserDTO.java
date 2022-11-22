@@ -14,7 +14,11 @@ public class UserDTO {
     private int age;
     private UserStatuses userStatus;
 
-    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus) {
+    private UserType userType;
+
+
+
+    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus, UserType userType) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -22,6 +26,7 @@ public class UserDTO {
         this.dateOfBirth = dateOfBirth;
         this.age = age;
         this.userStatus = userStatus;
+        this.userType = userType;
     }
 
     public UserDTO(Long id, String name) {
@@ -84,6 +89,13 @@ public class UserDTO {
     public void setUserStatus(UserStatuses userStatus) {
         this.userStatus = userStatus;
     }
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
 
     @Override
     public String toString() {
@@ -95,6 +107,7 @@ public class UserDTO {
                 ", dateOfBirth=" + dateOfBirth +
                 ", age=" + age +
                 ", userStatus=" + userStatus +
+                ", userType=" + userType +
                 '}';
     }
 }
