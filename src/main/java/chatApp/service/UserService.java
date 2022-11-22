@@ -6,13 +6,16 @@ import chatApp.entities.User;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import java.sql.SQLDataException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -45,6 +48,7 @@ public class UserService {
             throw new SQLDataException(verificationCodeNotMatch);
 
         }
+
         dbUser.setEnabled(true);
         dbUser.setVerifyCode(null);
         dbUser.setType(UserType.REGISTERED);
@@ -77,7 +81,7 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 
     public void sendMessage(User user){

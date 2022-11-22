@@ -5,6 +5,7 @@ import chatApp.Utilities.Utility;
 import chatApp.entities.User;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
+import net.bytebuddy.agent.builder.AgentBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
@@ -46,10 +49,13 @@ public class AuthService {
     }
 
     public User addGuest(User user) throws SQLDataException {
-        if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
+           List<User> users = userRepository.findByName(user.getName()).stream().
+                   filter(currentUser-> currentUser.getType().equals(UserType.GUEST)).collect(Collectors.toList());
+        if (!users.isEmpty()) {
             throw new SQLDataException(guestNameExistsMessage(user.getName()));
         }
-        user.setName(guestPrefix + user.getName());
+
+        user.setName(user.getName());
         user.setType(UserType.GUEST);
         user.setEmail(Utility.randomString());
         user.setPassword(Utility.randomString());
