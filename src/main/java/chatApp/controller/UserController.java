@@ -32,6 +32,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<String> updateUser(@RequestBody User user){
         try {
