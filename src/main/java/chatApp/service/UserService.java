@@ -6,13 +6,16 @@ import chatApp.entities.User;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import java.sql.SQLDataException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -82,7 +85,7 @@ public class UserService {
     }
 
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+        return ResponseEntity.ok(userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList()));
     }
 
     public void sendMessage(User user){
@@ -93,6 +96,8 @@ public class UserService {
         preConfiguredMessage.setTo(user.getEmail());
         preConfiguredMessage.setSubject(emailContent);
         preConfiguredMessage.setText(verifyCode);
+        System.out.println(preConfiguredMessage);
         mailSender.send(preConfiguredMessage);
     }
+
 }
