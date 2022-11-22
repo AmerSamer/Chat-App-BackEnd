@@ -18,6 +18,9 @@ import java.util.List;
 public class UserService {
 
     @Autowired
+    private AuthService authService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -30,10 +33,14 @@ public class UserService {
     public UserService() {
     }
 
-    public ResponseEntity<String> verifyEmail(User user) throws SQLDataException {
+    public ResponseEntity<String> verifyEmail(User user, String token) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
+        }
+
+        if(!authService.getKeyEmailsValTokens().get(user.getEmail()).equals(token)){
+            throw new SQLDataException(tokenSessionExpired);
         }
 
         if(dbUser.isEnabled()){
@@ -45,7 +52,6 @@ public class UserService {
         }
         else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
             throw new SQLDataException(verificationCodeNotMatch);
-
         }
 
         dbUser.setEnabled(true);

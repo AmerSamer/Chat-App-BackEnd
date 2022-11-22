@@ -37,11 +37,12 @@ public class AuthController {
     }
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<User> login(@RequestBody User user) {
         try {
-            return authService.login(user);
+            User logUser = authService.login(user);
+            return ResponseEntity.ok().header("token", authService.getKeyEmailsValTokens().get(logUser.getEmail())) .body(logUser);
         } catch (SQLDataException e) {
-            return ResponseEntity.badRequest().body(loginFailedMessage);
+            return ResponseEntity.badRequest().body(user);
         }
     }
 

@@ -19,9 +19,9 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping(value = "activate", method = RequestMethod.POST)
-    public ResponseEntity<String> verifyEmail(@RequestBody User user){
+    public ResponseEntity<String> verifyEmail(@RequestBody User user, @RequestHeader String token){
         try {
-            return userService.verifyEmail(user);
+            return userService.verifyEmail(user,token);
         } catch (SQLDataException e) {
             return ResponseEntity.badRequest().body(activationEmailFailedMessage);
         }

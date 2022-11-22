@@ -6,8 +6,6 @@ import chatApp.entities.User;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
@@ -32,8 +32,18 @@ public class AuthService {
     @Autowired
     private SimpleMailMessage preConfiguredMessage;
 
+    private Map<String, String> keyTokensValEmails;
+    private Map<String, String> keyEmailsValTokens;
 
-    public ResponseEntity<String> login(User user) throws SQLDataException {
+    private static AuthService singleInstance = null;
+
+
+    AuthService() {
+        this.keyTokensValEmails = getTokensInstance();
+        this.keyEmailsValTokens = getEmailsInstance();
+    }
+
+    public User login(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
@@ -42,7 +52,10 @@ public class AuthService {
         if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
             throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
         }
-        return ResponseEntity.ok().build();
+        String sessionToken = randomString();
+        keyTokensValEmails.put(sessionToken, dbUser.getEmail());
+        keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
+        return dbUser;
     }
 
     public User addGuest(User user) throws SQLDataException {
@@ -54,7 +67,11 @@ public class AuthService {
         user.setType(UserType.GUEST);
         user.setEmail(Utility.randomString());
         user.setPassword(Utility.randomString());
-        return userRepository.save(user);
+        User returnUser = userRepository.save(user);
+        String sessionToken = randomString();
+        keyTokensValEmails.put(sessionToken, user.getEmail());
+//        keyEmailsValTokens.put(user.getEmail(), sessionToken);
+        return returnUser;
     }
 
 
@@ -65,8 +82,11 @@ public class AuthService {
         user.setPassword(encrypt((user.getPassword())));
         user.setType(UserType.GUEST);
         sendMessage(user);
-
-        return userRepository.save(user);
+        User returnUser = userRepository.save(user);
+        String sessionToken = randomString();
+        keyTokensValEmails.put(sessionToken, user.getEmail());
+        keyEmailsValTokens.put(user.getEmail(), sessionToken);
+        return returnUser;
     }
 
     public void sendMessage(User user){
@@ -78,5 +98,31 @@ public class AuthService {
         preConfiguredMessage.setSubject(emailContent);
         preConfiguredMessage.setText(verifyCode);
         mailSender.send(preConfiguredMessage);
+    }
+
+    Map<String, String> getTokensInstance(){
+        if(this.keyTokensValEmails == null)
+            this.keyTokensValEmails = new HashMap<>();
+        return this.keyTokensValEmails;
+    }
+
+    Map<String, String> getEmailsInstance(){
+        if(this.keyEmailsValTokens == null)
+            this.keyEmailsValTokens = new HashMap<>();
+        return this.keyEmailsValTokens;
+    }
+
+    public Map<String, String> getKeyTokensValEmails() {
+        return this.keyTokensValEmails;
+    }
+
+    public Map<String, String> getKeyEmailsValTokens() {
+        return this.keyEmailsValTokens;
+    }
+
+    public static AuthService getInstance(){
+        if(singleInstance ==null)
+            singleInstance = new AuthService();
+        return singleInstance;
     }
 }
