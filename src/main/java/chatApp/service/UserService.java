@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@CrossOrigin
 @Service
 public class UserService {
 
@@ -60,12 +62,24 @@ public class UserService {
         return userRepository.save(dbUser);
     }
 
-    public User updateUser(User user) throws SQLDataException {
-        User dbUser = userRepository.findByEmail(user.getEmail());
+    public User updateUser(User user, String token) throws SQLDataException {
+        String userEmail = authService.getKeyTokensValEmails().get(token);
+        if (userEmail == null) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+
+        User dbUser = userRepository.findByEmail(userEmail);
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
-//        dbUser.setEmail(user.getEmail()); //for now the user can not change his email until we provide his own token instead his email as primarykey
+
+        if(!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)){
+            throw new SQLDataException(tokenSessionExpired);
+        }
+
+        if(user.getEmail() != null){
+            dbUser.setEmail(user.getEmail());
+        }
         if(user.getName() != null){
             dbUser.setName(user.getName());
         }
@@ -85,7 +99,7 @@ public class UserService {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(){
         return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 

@@ -15,6 +15,8 @@ public class ExceptionHandler {
     public static String verificationCodeNotMatch = "Verification code doesn't match. Please try again";
     public static String tokenSessionExpired = "Token session expired, please log-in again.";
 
+    public static String getAllUsersFailed = "Couldn't get all users";
+
 
     public static String emailNotExistsMessage(String email) {
         return String.format("Email %s doesn't exists in users table", email);

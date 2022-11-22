@@ -28,7 +28,7 @@ public class CustomFilter extends GenericFilterBean {
             ServletRequest request,
             ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-            String auth = ((HttpServletRequest) request).getHeader("auth");
+            String auth = ((HttpServletRequest) request).getHeader("token");
             HttpServletResponse res = (HttpServletResponse) response;
 
 //            if(auth == null || authService == null){

@@ -75,7 +75,7 @@ public class AuthService {
         User returnUser = userRepository.save(user);
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, user.getEmail());
-//        keyEmailsValTokens.put(user.getEmail(), sessionToken);
+        keyEmailsValTokens.put(user.getName(), sessionToken);
         return returnUser;
     }
 
@@ -86,11 +86,7 @@ public class AuthService {
         user.setPassword(encrypt((user.getPassword())));
         user.setType(UserType.GUEST);
         sendMessage(user);
-        User returnUser = userRepository.save(user);
-        String sessionToken = randomString();
-        keyTokensValEmails.put(sessionToken, user.getEmail());
-        keyEmailsValTokens.put(user.getEmail(), sessionToken);
-        return returnUser;
+        return userRepository.save(user);
     }
 
     public void sendMessage(User user){

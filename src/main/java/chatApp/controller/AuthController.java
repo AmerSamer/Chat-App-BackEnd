@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLDataException;
 
 import static chatApp.Utilities.ExceptionHandler.*;
-import static chatApp.Utilities.SuccessHandler.*;
+import static chatApp.Utilities.SuccessMessages.*;
 import static chatApp.Utilities.Utility.*;
 
 @RestController
@@ -78,7 +78,8 @@ public class AuthController {
             }
             User userGuest = authService.addGuest(user);
             UserDTO userDTO = userGuestToUserDTO(userGuest);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage);
+            String header = authService.getKeyEmailsValTokens().get(userDTO.getName());
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);

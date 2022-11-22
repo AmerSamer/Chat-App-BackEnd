@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static chatApp.Utilities.ExceptionHandler.*;
-import static chatApp.Utilities.SuccessHandler.*;
+import static chatApp.Utilities.SuccessMessages.*;
 import static chatApp.Utilities.Utility.*;
 
 import java.sql.SQLDataException;
@@ -38,16 +38,16 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
-        List<User> userList = userService.getAllUsers();
-        List<UserDTO> userListDTO = userListToUserListDTO(userList);
-        CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
-        return ResponseEntity.ok().body(response);
+            List<User> userList = userService.getAllUsers();
+            List<UserDTO> userListDTO = userListToUserListDTO(userList);
+            CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
+            return ResponseEntity.ok().body(response);
     }
 
     @RequestMapping(value = "update", method = RequestMethod.PUT)
-    public ResponseEntity<CustomResponse<UserDTO>> updateUser(@RequestBody User user) {
+    public ResponseEntity<CustomResponse<UserDTO>> updateUser(@RequestBody User user, @RequestHeader String token) {
         try {
-            User updateUser = userService.updateUser(user);
+            User updateUser = userService.updateUser(user,token);
             UserDTO userDTO = userToUserDTO(updateUser);
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
