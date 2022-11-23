@@ -35,48 +35,13 @@ public class UserService {
     public UserService() {
     }
 
-    public User verifyEmail(User user, String token) throws SQLDataException {
-        User dbUser = userRepository.findByEmail(user.getEmail());
-        if (dbUser == null) {
-            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
-        }
-
-        if(!authService.getKeyEmailsValTokens().get(user.getEmail()).equals(token)){
-            throw new SQLDataException(tokenSessionExpired);
-        }
-
-        if(dbUser.isEnabled()){
-            throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
-        }
-        else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
-            sendMessage(user);
-            throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-        }
-        else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
-            throw new SQLDataException(verificationCodeNotMatch);
-        }
-
-        dbUser.setEnabled(true);
-        dbUser.setVerifyCode(null);
-        dbUser.setType(UserType.REGISTERED);
-        return userRepository.save(dbUser);
-    }
 
     public User updateUser(User user, String token) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
-        if (userEmail == null) {
-            throw new SQLDataException(tokenSessionExpired);
-        }
-
         User dbUser = userRepository.findByEmail(userEmail);
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
-
-        if(!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)){
-            throw new SQLDataException(tokenSessionExpired);
-        }
-
         if(user.getEmail() != null){
             dbUser.setEmail(user.getEmail());
         }

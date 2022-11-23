@@ -9,8 +9,10 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String sender; //String or User objs
+    private String sender;
     private String content;
+    private String roomId;
+
 
     public Message() {
     }
@@ -18,6 +20,20 @@ public class Message {
     public Message(String sender, String content) {
         this.sender = sender;
         this.content = content;
+    }
+
+    public Message(String sender, String content,String roomId) {
+        this.sender = sender;
+        this.content = content;
+        this.roomId = roomId;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
 
     public String getSender() {
@@ -58,6 +74,7 @@ public class Message {
         public String getName() {
             return name;
         }
+
 
         @Override
         public String toString() {

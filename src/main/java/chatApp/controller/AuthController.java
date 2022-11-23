@@ -88,4 +88,17 @@ public class AuthController {
             //maybe create out response entity with user and String message;
         }
     }
+
+    @RequestMapping(value = "activate", method = RequestMethod.POST)
+    public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {
+        try {
+            User userVerify = authService.verifyEmail(user);
+            UserDTO userDTO = userToUserDTO(userVerify);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, activationEmailSuccessfulMessage);
+            return ResponseEntity.ok().body(response);
+        } catch (SQLDataException e) {
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, activationEmailFailedMessage);
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

@@ -21,8 +21,10 @@ import java.util.stream.Collectors;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
+@CrossOrigin
 @Service
 public class AuthService {
 
@@ -37,8 +39,6 @@ public class AuthService {
 
     private Map<String, String> keyTokensValEmails;
     private Map<String, String> keyEmailsValTokens;
-
-    private static AuthService singleInstance = null;
 
 
     AuthService() {
@@ -89,6 +89,28 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+    public User verifyEmail(User user) throws SQLDataException {
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        if (dbUser == null) {
+            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
+        }
+        if(dbUser.isEnabled()){
+            throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
+        }
+        else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
+            sendMessage(user);
+            throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
+        }
+        else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
+            throw new SQLDataException(verificationCodeNotMatch);
+        }
+
+        dbUser.setEnabled(true);
+        dbUser.setVerifyCode(null);
+        dbUser.setType(UserType.REGISTERED);
+        return userRepository.save(dbUser);
+    }
+
     public void sendMessage(User user){
         String verifyCode = randomString();
         user.setVerifyCode(verifyCode);
@@ -120,9 +142,4 @@ public class AuthService {
         return this.keyEmailsValTokens;
     }
 
-    public static AuthService getInstance(){
-        if(singleInstance ==null)
-            singleInstance = new AuthService();
-        return singleInstance;
-    }
 }
