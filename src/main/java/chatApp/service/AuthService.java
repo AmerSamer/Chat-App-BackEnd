@@ -3,6 +3,7 @@ package chatApp.service;
 
 import chatApp.Utilities.Utility;
 import chatApp.entities.User;
+import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -58,19 +59,18 @@ public class AuthService {
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, dbUser.getEmail());
         keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
+        dbUser.setUserStatus(UserStatuses.ONLINE);
+        userRepository.save(dbUser);
         return dbUser;
     }
 
     public User addGuest(User user) throws SQLDataException {
-           List<User> users = userRepository.findByName(user.getName()).stream().
-                   filter(currentUser-> currentUser.getType().equals(UserType.GUEST)).collect(Collectors.toList());
-        if (!users.isEmpty()) {
+        if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
             throw new SQLDataException(guestNameExistsMessage(user.getName()));
         }
-
-        user.setName(user.getName());
+        user.setEmail(user.getName() + "@gmail.com");
+        user.setName(guestPrefix + user.getName());
         user.setType(UserType.GUEST);
-        user.setEmail(Utility.randomString());
         user.setPassword(Utility.randomString());
         User returnUser = userRepository.save(user);
         String sessionToken = randomString();

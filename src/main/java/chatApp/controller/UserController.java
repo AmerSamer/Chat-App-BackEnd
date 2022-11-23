@@ -37,5 +37,23 @@ public class UserController {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
+
+
+    }
+
+    @RequestMapping(value = "logout", method = RequestMethod.POST)
+    public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestBody User user) {
+        try {
+            User logoutUser = userService.logoutUser(user);
+            UserDTO userDTO = userToUserDTO(logoutUser);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, logoutSuccessfulMessage);
+            return ResponseEntity.ok().body(response);
+
+        } catch (SQLDataException e) {
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, logoutUserFailedMessage);
+            return ResponseEntity.badRequest().body(response);
+        }
+
+
     }
 }
