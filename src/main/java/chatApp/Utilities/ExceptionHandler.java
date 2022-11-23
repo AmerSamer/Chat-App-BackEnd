@@ -12,6 +12,8 @@ public class ExceptionHandler {
     public static String updateUserFailedMessage = "Update user failed. Please try again";
     public static String loginAsGuestFailedMessage = "Guest-Name already exists in the system, Please try again.";
 
+    public static String logoutUserFailedMessage = "Logout user failed. Please try again";
+
     public static String verificationCodeNotMatch = "Verification code doesn't match. Please try again";
     public static String tokenSessionExpired = "Token session expired, please log-in again.";
 
