@@ -3,6 +3,8 @@ package chatApp.controller;
 import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
+import chatApp.entities.UserStatuses;
+import chatApp.repository.UserRepository;
 import chatApp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
