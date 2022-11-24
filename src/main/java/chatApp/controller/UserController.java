@@ -57,8 +57,6 @@ public class UserController {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
-
-
     }
 
     @RequestMapping(value = "logout", method = RequestMethod.POST)

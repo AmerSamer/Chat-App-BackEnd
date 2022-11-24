@@ -94,8 +94,6 @@ public class UserService {
         return userRepository.save(dbUser);
     }
 
-//    private int calcAge(LocalDate dateOfBirth) {
-
     public User logoutUser(User user) throws SQLDataException {
         System.out.println(user.getEmail());
         authService.getKeyEmailsValTokens().replace(user.getEmail(), null);
@@ -104,7 +102,6 @@ public class UserService {
         dbUser.setUserStatus(UserStatuses.OFFLINE);
         return userRepository.save(dbUser);
     }
-
 
     private int calcAge(LocalDate dateOfBirth) {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
