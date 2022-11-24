@@ -40,10 +40,10 @@ public class UserService {
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
-        if(!user.getEmail().equals("")){
+        if (!user.getEmail().equals("")) {
             dbUser.setEmail(user.getEmail());
         }
-        if(!user.getName().equals("")){
+        if (!user.getName().equals("")) {
             dbUser.setName(user.getName());
         }
         if (!user.getPassword().equals("")) {
@@ -53,7 +53,7 @@ public class UserService {
             dbUser.setDateOfBirth(user.getDateOfBirth());
             dbUser.setAge(calcAge(user.getDateOfBirth()));
         }
-        if(!user.getPhoto().equals("")) {
+        if (!user.getPhoto().equals("")) {
             dbUser.setPhoto(user.getPhoto());
         }
         return userRepository.save(dbUser);
@@ -64,10 +64,9 @@ public class UserService {
         authService.getKeyTokensValEmails().remove(token);
         authService.getKeyEmailsValTokens().remove(userEmail);
         User dbUser = userRepository.findByEmail(userEmail);
-        if(dbUser.getType().equals(UserType.GUEST)){
+        if (dbUser.getType().equals(UserType.GUEST)) {
             userRepository.delete(dbUser);
-        }
-        else{
+        } else {
             dbUser.setUserStatus(UserStatuses.OFFLINE);
         }
         return userRepository.save(dbUser);
@@ -97,6 +96,26 @@ public class UserService {
             dbUser.setMute(false);
         } else {
             dbUser.setMute(true);
+        }
+        return userRepository.save(dbUser);
+    }
+
+    public User updateStatusUser(Long id, String token) throws SQLDataException {
+        String userEmail = authService.getKeyTokensValEmails().get(token);
+        if (userEmail == null) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        User dbUser = userRepository.getById(id);
+        if (dbUser == null) {
+            throw new SQLDataException(emailNotExistsMessage(dbUser.getEmail()));
+        }
+        if (!authService.getKeyEmailsValTokens().get(dbUser.getName()).equals(token)) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        if (dbUser.getUserStatus() == UserStatuses.ONLINE) {
+            dbUser.setUserStatus(UserStatuses.AWAY);
+        } else if (dbUser.getUserStatus() == UserStatuses.AWAY) {
+            dbUser.setUserStatus(UserStatuses.ONLINE);
         }
         return userRepository.save(dbUser);
     }
