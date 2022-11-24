@@ -15,10 +15,10 @@ public class UserDTO {
     private UserStatuses userStatus;
 
     private UserType userType;
+    private boolean isMute;
 
 
-
-    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus, UserType userType) {
+    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus, UserType userType, boolean isMute) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -27,11 +27,13 @@ public class UserDTO {
         this.age = age;
         this.userStatus = userStatus;
         this.userType = userType;
+        this.isMute = isMute;
     }
 
-    public UserDTO(Long id, String name) {
+    public UserDTO(Long id, String name, boolean isMute) {
         this.id = id;
         this.name = name;
+        this.isMute = isMute;
     }
 
     public Long getId() {
@@ -97,6 +99,14 @@ public class UserDTO {
         this.userType = userType;
     }
 
+    public boolean isMute() {
+        return isMute;
+    }
+
+    public void setMute(boolean mute) {
+        isMute = mute;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
@@ -108,6 +118,7 @@ public class UserDTO {
                 ", age=" + age +
                 ", userStatus=" + userStatus +
                 ", userType=" + userType +
+                ", isMute=" + isMute +
                 '}';
     }
 }

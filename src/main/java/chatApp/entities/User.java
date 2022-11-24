@@ -32,6 +32,8 @@ public class User {
     private String verifyCode;
     @Column(name = "issue_date")
     private LocalDate issueDate;
+    @Column(name = "is_mute")
+    private boolean isMute;
 
     public User() {
         super();
@@ -43,6 +45,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.enabled = false;
+        this.isMute = false;
     }
 
     public User(String email, String password) {
@@ -146,6 +149,14 @@ public class User {
         this.userStatus = userStatus;
     }
 
+    public boolean isMute() {
+        return isMute;
+    }
+
+    public void setMute(boolean mute) {
+        isMute = mute;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -155,6 +166,7 @@ public class User {
 
         if (age != user.age) return false;
         if (enabled != user.enabled) return false;
+        if (isMute != user.isMute) return false;
         if (!Objects.equals(id, user.id)) return false;
         if (!Objects.equals(name, user.name)) return false;
         if (!Objects.equals(email, user.email)) return false;
@@ -181,6 +193,7 @@ public class User {
         result = 31 * result + (enabled ? 1 : 0);
         result = 31 * result + (verifyCode != null ? verifyCode.hashCode() : 0);
         result = 31 * result + (issueDate != null ? issueDate.hashCode() : 0);
+        result = 31 * result + (isMute ? 1 : 0);
         return result;
     }
 
@@ -191,14 +204,15 @@ public class User {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", photo='" + photo + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", age=" + age +
                 ", type=" + type +
                 ", userStatus=" + userStatus +
                 ", enabled=" + enabled +
                 ", verifyCode='" + verifyCode + '\'' +
                 ", issueDate=" + issueDate +
-                ", photo='" + photo + '\'' +
-                ", dateOfBirth=" + dateOfBirth +
-                ", age=" + age +
+                ", isMute=" + isMute +
                 '}';
     }
 }

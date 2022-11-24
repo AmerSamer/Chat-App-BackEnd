@@ -2,6 +2,7 @@ package chatApp.service;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
+
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @CrossOrigin
 @Service
 public class UserService {
@@ -37,6 +39,30 @@ public class UserService {
     public UserService() {
     }
 
+    public User verifyEmail(User user, String token) throws SQLDataException {
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        if (dbUser == null) {
+            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
+        }
+
+        if (!authService.getKeyEmailsValTokens().get(user.getEmail()).equals(token)) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+
+        if (dbUser.isEnabled()) {
+            throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
+        } else if (LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))) {
+            sendMessage(user);
+            throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
+        } else if (!dbUser.getVerifyCode().equals(user.getVerifyCode())) {
+            throw new SQLDataException(verificationCodeNotMatch);
+        }
+
+        dbUser.setEnabled(true);
+        dbUser.setVerifyCode(null);
+        dbUser.setType(UserType.REGISTERED);
+        return userRepository.save(dbUser);
+    }
 
     public User updateUser(User user, String token) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
@@ -44,10 +70,15 @@ public class UserService {
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
-        if(user.getEmail() != null){
+
+        if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+
+        if (user.getEmail() != null) {
             dbUser.setEmail(user.getEmail());
         }
-        if(user.getName() != null){
+        if (user.getName() != null) {
             dbUser.setName(user.getName());
         }
         if (user.getPassword() != null) {
@@ -57,32 +88,33 @@ public class UserService {
             dbUser.setDateOfBirth(user.getDateOfBirth());
             dbUser.setAge(calcAge(user.getDateOfBirth()));
         }
-        if(user.getPhoto() != null) {
+        if (user.getPhoto() != null) {
             dbUser.setPhoto(user.getPhoto());
         }
         return userRepository.save(dbUser);
     }
 
+//    private int calcAge(LocalDate dateOfBirth) {
+
     public User logoutUser(User user) throws SQLDataException {
         System.out.println(user.getEmail());
-        authService.getKeyEmailsValTokens().replace(user.getEmail(),null);
-       System.out.println( authService.getKeyEmailsValTokens().get(user.getEmail()));
+        authService.getKeyEmailsValTokens().replace(user.getEmail(), null);
+        System.out.println(authService.getKeyEmailsValTokens().get(user.getEmail()));
         User dbUser = userRepository.findByEmail(user.getEmail());
         dbUser.setUserStatus(UserStatuses.OFFLINE);
         return userRepository.save(dbUser);
     }
 
 
-
-    private int calcAge (LocalDate dateOfBirth){
+    private int calcAge(LocalDate dateOfBirth) {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 
-    public void sendMessage(User user){
+    public void sendMessage(User user) {
         String verifyCode = randomString();
         user.setVerifyCode(verifyCode);
         user.setIssueDate(LocalDate.now());
@@ -92,4 +124,25 @@ public class UserService {
         preConfiguredMessage.setText(verifyCode);
         mailSender.send(preConfiguredMessage);
     }
+
+    public User updateMuteUnmuteUser(Long id, String token) throws SQLDataException {
+        String userEmail = authService.getKeyTokensValEmails().get(token);
+        if (userEmail == null) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        User dbUser = userRepository.getById(id);
+        if (dbUser == null) {
+            throw new SQLDataException(emailNotExistsMessage(dbUser.getEmail()));
+        }
+        if (!authService.getKeyEmailsValTokens().get(dbUser.getName()).equals(token)) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        if (dbUser.isMute()) {
+            dbUser.setMute(false);
+        } else {
+            dbUser.setMute(true);
+        }
+        return userRepository.save(dbUser);
+    }
 }
+
