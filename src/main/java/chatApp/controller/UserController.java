@@ -6,6 +6,7 @@ import chatApp.entities.User;
 import chatApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.web.server.ServerSecurityMarker;
 import org.springframework.web.bind.annotation.*;
 
 import static chatApp.Utilities.ExceptionHandler.*;
@@ -56,7 +57,22 @@ public class UserController {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
+
+
     }
+
+    @RequestMapping(value = "logout", method = RequestMethod.POST)
+    public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestBody User user) {
+        try {
+            User logoutUser = userService.logoutUser(user);
+            UserDTO userDTO = userToUserDTO(logoutUser);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, logoutSuccessfulMessage);
+            return ResponseEntity.ok().body(response);
+
+        } catch (SQLDataException e) {
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, logoutUserFailedMessage);
+            return ResponseEntity.badRequest().body(response);
+        }
 
     @RequestMapping(value = "update/mute", params = {"id"}, method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser(@RequestParam Long id, @RequestHeader String token) {
@@ -72,4 +88,5 @@ public class UserController {
         }
     }
 
+    }
 }

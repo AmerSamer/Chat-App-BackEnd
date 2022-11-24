@@ -3,6 +3,7 @@ package chatApp.service;
 
 import chatApp.Utilities.Utility;
 import chatApp.entities.User;
+import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -21,8 +22,10 @@ import java.util.stream.Collectors;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
+@CrossOrigin
 @Service
 public class AuthService {
 
@@ -37,8 +40,6 @@ public class AuthService {
 
     private Map<String, String> keyTokensValEmails;
     private Map<String, String> keyEmailsValTokens;
-
-    private static AuthService singleInstance = null;
 
 
     AuthService() {
@@ -58,19 +59,18 @@ public class AuthService {
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, dbUser.getEmail());
         keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
+        dbUser.setUserStatus(UserStatuses.ONLINE);
+        userRepository.save(dbUser);
         return dbUser;
     }
 
     public User addGuest(User user) throws SQLDataException {
-           List<User> users = userRepository.findByName(user.getName()).stream().
-                   filter(currentUser-> currentUser.getType().equals(UserType.GUEST)).collect(Collectors.toList());
-        if (!users.isEmpty()) {
+        if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
             throw new SQLDataException(guestNameExistsMessage(user.getName()));
         }
-
-        user.setName(user.getName());
+        user.setEmail(user.getName() + "@gmail.com");
+        user.setName(guestPrefix + user.getName());
         user.setType(UserType.GUEST);
-        user.setEmail(Utility.randomString());
         user.setPassword(Utility.randomString());
         User returnUser = userRepository.save(user);
         String sessionToken = randomString();
@@ -87,6 +87,28 @@ public class AuthService {
         user.setType(UserType.GUEST);
         sendMessage(user);
         return userRepository.save(user);
+    }
+
+    public User verifyEmail(User user) throws SQLDataException {
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        if (dbUser == null) {
+            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
+        }
+        if(dbUser.isEnabled()){
+            throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
+        }
+        else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
+            sendMessage(user);
+            throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
+        }
+        else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
+            throw new SQLDataException(verificationCodeNotMatch);
+        }
+
+        dbUser.setEnabled(true);
+        dbUser.setVerifyCode(null);
+        dbUser.setType(UserType.REGISTERED);
+        return userRepository.save(dbUser);
     }
 
     public void sendMessage(User user){
@@ -120,9 +142,4 @@ public class AuthService {
         return this.keyEmailsValTokens;
     }
 
-    public static AuthService getInstance(){
-        if(singleInstance ==null)
-            singleInstance = new AuthService();
-        return singleInstance;
-    }
 }

@@ -2,13 +2,14 @@ package chatApp.service;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
-
 import chatApp.entities.User;
+import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -17,7 +18,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @CrossOrigin
 @Service
 public class UserService {
@@ -64,10 +64,6 @@ public class UserService {
 
     public User updateUser(User user, String token) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
-        if (userEmail == null) {
-            throw new SQLDataException(tokenSessionExpired);
-        }
-
         User dbUser = userRepository.findByEmail(userEmail);
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
@@ -77,7 +73,7 @@ public class UserService {
             throw new SQLDataException(tokenSessionExpired);
         }
 
-        if (user.getEmail() != null) {
+        if(user.getEmail() != null){
             dbUser.setEmail(user.getEmail());
         }
         if (user.getName() != null) {
@@ -97,6 +93,19 @@ public class UserService {
     }
 
     private int calcAge(LocalDate dateOfBirth) {
+
+    public User logoutUser(User user) throws SQLDataException {
+        System.out.println(user.getEmail());
+        authService.getKeyEmailsValTokens().replace(user.getEmail(),null);
+       System.out.println( authService.getKeyEmailsValTokens().get(user.getEmail()));
+        User dbUser = userRepository.findByEmail(user.getEmail());
+        dbUser.setUserStatus(UserStatuses.OFFLINE);
+        return userRepository.save(dbUser);
+    }
+
+
+
+    private int calcAge (LocalDate dateOfBirth){
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
