@@ -15,8 +15,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import static chatApp.Utilities.Utility.*;
+
 
 @Component
 public class PermissionFilter extends GenericFilterBean {
@@ -34,23 +34,23 @@ public class PermissionFilter extends GenericFilterBean {
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-        String auth = req.getHeader("token");
+        String auth = req.getParameter("token");
         String path = req.getRequestURI();
-        List<String> paths = new ArrayList<>();
-        paths.add("/sign");
-        paths.add("/ws");
-        paths.add("/chat");
-        if (paths.stream().noneMatch(path::contains)) {
+        if (permissionPathsForAll.stream().noneMatch(path::contains)) {
             if (auth == null) {
                 res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Authorization header needed");
-            } else if (!authService.getKeyTokensValEmails().containsKey(auth)) {
+            }
+            else if (!authService.getKeyTokensValEmails().containsKey(auth)) {
+                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
+            }
+            else{
                 String userEmail = authService.getKeyTokensValEmails().get(auth);
                 if (!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))) {
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
                 }
                 User dbUser = userRepository.findByEmail(userEmail);
                 if (dbUser.getType() == UserType.GUEST) {
-                    if (!"/chat".equals(path)) {
+                    if (permissionPathsForGuest.stream().noneMatch(path::contains)) {
                         res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
                     }
                 }
@@ -58,4 +58,5 @@ public class PermissionFilter extends GenericFilterBean {
         }
         chain.doFilter(request, response);
     }
+
 }

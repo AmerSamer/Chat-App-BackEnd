@@ -4,6 +4,7 @@ import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,10 @@ public class Utility {
     public static String guestPrefix = "Guest-";
     public static String systemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
+
+    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat"));
+    public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/user/logout"));
+
 
     //The length of the password > 6
     //At least one capital letter
@@ -45,6 +50,12 @@ public class Utility {
     }
 
     public static UserDTO userToUserDTO(User user) {
+        if(user.getEmail() != null){
+            UserDTO returnDTO  = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
+        }
+        else{
+            UserDTO returnDTO  = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
+        }
         return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
     }
 
@@ -58,7 +69,19 @@ public class Utility {
     }
 
     public static UserDTO userGuestToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getName());
+        return new UserDTO(user.getId(), user.getName(), user.getEmail());
+    }
+
+    public static int calcAge (LocalDate dateOfBirth){
+        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
+    }
+
+    public static List<String> paths(){
+        List<String> paths = new ArrayList<>();
+        paths.add("/sign");
+        paths.add("/ws");
+        paths.add("/chat");
+        return paths;
     }
 
 }

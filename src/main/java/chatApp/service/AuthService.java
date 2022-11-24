@@ -72,10 +72,11 @@ public class AuthService {
         user.setName(guestPrefix + user.getName());
         user.setType(UserType.GUEST);
         user.setPassword(Utility.randomString());
+        user.setUserStatus(UserStatuses.ONLINE);
         User returnUser = userRepository.save(user);
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, user.getEmail());
-        keyEmailsValTokens.put(user.getName(), sessionToken);
+        keyEmailsValTokens.put(user.getEmail(), sessionToken);
         return returnUser;
     }
 

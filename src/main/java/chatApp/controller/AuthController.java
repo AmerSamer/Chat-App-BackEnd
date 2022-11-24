@@ -3,8 +3,6 @@ package chatApp.controller;
 import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
-import chatApp.entities.UserStatuses;
-import chatApp.repository.UserRepository;
 import chatApp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -80,14 +78,12 @@ public class AuthController {
             }
             User userGuest = authService.addGuest(user);
             UserDTO userDTO = userGuestToUserDTO(userGuest);
-            String header = authService.getKeyEmailsValTokens().get(userDTO.getName());
+            String header = authService.getKeyEmailsValTokens().get(userDTO.getEmail());
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);
             return ResponseEntity.badRequest().body(response);
-            //loginAsGuestFailedMessage;
-            //maybe create out response entity with user and String message;
         }
     }
 
