@@ -2,6 +2,7 @@ package chatApp.service;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
+
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @CrossOrigin
 @Service
 public class UserService {
@@ -73,7 +75,7 @@ public class UserService {
             throw new SQLDataException(tokenSessionExpired);
         }
 
-        if(user.getEmail() != null){
+        if (user.getEmail() != null) {
             dbUser.setEmail(user.getEmail());
         }
         if (user.getName() != null) {
@@ -92,20 +94,19 @@ public class UserService {
         return userRepository.save(dbUser);
     }
 
-    private int calcAge(LocalDate dateOfBirth) {
+//    private int calcAge(LocalDate dateOfBirth) {
 
     public User logoutUser(User user) throws SQLDataException {
         System.out.println(user.getEmail());
-        authService.getKeyEmailsValTokens().replace(user.getEmail(),null);
-       System.out.println( authService.getKeyEmailsValTokens().get(user.getEmail()));
+        authService.getKeyEmailsValTokens().replace(user.getEmail(), null);
+        System.out.println(authService.getKeyEmailsValTokens().get(user.getEmail()));
         User dbUser = userRepository.findByEmail(user.getEmail());
         dbUser.setUserStatus(UserStatuses.OFFLINE);
         return userRepository.save(dbUser);
     }
 
 
-
-    private int calcAge (LocalDate dateOfBirth){
+    private int calcAge(LocalDate dateOfBirth) {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
@@ -144,3 +145,4 @@ public class UserService {
         return userRepository.save(dbUser);
     }
 }
+
