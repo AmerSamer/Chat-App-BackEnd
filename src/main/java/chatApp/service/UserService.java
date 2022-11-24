@@ -2,6 +2,7 @@ package chatApp.service;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
+
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @CrossOrigin
 @Service
 public class UserService {
@@ -31,7 +33,6 @@ public class UserService {
 
     public UserService() {
     }
-
 
     public User updateUser(User user, String token) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
@@ -72,8 +73,32 @@ public class UserService {
         return userRepository.save(dbUser);
     }
 
-    public List<User> getAllUsers(){
+    private int calcAge(LocalDate dateOfBirth) {
+        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
+    }
+
+    public List<User> getAllUsers() {
         return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 
+    public User updateMuteUnmuteUser(Long id, String token) throws SQLDataException {
+        String userEmail = authService.getKeyTokensValEmails().get(token);
+        if (userEmail == null) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        User dbUser = userRepository.getById(id);
+        if (dbUser == null) {
+            throw new SQLDataException(emailNotExistsMessage(dbUser.getEmail()));
+        }
+        if (!authService.getKeyEmailsValTokens().get(dbUser.getName()).equals(token)) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        if (dbUser.isMute()) {
+            dbUser.setMute(false);
+        } else {
+            dbUser.setMute(true);
+        }
+        return userRepository.save(dbUser);
+    }
 }
+

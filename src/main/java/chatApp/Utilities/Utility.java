@@ -50,26 +50,20 @@ public class Utility {
     }
 
     public static UserDTO userToUserDTO(User user) {
-        if(user.getEmail() != null){
-            UserDTO returnDTO  = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
-        }
-        else{
-            UserDTO returnDTO  = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
-        }
-        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
+            return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(), user.getType(), user.isMute());
     }
 
     public static List<UserDTO> userListToUserListDTO(List<User> users) {
         List<UserDTO> listUsers = new ArrayList<>();
         for (User user: users) {
-            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType());
+            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType(), user.isMute());
             listUsers.add(userDTO);
         }
         return listUsers;
     }
 
     public static UserDTO userGuestToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getName(), user.getEmail());
+        return new UserDTO(user.getId(), user.getName(),user.getEmail(), user.isMute());
     }
 
     public static int calcAge (LocalDate dateOfBirth){

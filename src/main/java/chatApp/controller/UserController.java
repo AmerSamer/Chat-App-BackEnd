@@ -14,7 +14,6 @@ import static chatApp.Utilities.Utility.*;
 
 import java.sql.SQLDataException;
 
-
 @RestController
 @CrossOrigin
 @RequestMapping("/user")
@@ -47,8 +46,6 @@ public class UserController {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
-
-
     }
 
     @RequestMapping(value = "logout", method = RequestMethod.POST)
@@ -61,6 +58,21 @@ public class UserController {
 
         } catch (SQLDataException e) {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, logoutUserFailedMessage);
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @RequestMapping(value = "update/mute", params = {"id"}, method = RequestMethod.PATCH)
+    public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser(@RequestParam Long id, @RequestHeader String
+            token) {
+        try {
+            User updateUser = userService.updateMuteUnmuteUser(id, token);
+            UserDTO userDTO = userToUserDTO(updateUser);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateMuteUnmuteUserSuccessfulMessage);
+            return ResponseEntity.ok().body(response);
+
+        } catch (SQLDataException e) {
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
     }
