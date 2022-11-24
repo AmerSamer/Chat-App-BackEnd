@@ -30,38 +30,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private static JavaMailSender mailSender;
-
-    @Autowired
-    private SimpleMailMessage preConfiguredMessage;
 
     public UserService() {
-    }
-
-    public User verifyEmail(User user, String token) throws SQLDataException {
-        User dbUser = userRepository.findByEmail(user.getEmail());
-        if (dbUser == null) {
-            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
-        }
-
-        if (!authService.getKeyEmailsValTokens().get(user.getEmail()).equals(token)) {
-            throw new SQLDataException(tokenSessionExpired);
-        }
-
-        if (dbUser.isEnabled()) {
-            throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
-        } else if (LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))) {
-            sendMessage(user);
-            throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-        } else if (!dbUser.getVerifyCode().equals(user.getVerifyCode())) {
-            throw new SQLDataException(verificationCodeNotMatch);
-        }
-
-        dbUser.setEnabled(true);
-        dbUser.setVerifyCode(null);
-        dbUser.setType(UserType.REGISTERED);
-        return userRepository.save(dbUser);
     }
 
     public User updateUser(User user, String token) throws SQLDataException {
@@ -70,36 +40,36 @@ public class UserService {
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
-
-        if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
-            throw new SQLDataException(tokenSessionExpired);
-        }
-
-        if (user.getEmail() != null) {
+        if(!user.getEmail().equals("")){
             dbUser.setEmail(user.getEmail());
         }
-        if (user.getName() != null) {
+        if(!user.getName().equals("")){
             dbUser.setName(user.getName());
         }
-        if (user.getPassword() != null) {
+        if (!user.getPassword().equals("")) {
             dbUser.setPassword(encrypt(user.getPassword()));
         }
         if (user.getDateOfBirth() != null) {
             dbUser.setDateOfBirth(user.getDateOfBirth());
             dbUser.setAge(calcAge(user.getDateOfBirth()));
         }
-        if (user.getPhoto() != null) {
+        if(!user.getPhoto().equals("")) {
             dbUser.setPhoto(user.getPhoto());
         }
         return userRepository.save(dbUser);
     }
 
-    public User logoutUser(User user) throws SQLDataException {
-        System.out.println(user.getEmail());
-        authService.getKeyEmailsValTokens().replace(user.getEmail(), null);
-        System.out.println(authService.getKeyEmailsValTokens().get(user.getEmail()));
-        User dbUser = userRepository.findByEmail(user.getEmail());
-        dbUser.setUserStatus(UserStatuses.OFFLINE);
+    public User logoutUser(String token) throws SQLDataException {
+        String userEmail = authService.getKeyTokensValEmails().get(token);
+        authService.getKeyTokensValEmails().remove(token);
+        authService.getKeyEmailsValTokens().remove(userEmail);
+        User dbUser = userRepository.findByEmail(userEmail);
+        if(dbUser.getType().equals(UserType.GUEST)){
+            userRepository.delete(dbUser);
+        }
+        else{
+            dbUser.setUserStatus(UserStatuses.OFFLINE);
+        }
         return userRepository.save(dbUser);
     }
 
@@ -109,17 +79,6 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
-    }
-
-    public void sendMessage(User user) {
-        String verifyCode = randomString();
-        user.setVerifyCode(verifyCode);
-        user.setIssueDate(LocalDate.now());
-        preConfiguredMessage.setFrom(systemEmail);
-        preConfiguredMessage.setTo(user.getEmail());
-        preConfiguredMessage.setSubject(emailContent);
-        preConfiguredMessage.setText(verifyCode);
-        mailSender.send(preConfiguredMessage);
     }
 
     public User updateMuteUnmuteUser(Long id, String token) throws SQLDataException {

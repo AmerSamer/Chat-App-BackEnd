@@ -30,9 +30,10 @@ public class UserDTO {
         this.isMute = isMute;
     }
 
-    public UserDTO(Long id, String name, boolean isMute) {
+    public UserDTO(Long id, String name, String email, boolean isMute) {
         this.id = id;
         this.name = name;
+        this.email = email;
         this.isMute = isMute;
     }
 
