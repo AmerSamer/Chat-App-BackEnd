@@ -18,9 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-
-@CrossOrigin
 @Component
 public class PermissionFilter extends GenericFilterBean {
 

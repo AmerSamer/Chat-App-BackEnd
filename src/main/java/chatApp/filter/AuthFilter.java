@@ -1,7 +1,6 @@
 package chatApp.filter;
 
 import chatApp.service.AuthService;
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
@@ -14,12 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-
-@CrossOrigin
 @Component
 public class AuthFilter extends GenericFilterBean {
 
@@ -33,8 +28,6 @@ public class AuthFilter extends GenericFilterBean {
             FilterChain chain) throws IOException, ServletException {
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse res = (HttpServletResponse) response;
-            Enumeration<String> check = req.getHeaders("token");
-            System.out.println(req.getHeaderNames());
             String auth = req.getHeader("token");
             String path = req.getRequestURI();
             List<String> paths = new ArrayList<>();
