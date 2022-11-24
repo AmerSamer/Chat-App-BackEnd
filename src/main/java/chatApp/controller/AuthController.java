@@ -61,7 +61,8 @@ public class AuthController {
             User logUser = authService.login(user);
             UserDTO userDTO = userToUserDTO(logUser);
             String header = authService.getKeyEmailsValTokens().get(userDTO.getEmail());
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
+
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header, userDTO.getName());
             return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginFailedMessage);
@@ -79,7 +80,7 @@ public class AuthController {
             User userGuest = authService.addGuest(user);
             UserDTO userDTO = userGuestToUserDTO(userGuest);
             String header = authService.getKeyEmailsValTokens().get(userDTO.getEmail());
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header, userDTO.getName());
             return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);

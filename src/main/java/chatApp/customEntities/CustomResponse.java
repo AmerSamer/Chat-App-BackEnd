@@ -6,16 +6,17 @@ public class CustomResponse<T> {
     private String message;
 
     private String headers;
-
+    private String userName;
     public CustomResponse(T response, String message) {
         this.response = response;
         this.message = message;
     }
 
-    public CustomResponse(T response, String message, String headers) {
+    public CustomResponse(T response, String message, String headers, String userName) {
         this.response = response;
         this.message = message;
         this.headers = headers;
+        this.userName = userName;
     }
 
     public T getResponse() {
@@ -40,5 +41,13 @@ public class CustomResponse<T> {
 
     public void setHeaders(String headers) {
         this.headers = headers;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
