@@ -48,67 +48,87 @@ public class AuthService {
     }
 
     public User login(User user) throws SQLDataException {
+        logger.debug("Check if the user is exist in DB");
         User dbUser = userRepository.findByEmail(user.getEmail());
         if (dbUser == null) {
+            logger.error(emailNotExistsMessage(user.getEmail()));
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
+        logger.debug("Check if password of "+ user.getEmail()+" are correct");
         if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
+            logger.error(passwordDosentMatchMessage(user.getPassword()));
             throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
         }
+        logger.info("Create token for " + user.getEmail());
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, dbUser.getEmail());
         keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
+        logger.info("User is logged into the system");
         dbUser.setUserStatus(UserStatuses.ONLINE);
         userRepository.save(dbUser);
         return dbUser;
     }
 
     public User addGuest(User user) throws SQLDataException {
+        logger.debug("Check if the guest name is exist in DB");
         if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
+            logger.error(guestNameExistsMessage(user.getName()));
             throw new SQLDataException(guestNameExistsMessage(user.getName()));
         }
+        logger.info("The guest receives token,email,password");
         user.setEmail(user.getName() + "@gmail.com");
         user.setName(guestPrefix + user.getName());
         user.setType(UserType.GUEST);
         user.setPassword(Utility.randomString());
         user.setUserStatus(UserStatuses.ONLINE);
-        User returnUser = userRepository.save(user);
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, user.getEmail());
         keyEmailsValTokens.put(user.getEmail(), sessionToken);
-        return returnUser;
+        logger.info("Save the guest in DB");
+        return userRepository.save(user);
     }
 
     public User addUser(User user) throws SQLDataException {
+        logger.debug("Check if the user is exist in DB");
         if (userRepository.findByEmail(user.getEmail()) != null) {
+            logger.error(emailExistsInSystemMessage(user.getEmail()));
             throw new SQLDataException(emailExistsInSystemMessage(user.getEmail()));
         }
+        logger.info("Encrypts password user and sends him email to complete the registration");
         user.setPassword(encrypt((user.getPassword())));
         user.setType(UserType.GUEST);
         sendMessage(user);
+        logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
         return userRepository.save(user);
     }
 
     public User verifyEmail(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
+        logger.debug("Check if the user is exist in DB");
         if (dbUser == null) {
+            logger.error(emailNotExistsMessage(user.getEmail()));
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
+        logger.debug("Check if the user already activated");
         if(dbUser.isEnabled()){
+            logger.error(emailAlreadyActivatedMessage(user.getEmail()));
             throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
         }
         else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
+            logger.error(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
             sendMessage(user);
             throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
         }
         else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
+            logger.error(verificationCodeNotMatch);
             throw new SQLDataException(verificationCodeNotMatch);
         }
 
         dbUser.setEnabled(true);
         dbUser.setVerifyCode(null);
         dbUser.setType(UserType.REGISTERED);
+        logger.info("Save the"+ user.getEmail()+ "in DB as registered user");
         return userRepository.save(dbUser);
     }
 
