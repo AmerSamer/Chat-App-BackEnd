@@ -2,6 +2,9 @@ package chatApp.Utilities;
 
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
+import org.apache.log4j.chainsaw.Main;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
@@ -15,6 +18,8 @@ public class Utility {
     public static String guestPrefix = "Guest-";
     public static String systemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
+    public static Logger logger = LogManager.getLogger(Main.class.getName());
+
 
     public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat"));
     public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/user/logout"));
@@ -23,15 +28,18 @@ public class Utility {
     //The length of the password > 6
     //At least one capital letter
     public static boolean isValidPassword(String password) {
+        logger.debug("Check valid password");
         return password.matches(".*[A-Z].*") && password.length() >= 6;
     }
 
     //only letters in name
     public static boolean isValidName(String Name) {
+        logger.debug("Check valid name");
         return Name.matches("^[ A-Za-z]+$");
     }
 
     public static boolean isValidEmail(String emailAddress) {
+        logger.debug("Check valid email");
         String regexPattern = "^(.+)@(\\S+)$";
 
         return Pattern.compile(regexPattern)
