@@ -26,54 +26,79 @@ public class UserController {
     public ResponseEntity<CustomResponse<UserDTO>> updateUser(@RequestBody User user, @RequestParam String token) {
         try {
             if (user.getEmail() != null && !user.getEmail().equals("") && !isValidEmail(user.getEmail())) {
+                logger.error(invalidEmailMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (user.getPassword() != null && !user.getPassword().equals("") &&  !isValidPassword(user.getPassword())) {
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (user.getPassword() != null && !user.getPassword().equals("") && !isValidName(user.getName())) {
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            User updateUser = userService.updateUser(user,token);
-            UserDTO userDTO = userToUserDTO(updateUser);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateUserSuccessfulMessage);
-            return ResponseEntity.ok().body(response);
+                if (user.getPassword() != null && !user.getPassword().equals("") && !isValidPassword(user.getPassword())) {
+                    logger.error(invalidPasswordMessage);
+                    CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
+                    return ResponseEntity.badRequest().body(response);
+                }
+                if (user.getPassword() != null && !user.getPassword().equals("") && !isValidName(user.getName())) {
+                    logger.error(invalidNameMessage);
+                    CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
+                    return ResponseEntity.badRequest().body(response);
+                }
+                logger.info("Try to update " + user.getEmail() + " in the system");
+                User updateUser = userService.updateUser(user, token);
+                UserDTO userDTO = userToUserDTO(updateUser);
+                CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateUserSuccessfulMessage);
+                logger.info("Update the client the update was successful");
+                return ResponseEntity.ok().body(response);
 
         } catch (SQLDataException e) {
+            logger.error(updateUserFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-    @RequestMapping(value = "logout", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestParam String token) {
-        try {
-            User logoutUser = userService.logoutUser(token);
-            UserDTO userDTO = userToUserDTO(logoutUser);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, logoutSuccessfulMessage);
-            return ResponseEntity.ok().body(response);
-
-        } catch (SQLDataException e) {
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, logoutUserFailedMessage);
-            return ResponseEntity.badRequest().body(response);
+        @RequestMapping(value = "logout", method = RequestMethod.POST)
+        public ResponseEntity<CustomResponse<UserDTO>> logoutUser (@RequestParam String token){
+            try {
+                logger.info("User try to logout in the system");
+                User logoutUser = userService.logoutUser(token);
+                UserDTO userDTO = userToUserDTO(logoutUser);
+                CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, logoutSuccessfulMessage);
+                logger.info(logoutSuccessfulMessage);
+                return ResponseEntity.ok().body(response);
+            } catch (SQLDataException e) {
+                logger.error(logoutUserFailedMessage);
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, logoutUserFailedMessage);
+                return ResponseEntity.badRequest().body(response);
+            }
         }
-    }
 
-    @RequestMapping(value = "update/mute", params = {"id"}, method = RequestMethod.PATCH)
-    public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser(@RequestParam Long id, @RequestHeader String
-            token) {
-        try {
-            User updateUser = userService.updateMuteUnmuteUser(id, token);
-            UserDTO userDTO = userToUserDTO(updateUser);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateMuteUnmuteUserSuccessfulMessage);
-            return ResponseEntity.ok().body(response);
+        @RequestMapping(value = "update/mute", params = {"id"}, method = RequestMethod.PATCH)
+        public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser (@RequestParam Long id, @RequestHeader String
+        token){
+            try {
+                logger.info("Try to mute / unmute user");
+                User updateUser = userService.updateMuteUnmuteUser(id, token);
+                UserDTO userDTO = userToUserDTO(updateUser);
+                CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateMuteUnmuteUserSuccessfulMessage);
+                logger.info(updateMuteUnmuteUserSuccessfulMessage);
+                return ResponseEntity.ok().body(response);
 
-        } catch (SQLDataException e) {
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
-            return ResponseEntity.badRequest().body(response);
+            } catch (SQLDataException e) {
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
+                return ResponseEntity.badRequest().body(response);
+            }
         }
-    }
+
+        @RequestMapping(value = "update/status", params = {"id"}, method = RequestMethod.PATCH)
+        public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser (@RequestParam Long id, @RequestHeader String
+        token){
+            try {
+                User updateUser = userService.updateStatusUser(id, token);
+                UserDTO userDTO = userToUserDTO(updateUser);
+                CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateStatusUserSuccessfulMessage);
+                return ResponseEntity.ok().body(response);
+
+            } catch (SQLDataException e) {
+                logger.error(updateUserFailedMessage);
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
+                return ResponseEntity.badRequest().body(response);
+            }
+        }
 }
