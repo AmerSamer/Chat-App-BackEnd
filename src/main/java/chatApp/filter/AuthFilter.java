@@ -31,18 +31,16 @@ public class AuthFilter extends GenericFilterBean {
             String path = req.getRequestURI();
             if (permissionPathsForAll.stream().noneMatch(path::contains)) {
                 if(auth.equals("null")){
+                    res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Authorization header needed");
-                    return;
                 }
                 else if(!authService.getKeyTokensValEmails().containsKey(auth)){
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
-                    return;
                 }
                 else{
                     String userEmail = authService.getKeyTokensValEmails().get(auth);
                     if(!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))){
                         res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
-                        return;
                     }
                 }
             }
