@@ -3,6 +3,8 @@ package chatApp.entities;
 import chatApp.repository.UserRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -22,10 +24,15 @@ class UserTest {
     @Autowired
     private TestEntityManager testEntityManager;
 
+    @AfterEach
+    @BeforeEach
+    public void deleteAllTables(){
+        userRepo.deleteAll();
+    }
+
     @Test
     public void testCreateUser() {
         User user = new User();
-        //unique email, change and check if inserted
         user.setEmail("shai@gmail.com");
         user.setPassword("1234");
         user.setName("shai");
