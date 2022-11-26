@@ -8,9 +8,6 @@ import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -69,12 +66,12 @@ public class UserService {
         authService.getKeyEmailsValTokens().remove(userEmail);
         User dbUser = userRepository.findByEmail(userEmail);
         logger.info("If the user guest delete him from DB else update his status to offline");
-            if (dbUser.getType().equals(UserType.GUEST)) {
-                userRepository.delete(dbUser);
-            } else {
-                dbUser.setUserStatus(UserStatuses.OFFLINE);
-            }
-            return userRepository.save(dbUser);
+        if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
+            userRepository.delete(dbUser);
+            return dbUser;
+        }
+        dbUser.setUserStatus(UserStatuses.OFFLINE);
+        return userRepository.save(dbUser);
         }
     private int calcAge(LocalDate dateOfBirth) {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
@@ -85,44 +82,40 @@ public class UserService {
         return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 
-    public User updateMuteUnmuteUser(Long id, String token) throws SQLDataException {
+    public User updateMuteUnmuteUser(String token) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
         if (userEmail == null) {
             logger.error(tokenSessionExpired);
             throw new SQLDataException(tokenSessionExpired);
         }
-        User dbUser = userRepository.getById(id);
+        User dbUser = userRepository.findByEmail(userEmail);
         if (dbUser == null) {
-            throw new SQLDataException(emailNotExistsMessage(dbUser.getEmail()));
+            throw new SQLDataException(emailNotExistsMessage(userEmail));
         }
         if (!authService.getKeyEmailsValTokens().get(dbUser.getName()).equals(token)) {
             throw new SQLDataException(tokenSessionExpired);
         }
-        if (dbUser.isMute()) {
-            dbUser.setMute(false);
-        } else {
-            dbUser.setMute(true);
-        }
+        dbUser.setMute(!dbUser.isMute());
         return userRepository.save(dbUser);
     }
-        public User updateStatusUser(Long id, String token) throws SQLDataException {
+    public User updateStatusUser(String token, String status) throws SQLDataException {
             String userEmail = authService.getKeyTokensValEmails().get(token);
             if (userEmail == null) {
                 throw new SQLDataException(tokenSessionExpired);
             }
-            User dbUser = userRepository.getById(id);
+            User dbUser = userRepository.findByEmail(userEmail);
             if (dbUser == null) {
-                throw new SQLDataException(emailNotExistsMessage(dbUser.getEmail()));
+                throw new SQLDataException(emailNotExistsMessage(userEmail));
             }
-            if (!authService.getKeyEmailsValTokens().get(dbUser.getName()).equals(token)) {
+            if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
                 throw new SQLDataException(tokenSessionExpired);
             }
-            if (dbUser.getUserStatus() == UserStatuses.ONLINE) {
+            if (status.equals("away")) {
                 dbUser.setUserStatus(UserStatuses.AWAY);
-            } else if (dbUser.getUserStatus() == UserStatuses.AWAY) {
+            } else if (status.equals("online")) {
                 dbUser.setUserStatus(UserStatuses.ONLINE);
             }
             return userRepository.save(dbUser);
-        }
+    }
 }
 

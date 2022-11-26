@@ -69,12 +69,11 @@ public class UserController {
             }
         }
 
-        @RequestMapping(value = "update/mute", params = {"id"}, method = RequestMethod.PATCH)
-        public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser (@RequestParam Long id, @RequestHeader String
-        token){
+        @RequestMapping(value = "update/mute", method = RequestMethod.PATCH)
+        public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser (@RequestParam String token){
             try {
                 logger.info("Try to mute / unmute user");
-                User updateUser = userService.updateMuteUnmuteUser(id, token);
+                User updateUser = userService.updateMuteUnmuteUser(token);
                 UserDTO userDTO = userToUserDTO(updateUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateMuteUnmuteUserSuccessfulMessage);
                 logger.info(updateMuteUnmuteUserSuccessfulMessage);
@@ -86,11 +85,11 @@ public class UserController {
             }
         }
 
-        @RequestMapping(value = "update/status", params = {"id"}, method = RequestMethod.PATCH)
-        public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser (@RequestParam Long id, @RequestHeader String
-        token){
+        @RequestMapping(value = "update/status", method = RequestMethod.PATCH)
+        public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser (@RequestParam("token") String token,
+                                                                         @RequestParam("status") String status){
             try {
-                User updateUser = userService.updateStatusUser(id, token);
+                User updateUser = userService.updateStatusUser(token, status);
                 UserDTO userDTO = userToUserDTO(updateUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateStatusUserSuccessfulMessage);
                 return ResponseEntity.ok().body(response);

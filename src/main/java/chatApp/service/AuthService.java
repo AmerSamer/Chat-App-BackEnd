@@ -6,7 +6,6 @@ import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
-import net.bytebuddy.agent.builder.AgentBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,8 +16,6 @@ import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
@@ -77,7 +74,7 @@ public class AuthService {
             throw new SQLDataException(guestNameExistsMessage(user.getName()));
         }
         logger.info("The guest receives token,email,password");
-        user.setEmail(user.getName() + "@gmail.com");
+        user.setEmail(user.getName() + "@chatappsystem.com");
         user.setName(guestPrefix + user.getName());
         user.setType(UserType.GUEST);
         user.setPassword(Utility.randomString());

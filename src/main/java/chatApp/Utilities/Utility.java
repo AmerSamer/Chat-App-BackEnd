@@ -22,7 +22,7 @@ public class Utility {
 
 
     public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat"));
-    public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout"));
+    public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("/mute"));
 
     //The length of the password > 6
