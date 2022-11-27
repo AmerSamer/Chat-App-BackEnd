@@ -3,12 +3,15 @@ package chatApp.service;
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
 
+import chatApp.controller.AuthController;
 import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
 import chatApp.repository.MessageRepository;
 import chatApp.repository.UserRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @Service
 public class UserService {
+    private static Logger logger = LogManager.getLogger(UserService.class.getName());
 
     @Autowired
     private AuthService authService;
@@ -57,7 +61,7 @@ public class UserService {
             dbUser.setDateOfBirth(user.getDateOfBirth());
             dbUser.setAge(calcAge(user.getDateOfBirth()));
         }
-        if (!user.getPhoto().equals("")) {
+        if (user.getPhoto() != null) {
             dbUser.setPhoto(user.getPhoto());
         }
         logger.info("Update the user, and save updating in DB");
@@ -77,7 +81,7 @@ public class UserService {
         }
         dbUser.setUserStatus(UserStatuses.OFFLINE);
         return userRepository.save(dbUser);
-        }
+    }
     private int calcAge(LocalDate dateOfBirth) {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
@@ -104,23 +108,23 @@ public class UserService {
         return userRepository.save(dbUser);
     }
     public User updateStatusUser(String token, String status) throws SQLDataException {
-            String userEmail = authService.getKeyTokensValEmails().get(token);
-            if (userEmail == null) {
-                throw new SQLDataException(tokenSessionExpired);
-            }
-            User dbUser = userRepository.findByEmail(userEmail);
-            if (dbUser == null) {
-                throw new SQLDataException(emailNotExistsMessage(userEmail));
-            }
-            if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
-                throw new SQLDataException(tokenSessionExpired);
-            }
-            if (status.equals("away")) {
-                dbUser.setUserStatus(UserStatuses.AWAY);
-            } else if (status.equals("online")) {
-                dbUser.setUserStatus(UserStatuses.ONLINE);
-            }
-            return userRepository.save(dbUser);
+        String userEmail = authService.getKeyTokensValEmails().get(token);
+        if (userEmail == null) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        User dbUser = userRepository.findByEmail(userEmail);
+        if (dbUser == null) {
+            throw new SQLDataException(emailNotExistsMessage(userEmail));
+        }
+        if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
+            throw new SQLDataException(tokenSessionExpired);
+        }
+        if (status.equals("away")) {
+            dbUser.setUserStatus(UserStatuses.AWAY);
+        } else if (status.equals("online")) {
+            dbUser.setUserStatus(UserStatuses.ONLINE);
+        }
+        return userRepository.save(dbUser);
     }
 
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){

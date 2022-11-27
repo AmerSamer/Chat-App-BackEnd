@@ -19,8 +19,7 @@ public class Utility {
     public static String guestPrefix = "Guest-";
     public static String systemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
-
-    public static Logger logger = LogManager.getLogger(Utility.class.getName());
+    private static Logger logger = LogManager.getLogger(Utility.class.getName());
 
 
     public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat"));

@@ -20,10 +20,7 @@ import java.sql.SQLDataException;
 @CrossOrigin
 @RequestMapping("/user")
 public class UserController {
-
-    public static Logger logger = LogManager.getLogger(UserController.class.getName());
-
-
+    private static Logger logger = LogManager.getLogger(UserController.class.getName());
     @Autowired
     private UserService userService;
 
