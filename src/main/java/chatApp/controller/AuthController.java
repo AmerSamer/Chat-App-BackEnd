@@ -1,10 +1,10 @@
 package chatApp.controller;
 
+import chatApp.Utilities.Utility;
 import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import chatApp.service.AuthService;
-import org.apache.log4j.chainsaw.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +17,12 @@ import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.SuccessMessages.*;
 import static chatApp.Utilities.Utility.*;
 
-
 @RestController
 @CrossOrigin
 @RequestMapping("/sign")
 public class AuthController {
 
-    public static Logger logger = LogManager.getLogger(AuthController.class.getName());
-
+    private static Logger logger = LogManager.getLogger(AuthController.class.getName());
     @Autowired
     private AuthService authService;
 
