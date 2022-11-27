@@ -5,6 +5,7 @@ import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import chatApp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -34,6 +35,14 @@ public class PermissionFilter extends GenericFilterBean {
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:9000");
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Methods",
+                "ACL, CANCELUPLOAD, CHECKIN, CHECKOUT, COPY, DELETE, GET, HEAD, LOCK, MKCALENDAR, MKCOL, MOVE, OPTIONS, POST, PROPFIND, PROPPATCH, PUT, REPORT, SEARCH, UNCHECKOUT, UNLOCK, UPDATE, VERSION-CONTROL");
+        res.setHeader("Access-Control-Max-Age", "3600");
+        res.setHeader("Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, Key, Authorization");
+
         String auth = req.getParameter("token");
         String path = req.getRequestURI();
         if (permissionPathsForAll.stream().noneMatch(path::contains)) {
@@ -51,7 +60,8 @@ public class PermissionFilter extends GenericFilterBean {
                 User dbUser = userRepository.findByEmail(userEmail);
                 if (dbUser.getType() == UserType.GUEST) {
                     if (permissionPathsForGuest.stream().noneMatch(path::contains)) {
-                        res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
+                        res.addHeader("SC_UNAUTHORIZED", "Provided Information is Invalid");
+                        res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Provided Information is Invalid");
                     }
                 }
                 if (dbUser.getType() == UserType.REGISTERED) {
