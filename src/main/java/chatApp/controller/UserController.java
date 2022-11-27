@@ -75,10 +75,11 @@ public class UserController {
         }
 
         @RequestMapping(value = "update/mute", method = RequestMethod.PATCH)
-        public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser (@RequestParam String token){
+        public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser (@RequestParam("token") String token,
+                                                                       @RequestParam("id") Long id){
             try {
                 logger.info("Try to mute / unmute user");
-                User updateUser = userService.updateMuteUnmuteUser(token);
+                User updateUser = userService.updateMuteUnmuteUser(id, token);
                 UserDTO userDTO = userToUserDTO(updateUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateMuteUnmuteUserSuccessfulMessage);
                 logger.info(updateMuteUnmuteUserSuccessfulMessage);

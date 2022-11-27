@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -44,6 +41,14 @@ public class ChatController {
         List<User> userList = userService.getAllUsers();
         List<UserDTO> userListDTO = userListToUserListDTO(userList);
         CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @RequestMapping(value = "/privatechatroom", method = RequestMethod.GET)
+    private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail,
+                                                                         @RequestParam("receiver") Long receiverId) {
+        List<Message> messageList = userService.getPrivateRoomMessages(senderEmail, receiverId);
+        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "stam message");
         return ResponseEntity.ok().body(response);
     }
 

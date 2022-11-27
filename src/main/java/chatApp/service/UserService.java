@@ -3,9 +3,11 @@ package chatApp.service;
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
 
+import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
+import chatApp.repository.MessageRepository;
 import chatApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
 
     public UserService() {
@@ -82,17 +87,17 @@ public class UserService {
         return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 
-    public User updateMuteUnmuteUser(String token) throws SQLDataException {
+    public User updateMuteUnmuteUser(Long id, String token) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
         if (userEmail == null) {
             logger.error(tokenSessionExpired);
             throw new SQLDataException(tokenSessionExpired);
         }
-        User dbUser = userRepository.findByEmail(userEmail);
+        User dbUser = userRepository.getById(id);
         if (dbUser == null) {
             throw new SQLDataException(emailNotExistsMessage(userEmail));
         }
-        if (!authService.getKeyEmailsValTokens().get(dbUser.getName()).equals(token)) {
+        if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
             throw new SQLDataException(tokenSessionExpired);
         }
         dbUser.setMute(!dbUser.isMute());
@@ -116,6 +121,20 @@ public class UserService {
                 dbUser.setUserStatus(UserStatuses.ONLINE);
             }
             return userRepository.save(dbUser);
+    }
+
+    public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
+        User senderUser = userRepository.findByEmail(userEmail);
+        User receiverUser = userRepository.getById(receiverId);
+        Long senderId = senderUser.getId();
+        List<Message> messageList =  messageRepository.findByRoomId(senderId + "E" + receiverId);
+        if(messageList.isEmpty()){
+            messageList =  messageRepository.findByRoomId(receiverId + "E" + senderId);
+            if(messageList.isEmpty()){
+                messageList.add(messageRepository.save(new Message(userEmail, "New Private Chat Room" , receiverUser.getEmail(), receiverId + "E" + senderId)));
+            }
+        }
+        return messageList;
     }
 }
 
