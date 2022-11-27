@@ -1,5 +1,6 @@
 package chatApp.Utilities;
 
+import chatApp.controller.UserController;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import org.apache.log4j.chainsaw.Main;
@@ -18,7 +19,8 @@ public class Utility {
     public static String guestPrefix = "Guest-";
     public static String systemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
-    public static Logger logger = LogManager.getLogger(Main.class.getName());
+
+    public static Logger logger = LogManager.getLogger(Utility.class.getName());
 
 
     public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat"));
@@ -29,22 +31,31 @@ public class Utility {
     //At least one capital letter
     public static boolean isValidPassword(String password) {
         logger.debug("Check valid password");
-        return password.matches(".*[A-Z].*") && password.length() >= 6;
+        if(password != null){
+            return password.matches(".*[A-Z].*") && password.length() >= 6;
+        }
+        return false;
     }
 
     //only letters in name
-    public static boolean isValidName(String Name) {
+    public static boolean isValidName(String name) {
         logger.debug("Check valid name");
-        return Name.matches("^[ A-Za-z]+$");
+        if(name != null) {
+            return name.matches("^[ A-Za-z]+$");
+        }
+        return false;
     }
 
     public static boolean isValidEmail(String emailAddress) {
         logger.debug("Check valid email");
-        String regexPattern = "^(.+)@(\\S+)$";
+        if(emailAddress != null) {
+            String regexPattern = "^(.+)@(\\S+)$";
 
-        return Pattern.compile(regexPattern)
-                .matcher(emailAddress)
-                .matches();
+            return Pattern.compile(regexPattern)
+                    .matcher(emailAddress)
+                    .matches();
+        }
+        return false;
     }
 
     public static String randomString() {
