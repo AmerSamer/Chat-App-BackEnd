@@ -1,5 +1,7 @@
 package chatApp.controller;
 
+import chatApp.customEntities.CustomResponse;
+import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.repository.UserRepository;
@@ -11,10 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
 
+import static chatApp.Utilities.ExceptionHandler.invalidEmailMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -51,11 +55,18 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser_updateName_newName() throws SQLDataException {
-
+    void updateUser_updateName_newName(){
         user.setName("ses");
-        assertEquals(user.getName(), userService.updateUser(user, authService.getKeyEmailsValTokens().get(user.getEmail())).getName());
+        ResponseEntity<CustomResponse<UserDTO>> user1 = userController.updateUser(user, authService.getKeyEmailsValTokens().get(user.getEmail()));
+        assertEquals(user.getName(),user1.getBody().getResponse().getName());
     }
+    @Test
+    void updateUser_updateInvalidEmail_invalidMessage(){
+        user.setEmail("ses");
+        ResponseEntity<CustomResponse<UserDTO>> user1 = userController.updateUser(user, authService.getKeyEmailsValTokens().get(user.getEmail()));
+        assertEquals(invalidEmailMessage ,user1.getBody().getMessage());
+    }
+
 
     @Test
     void logoutUser_checkLogoutGuestUser_changeStatusToOffline() throws SQLDataException {
