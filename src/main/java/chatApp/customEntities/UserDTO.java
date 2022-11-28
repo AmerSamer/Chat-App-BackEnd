@@ -33,7 +33,7 @@ public class UserDTO {
         this.description = description;
     }
 
-    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus, UserType userType, boolean isMute) {
+    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus, UserType userType, boolean isMute, String nickname) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -43,13 +43,15 @@ public class UserDTO {
         this.userStatus = userStatus;
         this.userType = userType;
         this.isMute = isMute;
+        this.nickname = nickname;
     }
 
-    public UserDTO(Long id, String name, String email, boolean isMute) {
+    public UserDTO(Long id, String name, String email, boolean isMute, String nickname) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.isMute = isMute;
+        this.nickname = nickname;
     }
 
     public Long getId() {

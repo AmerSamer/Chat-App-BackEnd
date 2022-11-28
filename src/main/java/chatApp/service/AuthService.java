@@ -83,6 +83,7 @@ public class AuthService {
         user.setType(UserType.GUEST);
         user.setPassword(Utility.randomString());
         user.setUserStatus(UserStatuses.ONLINE);
+        user.setNickname(guestPrefix + user.getName());
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, user.getEmail());
         keyEmailsValTokens.put(user.getEmail(), sessionToken);
@@ -99,6 +100,7 @@ public class AuthService {
         logger.info("Encrypts password user and sends him email to complete the registration");
         user.setPassword(encrypt((user.getPassword())));
         user.setType(UserType.GUEST);
+        user.setNickname(user.getEmail());
         sendMessage(user);
         logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
         return userRepository.save(user);

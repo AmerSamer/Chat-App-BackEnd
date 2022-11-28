@@ -10,7 +10,7 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
 
     List<Message> findByRoomId(String roomId);
 
-    List<Message> findByColumnDateBetween(LocalDateTime to, LocalDateTime from);
+    List<Message> findByIssueDateBetween(LocalDateTime to, LocalDateTime from);
 
 
 }

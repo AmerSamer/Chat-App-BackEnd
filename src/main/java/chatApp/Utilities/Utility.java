@@ -68,20 +68,20 @@ public class Utility {
     }
 
     public static UserDTO userToUserDTO(User user) {
-            return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(), user.getType(), user.isMute());
+            return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(), user.getType(), user.isMute(), user.getEmail());
     }
 
     public static List<UserDTO> userListToUserListDTO(List<User> users) {
         List<UserDTO> listUsers = new ArrayList<>();
         for (User user: users) {
-            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType(), user.isMute());
+            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType(), user.isMute(), user.getNickname());
             listUsers.add(userDTO);
         }
         return listUsers;
     }
 
     public static UserDTO userGuestToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getName(),user.getEmail(), user.isMute());
+        return new UserDTO(user.getId(), user.getName(),user.getEmail(), user.isMute(), user.getNickname());
     }
 
     public static int calcAge (LocalDate dateOfBirth){
