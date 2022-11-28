@@ -35,6 +35,12 @@ public class User {
     @Column(name = "is_mute")
     private boolean isMute;
 
+    @Column(nullable = false, unique = true, length = 25)
+    private String nickname;
+
+    @Column(length = 200)
+    private String description;
+
     public User() {
         super();
         this.enabled = false;
@@ -157,6 +163,22 @@ public class User {
         isMute = mute;
     }
 
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -213,6 +235,8 @@ public class User {
                 ", verifyCode='" + verifyCode + '\'' +
                 ", issueDate=" + issueDate +
                 ", isMute=" + isMute +
+                ", nickname='" + nickname + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }

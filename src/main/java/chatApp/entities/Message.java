@@ -4,6 +4,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "message")
@@ -17,11 +18,11 @@ public class Message {
     @Column(nullable = false)
     private String receiver;
     private String content;
-    @Column(nullable = false, length = 91)
+    @Column(nullable = false)
     private String roomId;
 
     @Column(name = "issue_date")
-    private LocalDate issueDate;
+    private LocalDateTime issueDate;
 
 
     public Message() {
@@ -30,14 +31,14 @@ public class Message {
     public Message(String sender, String content) {
         this.sender = sender;
         this.content = content;
-        this.issueDate = LocalDate.now();
+        this.issueDate = LocalDateTime.now();
     }
     public Message(String sender, String content, String receiver, String roomId) {
         this.sender = sender;
         this.content = content;
         this.roomId = roomId;
         this.receiver = receiver;
-        this.issueDate = LocalDate.now();
+        this.issueDate = LocalDateTime.now();
     }
 
     public String getRoomId() {
@@ -80,11 +81,11 @@ public class Message {
         this.receiver = receiver;
     }
 
-    public LocalDate getIssueDate() {
+    public LocalDateTime getIssueDate() {
         return issueDate;
     }
 
-    public void setIssueDate(LocalDate issueDate) {
+    public void setIssueDate(LocalDateTime issueDate) {
         this.issueDate = issueDate;
     }
 
