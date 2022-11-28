@@ -33,8 +33,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private MessageRepository messageRepository;
 
 
     public UserService() {
@@ -125,20 +123,6 @@ public class UserService {
             dbUser.setUserStatus(UserStatuses.ONLINE);
         }
         return userRepository.save(dbUser);
-    }
-
-    public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
-        User senderUser = userRepository.findByEmail(userEmail);
-        User receiverUser = userRepository.getById(receiverId);
-        Long senderId = senderUser.getId();
-        List<Message> messageList =  messageRepository.findByRoomId(senderId + "E" + receiverId);
-        if(messageList.isEmpty()){
-            messageList =  messageRepository.findByRoomId(receiverId + "E" + senderId);
-            if(messageList.isEmpty()){
-                messageList.add(messageRepository.save(new Message(userEmail, "New Private Chat Room" , receiverUser.getEmail(), receiverId + "E" + senderId)));
-            }
-        }
-        return messageList;
     }
 }
 

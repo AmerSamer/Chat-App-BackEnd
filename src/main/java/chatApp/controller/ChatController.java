@@ -4,9 +4,11 @@ import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.Message;
 import chatApp.entities.User;
+import chatApp.service.MessageService;
 import chatApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +26,12 @@ public class ChatController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private MessageService messageService;
+
     @MessageMapping("/hello")
     @SendTo("/topic/mainChat")
-    public Message greeting(Message.HelloMessage message) throws Exception {
+    public Message greeting(Message.HelloMessage message) {
         return new Message("SYSTEM", message.getName() + "joined the chat");
     }
 
@@ -34,6 +39,13 @@ public class ChatController {
     @SendTo("/topic/mainChat")
     public Message sendPlainMessage(Message message) {
         return message;
+    }
+
+
+    @MessageMapping("/plain/privatechat/{roomId}")
+    @SendTo("/topic/privatechat/{roomId}")
+    public Message sendPrivatePlainMessage(Message message) {
+        return messageService.addMessageToPrivateChat(message);
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -47,8 +59,8 @@ public class ChatController {
     @RequestMapping(value = "/privatechatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail,
                                                                          @RequestParam("receiver") Long receiverId) {
-        List<Message> messageList = userService.getPrivateRoomMessages(senderEmail, receiverId);
-        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "stam message");
+        List<Message> messageList = messageService.getPrivateRoomMessages(senderEmail, receiverId);
+        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
         return ResponseEntity.ok().body(response);
     }
 
