@@ -5,6 +5,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static chatApp.Utilities.Utility.getDateNow;
+import static chatApp.Utilities.Utility.getDateTimeNow;
+
 @Entity
 @Table(name = "message")
 public class Message {
@@ -19,25 +22,28 @@ public class Message {
     private String content;
     @Column(nullable = false)
     private String roomId;
-
     @Column(name = "issue_date")
-    private LocalDateTime issueDate;
+    private String issueDate;
 
+    @Column(name = "issue_date_time")
+    private String issueDateTime;
 
-    public Message() {
+    private Message() {
     }
 
     public Message(String sender, String content) {
         this.sender = sender;
         this.content = content;
-        this.issueDate = LocalDateTime.now();
+        this.issueDate = getDateNow();
+        this.issueDateTime = getIssueDateTime();
     }
     public Message(String sender, String content, String receiver, String roomId) {
         this.sender = sender;
         this.content = content;
         this.roomId = roomId;
         this.receiver = receiver;
-        this.issueDate = LocalDateTime.now();
+        this.issueDate = getDateNow();
+        this.issueDateTime = getDateTimeNow();
     }
 
     public String getRoomId() {
@@ -80,12 +86,20 @@ public class Message {
         this.receiver = receiver;
     }
 
-    public LocalDateTime getIssueDate() {
+    public String getIssueDate() {
         return issueDate;
     }
 
-    public void setIssueDate(LocalDateTime issueDate) {
+    public void setIssueDate(String issueDate) {
         this.issueDate = issueDate;
+    }
+
+    public String getIssueDateTime() {
+        return issueDateTime;
+    }
+
+    public void setIssueDateTime(String issueDateTime) {
+        this.issueDateTime = issueDateTime;
     }
 
     public static class HelloMessage {

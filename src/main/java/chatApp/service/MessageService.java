@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static chatApp.Utilities.Utility.*;
+
 @CrossOrigin
 @Service
 public class MessageService {
@@ -43,7 +45,8 @@ public class MessageService {
     }
 
     public Message addMessageToPrivateChat(Message message) {
-        message.setIssueDate(LocalDateTime.now());
+        message.setIssueDate(getDateNow());
+        message.setIssueDateTime(getDateTimeNow());
         return messageRepository.save(message);
     }
 
@@ -52,8 +55,9 @@ public class MessageService {
     }
 
     public Message addMessageToMainChat(Message message) {
-        message.setIssueDate(LocalDateTime.now());
-        message.setReceiver("null");
+        message.setIssueDate(getDateNow());
+        message.setIssueDateTime(getDateTimeNow());
+        message.setReceiver("main");
         return messageRepository.save(message);
     }
 
@@ -61,7 +65,7 @@ public class MessageService {
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
     }
 
-//    public List<Message> getMainRoomMessagessssssss(int time) {
-//        return messageRepository.findByRoomIdAndIssueDateBetween("0", LocalDateTime.now().minusHours(time), LocalDateTime.now());
-//    }
+    public List<Message> getMainRoomMessagesByTime(String date, String time) {
+        return messageRepository.findByRoomIdAndIssueDateBetweenAndIssueDateTimeBetween("0", date, getDateNow(), time, getDateTimeNow());
+    }
 }

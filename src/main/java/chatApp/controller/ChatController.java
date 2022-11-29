@@ -70,12 +70,6 @@ public class ChatController {
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
         return ResponseEntity.ok().body(response);
     }
-//    @RequestMapping(value = "/mainchatroomexport", method = RequestMethod.GET)
-//    private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("time") int time) {
-//        List<Message> messageList = messageService.getMainRoomMessages(time);
-//        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
-//        return ResponseEntity.ok().body(response);
-//    }
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
         List<Message> messageList = messageService.getMainRoomMessages(size);
@@ -84,9 +78,19 @@ public class ChatController {
     }
 
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("roomId") String roomId) {
+    private ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
         List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
         return ResponseEntity.ok().body(response);
     }
+
+    @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
+    private ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("date") String date,
+                                                                           @RequestParam("time") String time) {
+        List<Message> messageList = messageService.getMainRoomMessagesByTime(date, time);
+        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
+        return ResponseEntity.ok().body(response);
+    }
+
+
 }

@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +24,7 @@ public class Utility {
     private static Logger logger = LogManager.getLogger(Utility.class.getName());
 
 
-    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat"));
+    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat", "/error"));
     public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
 
@@ -88,12 +90,18 @@ public class Utility {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
-    public static List<String> paths(){
-        List<String> paths = new ArrayList<>();
-        paths.add("/sign");
-        paths.add("/ws");
-        paths.add("/chat");
-        return paths;
+
+    public static String getDateNow(){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String dateTimeString = localDateTime.format(dateTimeFormatter);
+        return dateTimeString.split( " ")[0];
     }
 
+    public static String getDateTimeNow(){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String dateTimeString = localDateTime.format(dateTimeFormatter);
+        return dateTimeString.split( " ")[1];
+    }
 }
