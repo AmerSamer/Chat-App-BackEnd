@@ -44,4 +44,8 @@ public class MessageService {
         message.setIssueDate(LocalDateTime.now());
         return messageRepository.save(message);
     }
+
+    public List<Message> downloadPrivateRoomMessages(String roomId) {
+        return messageRepository.findByRoomId(roomId);
+    }
 }

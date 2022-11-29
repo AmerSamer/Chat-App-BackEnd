@@ -62,6 +62,10 @@ public class PermissionFilter extends GenericFilterBean {
                     if (permissionPathsForGuest.stream().noneMatch(path::contains)) {
                         res.addHeader("SC_UNAUTHORIZED", "Provided Information is Invalid");
                         res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Provided Information is Invalid");
+                        if (!"OPTIONS".equals(req.getMethod())) {
+//                            res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Authorization header needed");
+                            throw new IllegalAccessError("Authorization header needed"); // Should return custom http status response like 400
+                        }
                     }
                 }
                 if (dbUser.getType() == UserType.REGISTERED) {
