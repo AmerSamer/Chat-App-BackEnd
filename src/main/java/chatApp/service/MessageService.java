@@ -86,8 +86,4 @@ public class MessageService {
     public List<Message> getMainRoomMessages(int size) {
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
     }
-
-//    public List<Message> getMainRoomMessagessssssss(int time) {
-//        return messageRepository.findByRoomIdAndIssueDateBetween("0", LocalDateTime.now().minusHours(time), LocalDateTime.now());
-//    }
 }

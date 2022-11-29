@@ -24,6 +24,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    /**
+     *Update user : check if data is valid syntax & the user exist in DB, update user data in DB
+     * @param user - the user's data
+     * @param token - the token of the user
+     * @return user with updated data
+     * @throws SQLDataException when the Update user failed
+     */
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<CustomResponse<UserDTO>> updateUser(@RequestBody User user, @RequestParam String token) {
         try {
@@ -55,6 +62,12 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+    /**
+     *Logout user : delete token & change status to offline, if the user is guest delete him from the DB
+     * @param token - the token of the user
+     * @return user with offline status
+     * @throws SQLDataException when the logout user failed
+     */
         @RequestMapping(value = "logout", method = RequestMethod.POST)
         public ResponseEntity<CustomResponse<UserDTO>> logoutUser (@RequestParam String token){
             try {
@@ -70,6 +83,13 @@ public class UserController {
                 return ResponseEntity.badRequest().body(response);
             }
         }
+    /**
+     *Update Mute/unmute Users : check token session not expired & the user exist in DB, update user mute/unmute status in DB
+     * @param token - the token of the user
+     * @param id - the id of the user
+     * @return user with mute/unmute status
+     * @throws SQLDataException when the update mute/unmute user failed
+     */
 
         @RequestMapping(value = "update/mute", method = RequestMethod.PATCH)
         public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser (@RequestParam("token") String token,
@@ -88,6 +108,13 @@ public class UserController {
             }
         }
 
+    /**
+     *Update away/online Users : check token session not expired & the user exist in DB, update user away/online status in DB
+     * @param token - the token of the user
+     * @param status - the away/online status of the user
+     * @return user with away/online status
+     * @throws SQLDataException when the update away/online status user failed
+     */
         @RequestMapping(value = "update/status", method = RequestMethod.PATCH)
         public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser (@RequestParam("token") String token,
                                                                          @RequestParam("status") String status){

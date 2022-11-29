@@ -38,6 +38,13 @@ public class UserService {
     public UserService() {
     }
 
+    /**
+     *Update user : check if data is valid syntax & the user exist in DB, update user data in DB
+     * @param user - the user's data
+     * @param token - the token of the user
+     * @return user with updated data
+     * @throws SQLDataException when the Update user failed
+     */
     public User updateUser(User user, String token) throws SQLDataException {
         logger.debug("Check if the user is exist in DB");
         String userEmail = authService.getKeyTokensValEmails().get(token);
@@ -73,6 +80,12 @@ public class UserService {
         return userRepository.save(dbUser);
     }
 
+    /**
+     *Logout user : delete token & change status to offline, if the user is guest delete him from the DB
+     * @param token - the token of the user
+     * @return user with offline status
+     * @throws SQLDataException when the logout user failed
+     */
     public User logoutUser(String token) throws SQLDataException {
         logger.info("Delete the user token");
         String userEmail = authService.getKeyTokensValEmails().get(token);
@@ -87,15 +100,13 @@ public class UserService {
         dbUser.setUserStatus(UserStatuses.OFFLINE);
         return userRepository.save(dbUser);
     }
-    private int calcAge(LocalDate dateOfBirth) {
-        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
-    }
-
-    public List<User> getAllUsers() {
-        logger.info("Get all users in users table");
-        return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
-    }
-
+    /**
+     *Update Mute/unmute Users : check token session not expired & the user exist in DB, update user mute/unmute status in DB
+     * @param token - the token of the user
+     * @param id - the id of the user
+     * @return user with mute/unmute status
+     * @throws SQLDataException when the update mute/unmute user failed
+     */
     public User updateMuteUnmuteUser(Long id, String token) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
         if (userEmail == null) {
@@ -112,6 +123,13 @@ public class UserService {
         dbUser.setMute(!dbUser.isMute());
         return userRepository.save(dbUser);
     }
+    /**
+     *Update away/online Users : check token session not expired & the user exist in DB, update user away/online status in DB
+     * @param token - the token of the user
+     * @param status - the away/online status of the user
+     * @return user with away/online status
+     * @throws SQLDataException when the update away/online status user failed
+     */
     public User updateStatusUser(String token, String status) throws SQLDataException {
         String userEmail = authService.getKeyTokensValEmails().get(token);
         if (userEmail == null) {
@@ -131,5 +149,22 @@ public class UserService {
         }
         return userRepository.save(dbUser);
     }
+    /**
+     *Calculate Age : calculate the age of the user
+     * @return the age of the user
+     */
+    private int calcAge(LocalDate dateOfBirth) {
+        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
+    }
+    /**
+     *Get all users: get all users from DB
+     * @return all the users sorted by theirs types [ADMIN(0), REGISTERED(1), GUEST(2)] from DB
+     */
+    public List<User> getAllUsers() {
+        logger.info("Get all users in users table");
+        return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
+    }
+
+
 }
 
