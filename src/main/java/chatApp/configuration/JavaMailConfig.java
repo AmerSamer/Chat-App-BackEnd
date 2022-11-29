@@ -11,6 +11,10 @@ import java.util.Properties;
 @Configuration
 public class JavaMailConfig {
 
+    /**
+     * setting the host, port, username, password
+     * @return the mailSender
+     */
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -29,6 +33,10 @@ public class JavaMailConfig {
         return mailSender;
     }
 
+    /**
+     * setting the message with setTo, setFrom, setText
+     * @return message
+     */
     @Bean
     public SimpleMailMessage emailTemplate()
     {

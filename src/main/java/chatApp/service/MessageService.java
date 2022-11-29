@@ -28,6 +28,12 @@ public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
 
+    /**
+     * finding the room id by the userEmail and the receiverId combination
+     * @param userEmail - user email to get the roomId
+     * @param receiverId - user id to get the roomId
+     * @return list of messages of specific private room
+     */
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
         User senderUser = userRepository.findByEmail(userEmail);
         User receiverUser = userRepository.getById(receiverId);
@@ -42,21 +48,41 @@ public class MessageService {
         return messageList;
     }
 
+    /**
+     * adds message to private chat room to the db
+     * @param message - the message`s data
+     * @return saved message
+     */
     public Message addMessageToPrivateChat(Message message) {
         message.setIssueDate(LocalDateTime.now());
         return messageRepository.save(message);
     }
 
+    /**
+     * downloads private room messages
+     * @param roomId - the roomId`s data
+     * @return list of messages
+     */
     public List<Message> downloadPrivateRoomMessages(String roomId) {
         return messageRepository.findByRoomId(roomId);
     }
 
+    /**
+     * adding message to db
+     * @param message - the message`s data
+     * @return a saved message body
+     */
     public Message addMessageToMainChat(Message message) {
         message.setIssueDate(LocalDateTime.now());
         message.setReceiver("null");
         return messageRepository.save(message);
     }
 
+    /**
+     * find all the main chat room messages in the db
+     * @param size - the number of returned rows
+     * @return list of messages sorted by DESC timestamp
+     */
     public List<Message> getMainRoomMessages(int size) {
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
     }
