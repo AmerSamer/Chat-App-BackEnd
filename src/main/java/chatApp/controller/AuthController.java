@@ -1,6 +1,5 @@
 package chatApp.controller;
 
-import chatApp.Utilities.Utility;
 import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
 
-import static chatApp.Utilities.ExceptionHandler.*;
+import static chatApp.Utilities.ExceptionMessages.*;
 import static chatApp.Utilities.SuccessMessages.*;
 import static chatApp.Utilities.Utility.*;
 
@@ -46,7 +45,7 @@ public class AuthController {
             }
             logger.info("Try to register " + user.getEmail() + " to the system");
             User createUser = authService.addUser(user);
-            UserDTO userDTO = userToUserDTO(createUser);
+            UserDTO userDTO = UserDTO.userToUserDTO(createUser);
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, registrationSuccessfulMessage);
             logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(response);
@@ -70,9 +69,9 @@ public class AuthController {
             }
             logger.info("Try to login : " + user.getEmail() + " to the system");
             User logUser = authService.login(user);
-            UserDTO userDTO = userToUserDTO(logUser);
-            String header = authService.getKeyEmailsValTokens().get(userDTO.getEmail());
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header, userDTO.getName());
+            String header = authService.getKeyEmailsValTokens().get(user.getEmail());
+            UserDTO userDTO = UserDTO.userToUserDTO(logUser);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
@@ -92,9 +91,9 @@ public class AuthController {
             }
             logger.info("Try to login as guest to the system");
             User userGuest = authService.addGuest(user);
-            UserDTO userDTO = userGuestToUserDTO(userGuest);
-            String header = authService.getKeyEmailsValTokens().get(userDTO.getEmail());
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header, userDTO.getName());
+            String header = authService.getKeyEmailsValTokens().get(user.getEmail());
+            UserDTO userDTO = UserDTO.userGuestToUserDTO(userGuest);
+            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (SQLDataException e) {
@@ -108,7 +107,7 @@ public class AuthController {
     public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {
         try {
             User userVerify = authService.verifyEmail(user);
-            UserDTO userDTO = userToUserDTO(userVerify);
+            UserDTO userDTO = UserDTO.userToUserDTO(userVerify);
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, activationEmailSuccessfulMessage);
             logger.info(activationEmailSuccessfulMessage);
             return ResponseEntity.ok().body(response);

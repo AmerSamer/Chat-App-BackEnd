@@ -24,8 +24,8 @@ public class Utility {
     private static Logger logger = LogManager.getLogger(Utility.class.getName());
 
 
-    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat", "/error"));
-    public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status"));
+    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "ws", "/mainchatroom", "/downloadmainchatroom", "/error"));
+    public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status", "chat/getusers", "chat/mainchatroom", "chat/downloadmainchatroom", "/topic", "/app", "/plain"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
 
     //The length of the password > 6
@@ -69,27 +69,9 @@ public class Utility {
         return bEncoder.encode(stringToEncrypt);
     }
 
-    public static UserDTO userToUserDTO(User user) {
-            return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(), user.getType(), user.isMute(), user.getEmail());
-    }
-
-    public static List<UserDTO> userListToUserListDTO(List<User> users) {
-        List<UserDTO> listUsers = new ArrayList<>();
-        for (User user: users) {
-            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType(), user.isMute(), user.getNickname());
-            listUsers.add(userDTO);
-        }
-        return listUsers;
-    }
-
-    public static UserDTO userGuestToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getName(),user.getEmail(), user.isMute(), user.getNickname());
-    }
-
     public static int calcAge (LocalDate dateOfBirth){
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
-
 
     public static String getDateNow(){
         LocalDateTime localDateTime = LocalDateTime.now();

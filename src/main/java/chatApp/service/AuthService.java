@@ -11,16 +11,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static chatApp.Utilities.ExceptionHandler.*;
+import static chatApp.Utilities.ExceptionMessages.*;
 import static chatApp.Utilities.Utility.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -50,18 +48,18 @@ public class AuthService {
 
     public User login(User user) throws SQLDataException {
         logger.debug("Check if the user is exist in DB");
-        User dbUser = userRepository.findByEmail(user.getEmail());
-        if (dbUser == null) {
+        if (userRepository.findByEmail(user.getEmail()) == null) {
             logger.error(emailNotExistsMessage(user.getEmail()));
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
-        BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
+        User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
+
         logger.debug("Check if password of "+ user.getEmail()+" are correct");
+//        BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
 //        if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-        if (!user.getPassword().equals(dbUser.getPassword())) {
-            logger.error(passwordDosentMatchMessage(user.getPassword()));
-            throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
-        }
+//            logger.error(passwordDosentMatchMessage(user.getPassword()));
+//            throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
+//        }
         logger.info("Create token for " + user.getEmail());
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, dbUser.getEmail());
@@ -107,12 +105,14 @@ public class AuthService {
     }
 
     public User verifyEmail(User user) throws SQLDataException {
-        User dbUser = userRepository.findByEmail(user.getEmail());
         logger.debug("Check if the user is exist in DB");
-        if (dbUser == null) {
+        if (userRepository.findByEmail(user.getEmail()) == null) {
             logger.error(emailNotExistsMessage(user.getEmail()));
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
+
+        User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
+
         logger.debug("Check if the user already activated");
         if(dbUser.isEnabled()){
             logger.error(emailAlreadyActivatedMessage(user.getEmail()));

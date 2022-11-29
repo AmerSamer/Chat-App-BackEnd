@@ -19,6 +19,7 @@ public class Message {
 
     @Column(nullable = false)
     private String receiver;
+    @Column(nullable = false)
     private String content;
     @Column(nullable = false)
     private String roomId;
@@ -29,13 +30,6 @@ public class Message {
     private String issueDateTime;
 
     private Message() {
-    }
-
-    public Message(String sender, String content) {
-        this.sender = sender;
-        this.content = content;
-        this.issueDate = getDateNow();
-        this.issueDateTime = getIssueDateTime();
     }
     public Message(String sender, String content, String receiver, String roomId) {
         this.sender = sender;
@@ -100,30 +94,6 @@ public class Message {
 
     public void setIssueDateTime(String issueDateTime) {
         this.issueDateTime = issueDateTime;
-    }
-
-    public static class HelloMessage {
-
-        private String name;
-
-        public HelloMessage() {
-        }
-
-        public HelloMessage(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-
-        @Override
-        public String toString() {
-            return "HelloMessage{" +
-                    "name='" + name + '\'' +
-                    '}';
-        }
     }
 
 }

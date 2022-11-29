@@ -31,8 +31,8 @@ public class MessageService {
     private MessageRepository messageRepository;
 
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
-        User senderUser = userRepository.findByEmail(userEmail);
-        User receiverUser = userRepository.getById(receiverId);
+        User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
+        User receiverUser = User.dbUser(userRepository.getById(receiverId));
         Long senderId = senderUser.getId();
         List<Message> messageList =  messageRepository.findByRoomId(senderId + "E" + receiverId);
         if(messageList.isEmpty()){
@@ -54,7 +54,12 @@ public class MessageService {
         return messageRepository.findByRoomId(roomId);
     }
 
-    public Message addMessageToMainChat(Message message) {
+    public Message addMessageToMainChat(Message message) throws IllegalAccessException {
+        String userNickname = message.getSender();
+        User user = User.dbUser(userRepository.findByNickname(userNickname));
+        if(user.isMute()){
+            throw new IllegalAccessException("User is Muted");
+        }
         message.setIssueDate(getDateNow());
         message.setIssueDateTime(getDateTimeNow());
         message.setReceiver("main");

@@ -19,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.SQLDataException;
 
 import static chatApp.Utilities.Utility.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -37,7 +36,7 @@ class AuthControllerTest {
 
 //    @Autowired
 //    private TestEntityManager testEntityManager;
-
+//
 //    @AfterEach
 //    @BeforeEach
 //    public void deleteAllTables(){
@@ -48,10 +47,7 @@ class AuthControllerTest {
 
     @BeforeEach
     void newUser(){
-        user = new User();
-        user.setEmail("abcd123@gmail.com");
-        user.setPassword("abcdABCD123");
-        user.setName("abcd");
+        this.user = User.registerUser("abcd", "abcd123@gmail.com", "abcdABCD123");
     }
 
 
@@ -107,10 +103,7 @@ class AuthControllerTest {
 
     @Test
     void createUser_insertUserInDB_saveUserInDB() throws SQLDataException {
-        User user = new User();
-        user.setEmail("bbb222@gmail.com");
-        user.setPassword("bbbBBB222");
-        user.setName("bbb");
+        User user = User.registerUser("bbb", "bbb222@gmail.com", "bbbBBB222");
         User user1 = authService.addUser(user);
         assertEquals(user, userRepo.findByEmail(user1.getEmail()));
         userRepo.delete(user1);
@@ -134,7 +127,6 @@ class AuthControllerTest {
 
     @Test
     void loginAsGuest_checkName_addPrefixGuest() throws SQLDataException {
-        User user = new User();
         user.setName("a");
         User user1 = authService.addGuest(user);
         assertEquals(user.getName(), user1.getName());
@@ -142,7 +134,6 @@ class AuthControllerTest {
     }
     @Test
     void loginAsGuest_checkEmail_addEmailGuest() throws SQLDataException {
-        User user = new User();
         user.setName("b");
         User user1 = authService.addGuest(user);
         assertEquals(user.getEmail() ,user1.getEmail());

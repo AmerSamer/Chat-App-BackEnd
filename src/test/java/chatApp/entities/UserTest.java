@@ -32,11 +32,7 @@ class UserTest {
 
     @Test
     public void testCreateUser() {
-        User user = new User();
-        user.setEmail("shai@gmail.com");
-        user.setPassword("1234");
-        user.setName("shai");
-
+        User user = User.registerUser("shai", "shai@gmail.com", "Aa12345");
         User savedUser = userRepo.save(user);
 
         User existUser = testEntityManager.find(User.class, savedUser.getId());
@@ -46,11 +42,7 @@ class UserTest {
 
     @Test
     public void testCreateUserTwo() {
-        User user = new User();
-        //unique email, change and check if inserted
-        user.setEmail("taltal@gmail.com");
-        user.setPassword("1234");
-        user.setName("tal");
+        User user = User.registerUser("shai", "taltal@gmail.com", "Aa12345");
 
         User savedUser = userRepo.save(user);
 
@@ -61,11 +53,7 @@ class UserTest {
 
     @Test
     public void testCreateUserThree() {
-        User user = new User();
-        //unique email, change and check if inserted
-        user.setEmail("hen@gmail.com");
-        user.setPassword("1234");
-        user.setName("hen");
+        User user = User.registerUser("shai", "taltal@gmail.com", "Aa12345");
 
         User savedUser = userRepo.save(user);
 

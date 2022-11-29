@@ -18,7 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
 
-import static chatApp.Utilities.ExceptionHandler.invalidEmailMessage;
+import static chatApp.Utilities.ExceptionMessages.invalidEmailMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -41,12 +41,9 @@ class UserControllerTest {
 
     @BeforeEach
     void newUser() throws SQLDataException {
-        this.user = new User();
-        user.setEmail("a11222222@gmail.com");
-        user.setPassword("aA11");
-        user.setName("a");
-        authService.addUser(user);
-        authService.login(user);
+        this.user = User.registerUser("a", "a11222222@gmail.com", "aA11");
+        authService.addUser(this.user);
+        authService.login(this.user);
     }
 
     @AfterEach

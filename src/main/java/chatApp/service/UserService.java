@@ -1,14 +1,11 @@
 package chatApp.service;
 
-import static chatApp.Utilities.ExceptionHandler.*;
+import static chatApp.Utilities.ExceptionMessages.*;
 import static chatApp.Utilities.Utility.*;
 
-import chatApp.controller.AuthController;
-import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
-import chatApp.repository.MessageRepository;
 import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,11 +38,11 @@ public class UserService {
     public User updateUser(User user, String token) throws SQLDataException {
         logger.debug("Check if the user is exist in DB");
         String userEmail = authService.getKeyTokensValEmails().get(token);
-        User dbUser = userRepository.findByEmail(userEmail);
-        if (dbUser == null) {
+        if (userRepository.findByEmail(userEmail) == null) {
             logger.error(emailNotExistsMessage(user.getEmail()));
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
+        User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
 
         if (!user.getNickname().equals("")) {
             dbUser.setNickname(user.getNickname());
@@ -78,7 +75,7 @@ public class UserService {
         String userEmail = authService.getKeyTokensValEmails().get(token);
         authService.getKeyTokensValEmails().remove(token);
         authService.getKeyEmailsValTokens().remove(userEmail);
-        User dbUser = userRepository.findByEmail(userEmail);
+        User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
         logger.info("If the user guest delete him from DB else update his status to offline");
         if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
             userRepository.delete(dbUser);
@@ -92,8 +89,8 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        logger.info("Get all users in users table");
-        return userRepository.findAll().stream().sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
+        logger.info("Get all users in users table that are not offline");
+        return userRepository.findAll().stream().filter(currUser -> !currUser.getUserStatus().equals(UserStatuses.OFFLINE)).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 
     public User updateMuteUnmuteUser(Long id, String token) throws SQLDataException {
@@ -102,13 +99,16 @@ public class UserService {
             logger.error(tokenSessionExpired);
             throw new SQLDataException(tokenSessionExpired);
         }
-        User dbUser = userRepository.getById(id);
-        if (dbUser == null) {
+        if (userRepository.getById(id) == null) {
             throw new SQLDataException(emailNotExistsMessage(userEmail));
         }
+
+        User dbUser = User.dbUser(userRepository.getById(id));
+
         if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
             throw new SQLDataException(tokenSessionExpired);
         }
+
         dbUser.setMute(!dbUser.isMute());
         return userRepository.save(dbUser);
     }
@@ -117,10 +117,12 @@ public class UserService {
         if (userEmail == null) {
             throw new SQLDataException(tokenSessionExpired);
         }
-        User dbUser = userRepository.findByEmail(userEmail);
-        if (dbUser == null) {
+        if (userRepository.findByEmail(userEmail) == null) {
             throw new SQLDataException(emailNotExistsMessage(userEmail));
         }
+
+        User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
+
         if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
             throw new SQLDataException(tokenSessionExpired);
         }
