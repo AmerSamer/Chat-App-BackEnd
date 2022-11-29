@@ -46,6 +46,10 @@ public class UserService {
             logger.error(emailNotExistsMessage(user.getEmail()));
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
+
+        if (!user.getNickname().equals("")) {
+            dbUser.setNickname(user.getNickname());
+        }
         if (!user.getEmail().equals("")) {
             dbUser.setEmail(user.getEmail());
         }
@@ -59,8 +63,11 @@ public class UserService {
             dbUser.setDateOfBirth(user.getDateOfBirth());
             dbUser.setAge(calcAge(user.getDateOfBirth()));
         }
-        if (user.getPhoto() != null) {
+        if (!user.getPhoto().equals("")) {
             dbUser.setPhoto(user.getPhoto());
+        }
+        if (!user.getDescription().equals("")) {
+            dbUser.setDescription(user.getDescription());
         }
         logger.info("Update the user, and save updating in DB");
         return userRepository.save(dbUser);

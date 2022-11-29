@@ -82,4 +82,11 @@ public class ChatController {
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
         return ResponseEntity.ok().body(response);
     }
+
+    @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
+    private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("roomId") String roomId) {
+        List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
+        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
+        return ResponseEntity.ok().body(response);
+    }
 }

@@ -83,7 +83,7 @@ public class AuthService {
         user.setType(UserType.GUEST);
         user.setPassword(Utility.randomString());
         user.setUserStatus(UserStatuses.ONLINE);
-        user.setNickname(guestPrefix + user.getName());
+        user.setNickname(user.getName());
         String sessionToken = randomString();
         keyTokensValEmails.put(sessionToken, user.getEmail());
         keyEmailsValTokens.put(user.getEmail(), sessionToken);
