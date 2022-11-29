@@ -48,24 +48,24 @@ public class PermissionFilter extends GenericFilterBean {
         if (permissionPathsForAll.stream().noneMatch(path::contains)) {
             if (auth == null) {
                 res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Authorization header needed");
+                throw new IllegalAccessError("Not Authorized");
             }
             else if (!authService.getKeyTokensValEmails().containsKey(auth)) {
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
+                throw new IllegalAccessError("Not Authorized");
             }
             else{
                 String userEmail = authService.getKeyTokensValEmails().get(auth);
                 if (!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))) {
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
+                    throw new IllegalAccessError("Not Authorized");
                 }
                 User dbUser = userRepository.findByEmail(userEmail);
                 if (dbUser.getType() == UserType.GUEST) {
                     if (permissionPathsForGuest.stream().noneMatch(path::contains)) {
                         res.addHeader("SC_UNAUTHORIZED", "Provided Information is Invalid");
                         res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Provided Information is Invalid");
-                        if (!"OPTIONS".equals(req.getMethod())) {
-//                            res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Authorization header needed");
-                            throw new IllegalAccessError("Authorization header needed"); // Should return custom http status response like 400
-                        }
+                        throw new IllegalAccessError("Not Authorized");
                     }
                 }
                 if (dbUser.getType() == UserType.REGISTERED) {

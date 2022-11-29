@@ -1,9 +1,12 @@
 package chatApp.customEntities;
 
+import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDTO {
     private Long id;
@@ -15,130 +18,151 @@ public class UserDTO {
     private UserStatuses userStatus;
     private UserType userType;
     private boolean isMute;
-
     private String nickname;
     private String description;
 
-    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus, UserType userType, boolean isMute, String nickname, String description) {
+    private UserDTO(){
+    }
+
+    /**
+     *User DTO: get user and convert him to userDTO
+     * @param user - the user
+     * @return the userDTO
+     */
+    public static UserDTO userToUserDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setPhoto(user.getPhoto());
+        userDTO.setDateOfBirth(user.getDateOfBirth());
+        userDTO.setAge(user.getAge());
+        userDTO.setUserStatus(user.getUserStatus());
+        userDTO.setUserType(user.getType());
+        userDTO.setNickname(user.getNickname());
+        userDTO.setDescription((user.getDescription()));
+        userDTO.setMute(user.isMute());
+        return userDTO;
+    }
+
+    /**
+     *UserListToUserListDTO: get users list and convert them to userDTO list
+     * @param users - the users list
+     * @return the userDTO list
+     */
+    public static List<UserDTO> userListToUserListDTO(List<User> users) {
+        List<UserDTO> listUsers = new ArrayList<>();
+        for (User user: users) {
+            UserDTO userDTO = UserDTO.userToUserDTO(user);
+            listUsers.add(userDTO);
+        }
+        return listUsers;
+    }
+
+
+    /**
+     *User DTO: get user guest and convert him to userDTO
+     * @param user - the guest
+     * @return the userDTO
+     */
+    public static UserDTO userGuestToUserDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setUserStatus(user.getUserStatus());
+        userDTO.setUserType(user.getType());
+        userDTO.setNickname(user.getNickname());
+        userDTO.setMute(user.isMute());
+        return userDTO;
+    }
+
+    private void setId(Long id) {
         this.id = id;
+    }
+
+    private void setName(String name) {
         this.name = name;
+    }
+
+    private void setEmail(String email) {
         this.email = email;
+    }
+
+    private void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    private void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    private void setAge(int age) {
         this.age = age;
+    }
+
+    private void setUserStatus(UserStatuses userStatus) {
         this.userStatus = userStatus;
+    }
+
+    private void setUserType(UserType userType) {
         this.userType = userType;
-        this.isMute = isMute;
+    }
+
+    private void setMute(boolean mute) {
+        isMute = mute;
+    }
+
+    private void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    private void setDescription(String description) {
         this.description = description;
-    }
-
-    public UserDTO(Long id, String name, String email, String photo, LocalDate dateOfBirth, int age, UserStatuses userStatus, UserType userType, boolean isMute, String nickname) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.photo = photo;
-        this.dateOfBirth = dateOfBirth;
-        this.age = age;
-        this.userStatus = userStatus;
-        this.userType = userType;
-        this.isMute = isMute;
-        this.nickname = nickname;
-    }
-
-    public UserDTO(Long id, String name, String email, boolean isMute, String nickname) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.isMute = isMute;
-        this.nickname = nickname;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getPhoto() {
         return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
     public int getAge() {
         return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 
     public UserStatuses getUserStatus() {
         return userStatus;
     }
 
-    public void setUserStatus(UserStatuses userStatus) {
-        this.userStatus = userStatus;
-    }
     public UserType getUserType() {
         return userType;
-    }
-
-    public void setUserType(UserType userType) {
-        this.userType = userType;
     }
 
     public boolean isMute() {
         return isMute;
     }
 
-    public void setMute(boolean mute) {
-        isMute = mute;
-    }
-
     public String getNickname() {
         return nickname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     @Override

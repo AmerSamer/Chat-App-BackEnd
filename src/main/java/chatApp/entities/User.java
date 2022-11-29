@@ -42,21 +42,46 @@ public class User {
     private String description;
 
     public User() {
-        super();
-        this.enabled = false;
     }
 
-    public User(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.enabled = false;
-        this.isMute = false;
+
+    public static User dbUser(User user) {
+        User currUser = new User();
+        currUser.setName(user.getName());
+        currUser.setEmail(user.getEmail());
+        currUser.setPassword(user.getPassword());
+        currUser.setEnabled(user.isEnabled());
+        currUser.setMute(user.isMute());
+        currUser.setUserStatus(user.getUserStatus());
+        currUser.setNickname(user.getNickname());
+        currUser.setType(user.getType());
+        currUser.setAge(user.getAge());
+        currUser.setDescription(user.getDescription());
+        currUser.setPhoto(user.getPhoto());
+        currUser.setIssueDate(user.getIssueDate());
+        currUser.setDateOfBirth(user.getDateOfBirth());
+        currUser.setId(user.getId());
+        currUser.setVerifyCode(user.getVerifyCode());
+        return currUser;
     }
 
-    public User(String email, String password) {
-        this.email = email;
-        this.password = password;
+    public static User registerUser(String name, String email, String password) {
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setEnabled(false);
+        user.setMute(false);
+        return user;
+    }
+
+    public static User loginUser(String email, String password) {
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setEnabled(false);
+        user.setMute(false);
+        return user;
     }
 
     public String getPhoto() {

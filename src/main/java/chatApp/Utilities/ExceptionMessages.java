@@ -1,8 +1,6 @@
 package chatApp.Utilities;
 
-import org.springframework.http.ResponseEntity;
-
-public class ExceptionHandler {
+public class ExceptionMessages {
 
     public static String invalidEmailMessage = "Invalid Email, Please try again. Example: sample@test.com";
     public static String invalidNameMessage = "Invalid Name, Please try again without numbers. Example: Some Name";
@@ -17,7 +15,8 @@ public class ExceptionHandler {
     public static String verificationCodeNotMatch = "Verification code doesn't match. Please try again";
     public static String tokenSessionExpired = "Token session expired, please log-in again.";
 
-    public static String getAllUsersFailed = "Couldn't get all users";
+    public static String userIsMutedMessage = "You are muted, can't send messages";
+
 
 
     public static String emailNotExistsMessage(String email) {

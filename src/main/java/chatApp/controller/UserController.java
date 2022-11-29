@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static chatApp.Utilities.ExceptionHandler.*;
+import static chatApp.Utilities.ExceptionMessages.*;
 import static chatApp.Utilities.SuccessMessages.*;
 import static chatApp.Utilities.Utility.*;
 
@@ -51,7 +51,7 @@ public class UserController {
                 }
                 logger.info("Try to update " + user.getEmail() + " in the system");
                 User updateUser = userService.updateUser(user, token);
-                UserDTO userDTO = userToUserDTO(updateUser);
+                UserDTO userDTO = UserDTO.userToUserDTO(updateUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateUserSuccessfulMessage);
                 logger.info("Update the client the update was successful");
                 return ResponseEntity.ok().body(response);
@@ -73,7 +73,7 @@ public class UserController {
             try {
                 logger.info("User try to logout in the system");
                 User logoutUser = userService.logoutUser(token);
-                UserDTO userDTO = userToUserDTO(logoutUser);
+                UserDTO userDTO = UserDTO.userToUserDTO(logoutUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, logoutSuccessfulMessage);
                 logger.info(logoutSuccessfulMessage);
                 return ResponseEntity.ok().body(response);
@@ -97,7 +97,7 @@ public class UserController {
             try {
                 logger.info("Try to mute / unmute user");
                 User updateUser = userService.updateMuteUnmuteUser(id, token);
-                UserDTO userDTO = userToUserDTO(updateUser);
+                UserDTO userDTO = UserDTO.userToUserDTO(updateUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateMuteUnmuteUserSuccessfulMessage);
                 logger.info(updateMuteUnmuteUserSuccessfulMessage);
                 return ResponseEntity.ok().body(response);
@@ -122,7 +122,7 @@ public class UserController {
             try {
                 logger.info("Try to changed the status of the user to ONLINE/AWAY");
                 User updateUser = userService.updateStatusUser(token, status);
-                UserDTO userDTO = userToUserDTO(updateUser);
+                UserDTO userDTO = UserDTO.userToUserDTO(updateUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateStatusUserSuccessfulMessage);
                 logger.info(updateStatusUserSuccessfulMessage);
                 return ResponseEntity.ok().body(response);

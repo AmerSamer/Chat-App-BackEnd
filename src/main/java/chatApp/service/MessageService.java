@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static chatApp.Utilities.Utility.*;
+
 @CrossOrigin
 @Service
 public class MessageService {
@@ -35,9 +37,8 @@ public class MessageService {
      * @return list of messages of specific private room
      */
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
-        logger.info("Try to get private chat room messages");
-        User senderUser = userRepository.findByEmail(userEmail);
-        User receiverUser = userRepository.getById(receiverId);
+        User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
+        User receiverUser = User.dbUser(userRepository.getById(receiverId));
         Long senderId = senderUser.getId();
         List<Message> messageList =  messageRepository.findByRoomId(senderId + "E" + receiverId);
         if(messageList.isEmpty()){
@@ -55,8 +56,8 @@ public class MessageService {
      * @return saved message
      */
     public Message addMessageToPrivateChat(Message message) {
-        logger.info("Try to add message to private chat room");
-        message.setIssueDate(LocalDateTime.now());
+        message.setIssueDate(getDateNow());
+        message.setIssueDateTime(getDateTimeNow());
         return messageRepository.save(message);
     }
 
@@ -75,10 +76,16 @@ public class MessageService {
      * @param message - the message`s data
      * @return a saved message body
      */
-    public Message addMessageToMainChat(Message message) {
-        logger.info("Try to add message to main chat room");
-        message.setIssueDate(LocalDateTime.now());
-        message.setReceiver("null");
+    public Message addMessageToMainChat(Message message) throws IllegalAccessException {
+            logger.info("Try to add message to main chat room");
+        String userNickname = message.getSender();
+        User user = User.dbUser(userRepository.findByNickname(userNickname));
+        if(user.isMute()){
+            throw new IllegalAccessException("User is Muted");
+        }
+        message.setIssueDate(getDateNow());
+        message.setIssueDateTime(getDateTimeNow());
+        message.setReceiver("main");
         return messageRepository.save(message);
     }
 
@@ -90,5 +97,14 @@ public class MessageService {
     public List<Message> getMainRoomMessages(int size) {
         logger.info("Try to get main chat room messages");
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
+    }
+
+    public List<Message> getMainRoomMessagesByTime(String date, String time) {
+        if(Integer.parseInt(time.replaceAll(":","")) < Integer.parseInt(getDateTimeNow().replaceAll(":",""))) {
+            return messageRepository.findByRoomIdAndIssueDateTimeBetweenAndIssueDateBetween("0", time, getDateTimeNow(), getDateNow(), date);
+        }
+        else{
+            return messageRepository.findByRoomIdAndIssueDateBetween("0", date,  getDateNow());
+        }
     }
 }

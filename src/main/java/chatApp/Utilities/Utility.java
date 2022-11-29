@@ -10,6 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.SQLDataException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -23,8 +25,8 @@ public class Utility {
     private static Logger logger = LogManager.getLogger(Utility.class.getName());
 
 
-    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "/ws", "/chat"));
-    public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status"));
+    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "ws", "/mainchatroom", "/downloadmainchatroom", "/error"));
+    public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status", "chat/getusers", "chat/mainchatroom", "chat/downloadmainchatroom", "/topic", "/app", "/plain"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
 
     /**
@@ -84,34 +86,22 @@ public class Utility {
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         return bEncoder.encode(stringToEncrypt);
     }
-    /**
-     *User DTO: get user and convert him to userDTO
-     * @param user - the user
-     * @return the userDTO
-     */
-    public static UserDTO userToUserDTO(User user) {
-            return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(), user.getType(), user.isMute(), user.getEmail());
-    }
-    /**
-     *UserListToUserListDTO: get users list and convert them to userDTO list
-     * @param users - the users list
-     * @return the userDTO list
-     */
-    public static List<UserDTO> userListToUserListDTO(List<User> users) {
-        List<UserDTO> listUsers = new ArrayList<>();
-        for (User user: users) {
-            UserDTO userDTO = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoto(), user.getDateOfBirth(), user.getAge(), user.getUserStatus(),user.getType(), user.isMute(), user.getNickname());
-            listUsers.add(userDTO);
-        }
-        return listUsers;
-    }
-    /**
-     *User DTO: get user guest and convert him to userDTO
-     * @param user - the guest
-     * @return the userDTO
-     */
-    public static UserDTO userGuestToUserDTO(User user) {
-        return new UserDTO(user.getId(), user.getName(),user.getEmail(), user.isMute(), user.getNickname());
+
+    public static int calcAge (LocalDate dateOfBirth){
+        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
+    public static String getDateNow(){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String dateTimeString = localDateTime.format(dateTimeFormatter);
+        return dateTimeString.split( " ")[0];
+    }
+
+    public static String getDateTimeNow(){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String dateTimeString = localDateTime.format(dateTimeFormatter);
+        return dateTimeString.split( " ")[1];
+    }
 }
