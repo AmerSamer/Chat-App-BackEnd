@@ -26,6 +26,12 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    /**
+     * checks if the email, name, password is valid, and send the user to the addUser method in AuthService
+     * @param user - the user's data
+     * @return a saved user with response body
+     * @throws SQLDataException when the provided email already exists
+     */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> createUser(@RequestBody User user) {
         try {
@@ -57,6 +63,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * checks if the email, password is valid, and send the user to the login method in AuthService
+     * @param user - the user's data
+     * @return user with response body
+     * @throws SQLDataException when the provided email not exists in the database
+     */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
         try {
@@ -82,6 +94,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * checks if the name is valid, and send the user to the addGuest method in AuthService
+     * @param user - the user's data
+     * @return user with response body
+     * @throws SQLDataException when the provided name exists in the database
+     */
     @RequestMapping(value = "login/guest", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> loginAsGuest(@RequestBody User user) {
         try {
@@ -104,6 +122,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * send the user to the verifyEmail method in AuthService
+     * @param user - the user's data
+     * @return user with response body
+     * @throws SQLDataException when the provided name exists in the database
+     */
     @RequestMapping(value = "activate", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {
         try {

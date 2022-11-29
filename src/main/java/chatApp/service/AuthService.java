@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static chatApp.Utilities.ExceptionHandler.*;
 import static chatApp.Utilities.Utility.*;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 
@@ -42,12 +43,22 @@ public class AuthService {
     private Map<String, String> keyTokensValEmails;
     private Map<String, String> keyEmailsValTokens;
 
-
+    /**
+     * AuthService constructor
+     * Initializes keyTokensValEmails new Map
+     * Initializes keyEmailsValTokens new Map
+     */
     AuthService() {
         this.keyTokensValEmails = getTokensInstance();
         this.keyEmailsValTokens = getEmailsInstance();
     }
 
+    /**
+     * Adds a user crypt password to the database if the user`s email exist in the db
+     * @param user - the user's data
+     * @return a saved user
+     * @throws SQLDataException when the provided email not exists in the database
+     */
     public User login(User user) throws SQLDataException {
         logger.debug("Check if the user is exist in DB");
         User dbUser = userRepository.findByEmail(user.getEmail());
@@ -56,7 +67,7 @@ public class AuthService {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
-        logger.debug("Check if password of "+ user.getEmail()+" are correct");
+        logger.debug("Check if password of " + user.getEmail() + " are correct");
 //        if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
         if (!user.getPassword().equals(dbUser.getPassword())) {
             logger.error(passwordDosentMatchMessage(user.getPassword()));
@@ -71,6 +82,12 @@ public class AuthService {
         return userRepository.save(dbUser);
     }
 
+    /**
+     * Adds a user to the database if it has a unique name
+     * @param user - the user's data
+     * @return a saved user
+     * @throws SQLDataException when the provided name exists in the database
+     */
     public User addGuest(User user) throws SQLDataException {
         logger.debug("Check if the guest name is exist in DB");
         if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
@@ -91,6 +108,13 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+    /**
+     * Adds a user to the database if it has a unique email
+     *
+     * @param user - the user's data
+     * @return a saved user
+     * @throws SQLDataException when the provided email already exists
+     */
     public User addUser(User user) throws SQLDataException {
         logger.debug("Check if the user is exist in DB");
         if (userRepository.findByEmail(user.getEmail()) != null) {
@@ -106,6 +130,15 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+    /**
+     * Adds a user to the database with userType field
+     *
+     * @param user - the user's data
+     * @return a saved user
+     * @throws SQLDataException when the provided email not exists
+     * @throws SQLDataException when the provided user activation is true
+     * @throws SQLDataException when the provided token Expired
+     */
     public User verifyEmail(User user) throws SQLDataException {
         User dbUser = userRepository.findByEmail(user.getEmail());
         logger.debug("Check if the user is exist in DB");
@@ -114,16 +147,14 @@ public class AuthService {
             throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
         }
         logger.debug("Check if the user already activated");
-        if(dbUser.isEnabled()){
+        if (dbUser.isEnabled()) {
             logger.error(emailAlreadyActivatedMessage(user.getEmail()));
             throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
-        }
-        else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
+        } else if (LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))) {
             logger.error(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
             sendMessage(user);
             throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-        }
-        else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
+        } else if (!dbUser.getVerifyCode().equals(user.getVerifyCode())) {
             logger.error(verificationCodeNotMatch);
             throw new SQLDataException(verificationCodeNotMatch);
         }
@@ -131,11 +162,16 @@ public class AuthService {
         dbUser.setEnabled(true);
         dbUser.setVerifyCode(null);
         dbUser.setType(UserType.REGISTERED);
-        logger.info("Save the"+ user.getEmail()+ "in DB as registered user");
+        logger.info("Save the" + user.getEmail() + "in DB as registered user");
         return userRepository.save(dbUser);
     }
 
-    public void sendMessage(User user){
+    /**
+     * Chains a message and sends to an email with a token, uses the JAVAMAIL library
+     *
+     * @param user - the user's data
+     */
+    public void sendMessage(User user) {
         String verifyCode = randomString();
         user.setVerifyCode(verifyCode);
         user.setIssueDate(LocalDate.now());
@@ -146,22 +182,34 @@ public class AuthService {
         mailSender.send(preConfiguredMessage);
     }
 
-    Map<String, String> getTokensInstance(){
-        if(this.keyTokensValEmails == null)
+    /**
+     * Initializes the keyTokensValEmails if the keyTokensValEmails is null
+     */
+    Map<String, String> getTokensInstance() {
+        if (this.keyTokensValEmails == null)
             this.keyTokensValEmails = new HashMap<>();
         return this.keyTokensValEmails;
     }
 
-    Map<String, String> getEmailsInstance(){
-        if(this.keyEmailsValTokens == null)
+    /**
+     * Initializes the keyEmailsValTokens if the keyEmailsValTokens is null
+     */
+    Map<String, String> getEmailsInstance() {
+        if (this.keyEmailsValTokens == null)
             this.keyEmailsValTokens = new HashMap<>();
         return this.keyEmailsValTokens;
     }
 
+    /**
+     * gets the KeyTokensValEmails Map
+     */
     public Map<String, String> getKeyTokensValEmails() {
         return this.keyTokensValEmails;
     }
 
+    /**
+     * gets the KeyEmailsValTokens Map
+     */
     public Map<String, String> getKeyEmailsValTokens() {
         return this.keyEmailsValTokens;
     }

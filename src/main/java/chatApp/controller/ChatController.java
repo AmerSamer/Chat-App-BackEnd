@@ -12,6 +12,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,18 +44,32 @@ public class ChatController {
 //        return ResponseEntity.ok().body(response);
 //    }
 
+    /**
+     * sends the message to the addMessageToMainChat method in the messageService
+     * @param message - the message's data
+     * @return a saved message
+     */
     @MessageMapping("/plain")
     @SendTo("/topic/mainChat")
     public Message sendPlainMessage(Message message) {
         return messageService.addMessageToMainChat(message);
     }
 
+    /**
+     * sends the message to the addMessageToPrivateChat method in the messageService
+     * @param message - the message's data
+     * @return a saved message
+     */
     @MessageMapping("/plain/privatechat/{roomId}")
     @SendTo("/topic/privatechat/{roomId}")
     public Message sendPrivatePlainMessage(Message message) {
         return messageService.addMessageToPrivateChat(message);
     }
 
+    /**
+     * calling the getAllUsers method in the userService
+     * @return list of all users
+     */
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
         List<User> userList = userService.getAllUsers();
@@ -63,6 +78,12 @@ public class ChatController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * sends the senderEmail, receiverId to the getPrivateRoomMessages method in the messageService
+     * @param senderEmail - the Email of the sender
+     * @param receiverId - the id of the receiver
+     * @return list of messages of private chat room
+     */
     @RequestMapping(value = "/privatechatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail,
                                                                          @RequestParam("receiver") Long receiverId) {
@@ -76,6 +97,11 @@ public class ChatController {
 //        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
 //        return ResponseEntity.ok().body(response);
 //    }
+    /**
+     * sends the size to the getMainRoomMessages method in the messageService
+     * @param size - the number of returned rows
+     * @return list of messages of main chat room
+     */
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
         List<Message> messageList = messageService.getMainRoomMessages(size);
@@ -83,6 +109,11 @@ public class ChatController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * sends the roomId to the downloadPrivateRoomMessages method in the messageService
+     * @param roomId - the room id
+     * @return list of messages of specific private chat room
+     */
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("roomId") String roomId) {
         List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
