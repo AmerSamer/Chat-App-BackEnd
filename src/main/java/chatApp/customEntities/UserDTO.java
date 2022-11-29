@@ -24,7 +24,11 @@ public class UserDTO {
     private UserDTO(){
     }
 
-
+    /**
+     *User DTO: get user and convert him to userDTO
+     * @param user - the user
+     * @return the userDTO
+     */
     public static UserDTO userToUserDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
@@ -41,6 +45,11 @@ public class UserDTO {
         return userDTO;
     }
 
+    /**
+     *UserListToUserListDTO: get users list and convert them to userDTO list
+     * @param users - the users list
+     * @return the userDTO list
+     */
     public static List<UserDTO> userListToUserListDTO(List<User> users) {
         List<UserDTO> listUsers = new ArrayList<>();
         for (User user: users) {
@@ -50,6 +59,12 @@ public class UserDTO {
         return listUsers;
     }
 
+
+    /**
+     *User DTO: get user guest and convert him to userDTO
+     * @param user - the guest
+     * @return the userDTO
+     */
     public static UserDTO userGuestToUserDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());

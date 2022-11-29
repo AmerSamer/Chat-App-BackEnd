@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,8 +29,11 @@ public class Utility {
     public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status", "chat/getusers", "chat/mainchatroom", "chat/downloadmainchatroom", "/topic", "/app", "/plain"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
 
-    //The length of the password > 6
-    //At least one capital letter
+    /**
+     *Is valid password : check if The length of the password > 6 & At least one capital letter
+     * @param password - the password
+     * @return true if valid password else false
+     */
     public static boolean isValidPassword(String password) {
         logger.debug("Check valid password");
         if(password != null){
@@ -37,8 +41,11 @@ public class Utility {
         }
         return false;
     }
-
-    //only letters in name
+    /**
+     *Is valid name : check if only letters in name
+     * @param name - the password
+     * @return true if valid name else false
+     */
     public static boolean isValidName(String name) {
         logger.debug("Check valid name");
         if(name != null) {
@@ -46,7 +53,11 @@ public class Utility {
         }
         return false;
     }
-
+    /**
+     *Is valid email: check if syntax of email is valid
+     * @param emailAddress - the password
+     * @return true if valid emailAddress else false
+     */
     public static boolean isValidEmail(String emailAddress) {
         logger.debug("Check valid email");
         if(emailAddress != null) {
@@ -58,12 +69,19 @@ public class Utility {
         }
         return false;
     }
-
+    /**
+     *Random string: generate random string
+     * @return true if valid emailAddress else false
+     */
     public static String randomString() {
         UUID randomUUID = UUID.randomUUID();
         return randomUUID.toString().replaceAll("_", "");
     }
-
+    /**
+     *encrypt: encrypt string
+     * @param stringToEncrypt - the string to encrypt
+     * @return the value encrypted
+     */
     public static String encrypt(String stringToEncrypt) {
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         return bEncoder.encode(stringToEncrypt);

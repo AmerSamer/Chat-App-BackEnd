@@ -1,5 +1,8 @@
 package chatApp.configuration;
 
+import chatApp.controller.ChatController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.SimpleMailMessage;
@@ -11,6 +14,10 @@ import java.util.Properties;
 @Configuration
 public class JavaMailConfig {
 
+    /**
+     * setting the host, port, username, password
+     * @return the mailSender
+     */
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -29,6 +36,10 @@ public class JavaMailConfig {
         return mailSender;
     }
 
+    /**
+     * setting the message with setTo, setFrom, setText
+     * @return message
+     */
     @Bean
     public SimpleMailMessage emailTemplate()
     {

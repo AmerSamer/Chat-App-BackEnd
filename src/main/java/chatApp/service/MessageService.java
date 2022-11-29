@@ -30,6 +30,12 @@ public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
 
+    /**
+     * finding the room id by the userEmail and the receiverId combination
+     * @param userEmail - user email to get the roomId
+     * @param receiverId - user id to get the roomId
+     * @return list of messages of specific private room
+     */
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
         User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
         User receiverUser = User.dbUser(userRepository.getById(receiverId));
@@ -44,17 +50,34 @@ public class MessageService {
         return messageList;
     }
 
+    /**
+     * adds message to private chat room to the db
+     * @param message - the message`s data
+     * @return saved message
+     */
     public Message addMessageToPrivateChat(Message message) {
         message.setIssueDate(getDateNow());
         message.setIssueDateTime(getDateTimeNow());
         return messageRepository.save(message);
     }
 
+    /**
+     * downloads private room messages
+     * @param roomId - the roomId`s data
+     * @return list of messages
+     */
     public List<Message> downloadPrivateRoomMessages(String roomId) {
+        logger.info("Try to download private chat room messages");
         return messageRepository.findByRoomId(roomId);
     }
 
+    /**
+     * adding message to db
+     * @param message - the message`s data
+     * @return a saved message body
+     */
     public Message addMessageToMainChat(Message message) throws IllegalAccessException {
+            logger.info("Try to add message to main chat room");
         String userNickname = message.getSender();
         User user = User.dbUser(userRepository.findByNickname(userNickname));
         if(user.isMute()){
@@ -66,7 +89,13 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
+    /**
+     * find all the main chat room messages in the db
+     * @param size - the number of returned rows
+     * @return list of messages sorted by DESC timestamp
+     */
     public List<Message> getMainRoomMessages(int size) {
+        logger.info("Try to get main chat room messages");
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
     }
 

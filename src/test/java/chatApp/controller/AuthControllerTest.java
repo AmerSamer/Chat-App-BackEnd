@@ -51,54 +51,46 @@ class AuthControllerTest {
     }
 
 
-    @Test
-    void createUser_validateUserInput_isValid() {
-        assertTrue(isValidEmail(user.getEmail()) && isValidName(user.getName())
-                && isValidPassword(user.getPassword()));
-    }
-
-    @Test
-    void createUser_validateEmailInput_emailNotValid() {
-        user.setEmail("shaigmail.com");
-        assertFalse(isValidEmail(user.getEmail()));
-    }
-
-    @Test
-    void createUser_validatePasswordInput_passwordNotValid() {
-        user.setPassword("shai1234");
-        assertFalse(isValidEmail(user.getPassword()));
-    }
-
-    @Test
-    void createUser_validateNameInput_nameNotValid() {
-        user.setName("shai1234");
-        assertFalse(isValidEmail(user.getName()));
-    }
-
-    @Test
-    void createUser_validateEmailInput_emailIsNull() {
-        user.setEmail(null);
-        assertNull(user.getEmail());
-    }
-
-    @Test
-    void createUser_validatePasswordInput_passwordIsNull() {
-        user.setPassword(null);
-        assertNull(user.getPassword());
-    }
-
-    @Test
-    void createUser_validateNameInput_nameIsNull() {
-        user.setName(null);
-        assertNull(user.getName());
-    }
-
 //    @Test
-//    void createUser_registerUserFlow_isValid() throws SQLDataException {
-//        User savedUser = userRepo.save(user);
+//    void createUser_validateUserInput_isValid() {
+//        assertTrue(isValidEmail(user.getEmail()) && isValidName(user.getName())
+//                && isValidPassword(user.getPassword()));
+//    }
 //
-//        User existUser = testEntityManager.find(User.class, savedUser.getId());
-//        assertNotNull(existUser);
+//    @Test
+//    void createUser_validateEmailInput_emailNotValid() {
+//        user.setEmail("shaigmail.com");
+//        assertFalse(isValidEmail(user.getEmail()));
+//    }
+//
+//    @Test
+//    void createUser_validatePasswordInput_passwordNotValid() {
+//        user.setPassword("shai1234");
+//        assertFalse(isValidEmail(user.getPassword()));
+//    }
+//
+//    @Test
+//    void createUser_validateNameInput_nameNotValid() {
+//        user.setName("shai1234");
+//        assertFalse(isValidEmail(user.getName()));
+//    }
+//
+//    @Test
+//    void createUser_validateEmailInput_emailIsNull() {
+//        user.setEmail(null);
+//        assertNull(user.getEmail());
+//    }
+//
+//    @Test
+//    void createUser_validatePasswordInput_passwordIsNull() {
+//        user.setPassword(null);
+//        assertNull(user.getPassword());
+//    }
+//
+//    @Test
+//    void createUser_validateNameInput_nameIsNull() {
+//        user.setName(null);
+//        assertNull(user.getName());
 //    }
 
     @Test
@@ -109,11 +101,6 @@ class AuthControllerTest {
         userRepo.delete(user1);
     }
 
-    @Test
-    void login_existingUser_updateOnlineStatus() throws SQLDataException {
-        User user1 = authService.login(user);
-        assertEquals(UserStatuses.ONLINE, user1.getUserStatus());
-    }
     @Test
     void login_existingUser_tokenNotNull() {
         ResponseEntity<CustomResponse<UserDTO>> user1 = authController.login(user);
@@ -150,16 +137,4 @@ class AuthControllerTest {
 
     }
 
-    @Test
-    void verifyEmail_checkUserExistsInDB_userExistsInDB() {
-
-        assertThrows(SQLDataException.class, () ->{authService.verifyEmail(user);}  );
-    }
-
-    @Test
-    void verifyEmail_checkUserIsActivate_userAlreadyActivated() {
-
-        user.setEnabled(true);
-        assertThrows(SQLDataException.class, () ->{authService.verifyEmail(user);}  );
-    }
 }
