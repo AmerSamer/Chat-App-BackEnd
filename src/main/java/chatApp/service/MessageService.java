@@ -100,6 +100,11 @@ public class MessageService {
     }
 
     public List<Message> getMainRoomMessagesByTime(String date, String time) {
-        return messageRepository.findByRoomIdAndIssueDateBetweenAndIssueDateTimeBetween("0", date, getDateNow(), time, getDateTimeNow());
+        if(Integer.parseInt(time.replaceAll(":","")) < Integer.parseInt(getDateTimeNow().replaceAll(":",""))) {
+            return messageRepository.findByRoomIdAndIssueDateTimeBetweenAndIssueDateBetween("0", time, getDateTimeNow(), getDateNow(), date);
+        }
+        else{
+            return messageRepository.findByRoomIdAndIssueDateBetween("0", date,  getDateNow());
+        }
     }
 }
