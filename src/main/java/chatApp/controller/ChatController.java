@@ -12,6 +12,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,13 +36,6 @@ public class ChatController {
     public Message greeting(Message.HelloMessage message) {
         return new Message("SYSTEM", message.getName() + "joined the chat");
     }
-//    @MessageMapping("/hello")
-//    @SendTo("/topic/mainChat")
-//    public ResponseEntity<CustomResponse<List<Message>>> getMainRoom(Message message) {
-//        List<Message> messageList = messageService.getMainRoomMessages(message);
-//        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
-//        return ResponseEntity.ok().body(response);
-//    }
 
     @MessageMapping("/plain")
     @SendTo("/topic/mainChat")
@@ -70,12 +64,7 @@ public class ChatController {
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
         return ResponseEntity.ok().body(response);
     }
-//    @RequestMapping(value = "/mainchatroomexport", method = RequestMethod.GET)
-//    private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("time") int time) {
-//        List<Message> messageList = messageService.getMainRoomMessages(time);
-//        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
-//        return ResponseEntity.ok().body(response);
-//    }
+
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
         List<Message> messageList = messageService.getMainRoomMessages(size);
