@@ -73,10 +73,12 @@ public class AuthController {
     public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
         try {
             if (!isValidEmail(user.getEmail())) {
+                logger.error(invalidEmailMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
                 return ResponseEntity.badRequest().body(response);
             }
             if (!isValidPassword(user.getPassword())) {
+                logger.error(invalidPasswordMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -131,6 +133,7 @@ public class AuthController {
     @RequestMapping(value = "activate", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {
         try {
+            logger.info("try to activate email");
             User userVerify = authService.verifyEmail(user);
             UserDTO userDTO = userToUserDTO(userVerify);
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, activationEmailSuccessfulMessage);

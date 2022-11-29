@@ -103,6 +103,7 @@ public class UserController {
                 return ResponseEntity.ok().body(response);
 
             } catch (SQLDataException e) {
+                logger.error(updateUserFailedMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
                 return ResponseEntity.badRequest().body(response);
             }
@@ -119,9 +120,11 @@ public class UserController {
         public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser (@RequestParam("token") String token,
                                                                          @RequestParam("status") String status){
             try {
+                logger.info("Try to changed the status of the user to ONLINE/AWAY");
                 User updateUser = userService.updateStatusUser(token, status);
                 UserDTO userDTO = userToUserDTO(updateUser);
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateStatusUserSuccessfulMessage);
+                logger.info(updateStatusUserSuccessfulMessage);
                 return ResponseEntity.ok().body(response);
 
             } catch (SQLDataException e) {
