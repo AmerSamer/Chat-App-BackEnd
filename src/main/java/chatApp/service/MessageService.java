@@ -35,6 +35,7 @@ public class MessageService {
      * @return list of messages of specific private room
      */
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
+        logger.info("Try to get private chat room messages");
         User senderUser = userRepository.findByEmail(userEmail);
         User receiverUser = userRepository.getById(receiverId);
         Long senderId = senderUser.getId();
@@ -54,6 +55,7 @@ public class MessageService {
      * @return saved message
      */
     public Message addMessageToPrivateChat(Message message) {
+        logger.info("Try to add message to private chat room");
         message.setIssueDate(LocalDateTime.now());
         return messageRepository.save(message);
     }
@@ -64,6 +66,7 @@ public class MessageService {
      * @return list of messages
      */
     public List<Message> downloadPrivateRoomMessages(String roomId) {
+        logger.info("Try to download private chat room messages");
         return messageRepository.findByRoomId(roomId);
     }
 
@@ -73,6 +76,7 @@ public class MessageService {
      * @return a saved message body
      */
     public Message addMessageToMainChat(Message message) {
+        logger.info("Try to add message to main chat room");
         message.setIssueDate(LocalDateTime.now());
         message.setReceiver("null");
         return messageRepository.save(message);
@@ -84,6 +88,7 @@ public class MessageService {
      * @return list of messages sorted by DESC timestamp
      */
     public List<Message> getMainRoomMessages(int size) {
+        logger.info("Try to get main chat room messages");
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
     }
 }

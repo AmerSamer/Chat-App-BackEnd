@@ -6,6 +6,8 @@ import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.service.MessageService;
 import chatApp.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -24,6 +26,7 @@ import static chatApp.Utilities.Utility.userListToUserListDTO;
 @CrossOrigin
 @RequestMapping("/chat")
 public class ChatController {
+    private static Logger logger = LogManager.getLogger(ChatController.class.getName());
 
     @Autowired
     private UserService userService;
@@ -45,6 +48,7 @@ public class ChatController {
     @MessageMapping("/plain")
     @SendTo("/topic/mainChat")
     public Message sendPlainMessage(Message message) {
+        logger.info("Try to send plain message to main chat room");
         return messageService.addMessageToMainChat(message);
     }
 
@@ -56,6 +60,7 @@ public class ChatController {
     @MessageMapping("/plain/privatechat/{roomId}")
     @SendTo("/topic/privatechat/{roomId}")
     public Message sendPrivatePlainMessage(Message message) {
+        logger.info("Try to send private plain message to private chat room");
         return messageService.addMessageToPrivateChat(message);
     }
 
@@ -65,9 +70,11 @@ public class ChatController {
      */
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
+        logger.info("Try to get all users to display in the frontend");
         List<User> userList = userService.getAllUsers();
         List<UserDTO> userListDTO = userListToUserListDTO(userList);
         CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
+        logger.info(listOfAllUsersSuccessfulMessage);
         return ResponseEntity.ok().body(response);
     }
 
@@ -80,8 +87,10 @@ public class ChatController {
     @RequestMapping(value = "/privatechatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail,
                                                                          @RequestParam("receiver") Long receiverId) {
+        logger.info("Try to get private chat room");
         List<Message> messageList = messageService.getPrivateRoomMessages(senderEmail, receiverId);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
+        logger.info("success");
         return ResponseEntity.ok().body(response);
     }
 
@@ -92,8 +101,10 @@ public class ChatController {
      */
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
+        logger.info("Try to get main chat room");
         List<Message> messageList = messageService.getMainRoomMessages(size);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
+        logger.info("success");
         return ResponseEntity.ok().body(response);
     }
 
@@ -104,8 +115,10 @@ public class ChatController {
      */
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
     private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("roomId") String roomId) {
+        logger.info("Try to download specific private chat room");
         List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, "success");
+        logger.info("success");
         return ResponseEntity.ok().body(response);
     }
 }
