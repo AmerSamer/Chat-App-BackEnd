@@ -68,19 +68,7 @@ class UserControllerTest {
     }
 
 
-    @Test
-    void logoutUser_checkLogoutGuestUser_changeStatusToOffline() throws SQLDataException {
 
-        assertEquals(UserStatuses.OFFLINE ,userService.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail())).getUserStatus());
-    }
-
-    @Test
-    void logoutUser_checkLogoutRegisteredUser_deleteToken() throws SQLDataException {
-
-        authService.verifyEmail(user);
-        userService.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail()));
-        assertNull(authService.getKeyEmailsValTokens().get(user.getEmail()));
-    }
 
     @Test
     void updateMuteUser() {

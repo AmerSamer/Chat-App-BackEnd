@@ -15,14 +15,29 @@ class UtilityTest {
 
     @Test
     void test_isValidPassword() {
-       assertFalse(isValidPassword("66666666"));
+       assertFalse(isValidPassword("wslkt84hr94ekl"));
+    }
+    @Test
+    void test_isInvalidPassword() {
+        assertFalse(isValidPassword(null));
     }
 
     @Test
     void isValidName() {
+        assertFalse(Utility.isValidName("dani9"));
+    }
+
+    @Test
+    void isInValidName() {
+        assertFalse(Utility.isValidName(null));
     }
 
     @Test
     void isValidEmail() {
+        assertFalse(Utility.isValidEmail("ee"));
+    }
+    @Test
+    void isInvalidEmail() {
+        assertFalse(Utility.isValidEmail(null));
     }
 }
