@@ -2,9 +2,9 @@ package chatApp.utilities;
 
 public class ExceptionMessages {
 
-    public static String invalidEmailMessage = "Invalid Email, Please try again. Example: sample@test.com";
-    public static String invalidNameMessage = "Invalid Name, Please try again without numbers. Example: Some Name";
-    public static String invalidPasswordMessage = "Invalid Password, Please try again with at least 1 capital letter and minimum 6 letters. Example: passWord";
+    public static String invalidEmailMessage = "Invalid Email, Please try again. Example: 'sample@test.com' ";
+    public static String invalidNameMessage = "Invalid Name, Please try again without numbers. Example: 'Some Name' ";
+    public static String invalidPasswordMessage = "Invalid Password, Please try again with at least 1 capital letter and minimum 6 letters. Example: 'passWord'(not recommended) ";
     public static String loginFailedMessage = "Email or Password are wrong";
     public static String activationEmailFailedMessage = "Email activation failed, Couldn't activate email";
     public static String updateUserFailedMessage = "Update user failed. Please try again";
@@ -33,6 +33,7 @@ public class ExceptionMessages {
     public static String emailExistsInSystemMessage(String email) {
         return String.format("Email %s already exists in users table", email);
     }
+
 
     public static String emailAlreadyActivatedMessage(String email) {
         return String.format("User already activated with the following email: %s", email);

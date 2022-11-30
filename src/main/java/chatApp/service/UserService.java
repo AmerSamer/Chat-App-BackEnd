@@ -10,9 +10,11 @@ import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,16 +66,25 @@ public class UserService {
                 dbUser.setNickname(user.getNickname());
             }
             if (user.getName() != null && !user.getName().equals("")) {
+                if(!isValidName(user.getName())){
+                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid name");
+                }
                 dbUser.setName(user.getName());
             }
             if (user.getPassword() != null && !user.getPassword().equals("")) {
                 dbUser.setPassword(encrypt(user.getPassword()));
             }
             if (user.getDateOfBirth() != null) {
+                if(user.getDateOfBirth().isAfter(LocalDate.now())){
+                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid date");
+                }
                 dbUser.setDateOfBirth(user.getDateOfBirth());
                 dbUser.setAge(calcAge(user.getDateOfBirth()));
             }
             if (user.getPhoto() != null && !user.getPhoto().equals("")) {
+                if(!isValidName(user.getPhoto())){
+                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid photo");
+                }
                 dbUser.setPhoto(user.getPhoto());
             }
             if (user.getDescription() != null && !user.getDescription().equals("")) {
@@ -83,6 +94,7 @@ public class UserService {
 
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("Update the user failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -113,6 +125,7 @@ public class UserService {
             dbUser.setUserStatus(UserStatuses.OFFLINE);
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("logout the user failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -152,6 +165,7 @@ public class UserService {
             }
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("mute/unmute the user failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -186,6 +200,7 @@ public class UserService {
             }
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("Update status for user failed");
             throw new IllegalArgumentException(e);
         }
     }

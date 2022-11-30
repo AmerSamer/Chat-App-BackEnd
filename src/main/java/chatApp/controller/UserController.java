@@ -42,7 +42,7 @@ public class UserController {
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (user.getPassword() != null && !user.getPassword().equals("") && !isValidName(user.getName())) {
+            if (user.getName() != null && !user.getName().equals("") && !isValidName(user.getName())) {
                 logger.error(invalidNameMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
                 return ResponseEntity.badRequest().body(response);

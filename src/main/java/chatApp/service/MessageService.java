@@ -51,6 +51,7 @@ public class MessageService {
             }
             return messageList;
         } catch (RuntimeException e) {
+            logger.error("Get new/existing private chat room failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -67,6 +68,7 @@ public class MessageService {
             message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
             return messageRepository.save(message);
         } catch (RuntimeException e) {
+            logger.error("Add message to private chat failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -82,6 +84,7 @@ public class MessageService {
             logger.info("Try to download private chat room messages");
             return messageRepository.findByRoomId(roomId);
         } catch (RuntimeException e) {
+            logger.error("Get private room messages to download failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -105,6 +108,7 @@ public class MessageService {
             message.setReceiver("main");
             return messageRepository.save(message);
         } catch (RuntimeException e) {
+            logger.error("Add message to main chat failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -120,6 +124,7 @@ public class MessageService {
             logger.info("Try to get main chat room messages");
             return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
         } catch (RuntimeException e) {
+            logger.error("Get main chat room messages failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -136,17 +141,27 @@ public class MessageService {
 
     public void updateUserEmailMessages(String oldEmail, String newEmail) {
         User user = User.dbUser(userRepository.findByEmail(oldEmail));
-        List<Message> messages = messageRepository.findBySender(user.getNickname());
-        List<Message> newMessages = messages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
-        newMessages.forEach(message -> message.setSender(newEmail));
-        newMessages.forEach(message -> messageRepository.save(message));
+        List<Message> senderMessages = messageRepository.findBySender(user.getNickname());
+        List<Message> newSenderMessages = senderMessages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
+        newSenderMessages.forEach(message -> message.setSender(newEmail));
+        newSenderMessages.forEach(message -> messageRepository.save(message));
+
+        List<Message> receiverMessages = messageRepository.findByReceiver(user.getNickname());
+        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
+        newReceiverMessages.forEach(message -> message.setReceiver(newEmail));
+        newReceiverMessages.forEach(message -> messageRepository.save(message));
     }
 
     public void updateUserNicknameMessages(String oldNickname, String newNickname) {
         User user = User.dbUser(userRepository.findByNickname(oldNickname));
-        List<Message> messages = messageRepository.findBySender(user.getNickname());
-        List<Message> newMessages = messages.stream().filter(message -> message.getSender().equals(oldNickname)).collect(Collectors.toList());
-        newMessages.forEach(message -> message.setSender(newNickname));
-        newMessages.forEach(message -> messageRepository.save(message));
+        List<Message> senderMessages = messageRepository.findBySender(user.getNickname());
+        List<Message> newSenderMessages = senderMessages.stream().filter(message -> message.getSender().equals(oldNickname)).collect(Collectors.toList());
+        newSenderMessages.forEach(message -> message.setSender(newNickname));
+        newSenderMessages.forEach(message -> messageRepository.save(message));
+
+        List<Message> receiverMessages = messageRepository.findByReceiver(user.getNickname());
+        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getReceiver().equals(oldNickname)).collect(Collectors.toList());
+        newReceiverMessages.forEach(message -> message.setReceiver(newNickname));
+        newReceiverMessages.forEach(message -> messageRepository.save(message));
     }
 }
