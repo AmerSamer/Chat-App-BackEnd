@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.SuccessMessages.*;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.SuccessMessages.*;
 
 @RestController
 @CrossOrigin

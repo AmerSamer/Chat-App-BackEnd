@@ -17,7 +17,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.Utility.*;
 
 @CrossOrigin
 @Service
@@ -129,11 +129,19 @@ public class MessageService {
             return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
     }
 
-    public void updateUserEmail(String oldEmail, String newEmail) {
+    public void updateUserEmailMessages(String oldEmail, String newEmail) {
         User user = User.dbUser(userRepository.findByEmail(oldEmail));
         List<Message> messages = messageRepository.findBySender(user.getNickname());
         List<Message> newMessages = messages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
         newMessages.forEach(message -> message.setSender(newEmail));
+        newMessages.forEach(message -> messageRepository.save(message));
+    }
+
+    public void updateUserNicknameMessages(String oldNickname, String newNickname) {
+        User user = User.dbUser(userRepository.findByNickname(oldNickname));
+        List<Message> messages = messageRepository.findBySender(user.getNickname());
+        List<Message> newMessages = messages.stream().filter(message -> message.getSender().equals(oldNickname)).collect(Collectors.toList());
+        newMessages.forEach(message -> message.setSender(newNickname));
         newMessages.forEach(message -> messageRepository.save(message));
     }
 }

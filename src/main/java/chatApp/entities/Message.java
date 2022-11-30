@@ -1,14 +1,12 @@
 package chatApp.entities;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static chatApp.Utilities.Utility.getLocalDateTimeNow;
+import static chatApp.utilities.Utility.getLocalDateTimeNow;
 
 @Entity
 @Table(name = "message")

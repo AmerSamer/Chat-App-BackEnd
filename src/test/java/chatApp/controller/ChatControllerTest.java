@@ -22,9 +22,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.SQLDataException;
 import java.util.List;
 
-import static chatApp.Utilities.ExceptionMessages.FailedToSendPrivateMessage;
-import static chatApp.Utilities.ExceptionMessages.userIsMutedMessage;
-import static chatApp.Utilities.SuccessMessages.listOfAllUsersSuccessfulMessage;
+import static chatApp.utilities.ExceptionMessages.userIsMutedMessage;
+import static chatApp.utilities.SuccessMessages.listOfAllUsersSuccessfulMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)

@@ -12,7 +12,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.Utility.*;
 
 @Component
 public class AuthFilter extends GenericFilterBean {

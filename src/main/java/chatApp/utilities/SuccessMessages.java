@@ -1,4 +1,4 @@
-package chatApp.Utilities;
+package chatApp.utilities;
 
 public class SuccessMessages {
     public static String loginSuccessfulMessage = "Login was made successfully";

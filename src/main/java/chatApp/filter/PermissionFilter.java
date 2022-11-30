@@ -5,7 +5,6 @@ import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import chatApp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -16,7 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.Utility.*;
 
 
 @Component

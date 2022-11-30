@@ -1,7 +1,7 @@
 package chatApp.service;
 
 
-import chatApp.Utilities.Utility;
+import chatApp.utilities.Utility;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
@@ -17,8 +17,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.Utility.*;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 

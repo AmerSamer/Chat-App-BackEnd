@@ -1,7 +1,7 @@
 package chatApp.service;
 
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.Utility.*;
 
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
@@ -52,22 +52,21 @@ public class UserService {
             }
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
 
-            if (!user.getNickname().equals("")) {
-                dbUser.setNickname(user.getNickname());
-            }
             if (!user.getEmail().equals("")) {
-                if (!user.getNickname().equals("")) {
-                    dbUser.setNickname(user.getNickname());
-                }else{
-                    messageService.updateUserEmail( userEmail, user.getEmail());
+                messageService.updateUserEmailMessages(dbUser.getEmail(), user.getEmail());
+                if(dbUser.getNickname().equals(dbUser.getEmail())){
                     dbUser.setNickname(user.getEmail());
                 }
                 dbUser.setEmail(user.getEmail());
             }
-            if (!user.getName().equals("")) {
+            if (user.getNickname() != null && !user.getNickname().equals("")) {
+                messageService.updateUserNicknameMessages(dbUser.getNickname(), user.getNickname());
+                dbUser.setNickname(user.getNickname());
+            }
+            if (user.getName() != null && !user.getName().equals("")) {
                 dbUser.setName(user.getName());
             }
-            if (!user.getPassword().equals("")) {
+            if (user.getPassword() != null && !user.getPassword().equals("")) {
                 dbUser.setPassword(encrypt(user.getPassword()));
             }
             if (user.getDateOfBirth() != null) {
@@ -105,7 +104,7 @@ public class UserService {
             authService.getKeyTokensValEmails().remove(token);
             authService.getKeyEmailsValTokens().remove(userEmail);
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
-            logger.info("If the user guest delete him from DB else update his status to offline");
+            logger.info("If the user is a guest delete him from DB else update his status to offline");
             if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
                 userRepository.delete(dbUser);
                 return dbUser;
@@ -145,8 +144,12 @@ public class UserService {
             if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-
-            dbUser.setMute(!dbUser.isMute());
+            if(dbUser.getType().equals(UserType.ADMIN)) {
+                dbUser.setMute(!dbUser.isMute());
+            }
+            else{
+                throw new IllegalArgumentException(notAdminUser);
+            }
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
