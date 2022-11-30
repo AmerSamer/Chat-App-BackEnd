@@ -82,9 +82,18 @@ public class Utility {
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         return bEncoder.encode(stringToEncrypt);
     }
+
     /**
-     *getLocalDateTimeNow: gives the current time
-     * @return the local date now
+     *Calculate Age : calculate the age of the user
+     * @return the age of the user
+     */
+    public static int calcAge(LocalDate dateOfBirth) {
+        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
+    }
+
+    /**
+     *Calculate LocalDateTime : calculate the current date and time
+     * @return the current date and time
      */
     public static LocalDateTime getLocalDateTimeNow(){
         return LocalDateTime.now();

@@ -6,6 +6,7 @@ public class CustomResponse<T> {
     private String message;
     private String headers;
 
+
     public CustomResponse(T response, String message) {
         this.response = response;
         this.message = message;

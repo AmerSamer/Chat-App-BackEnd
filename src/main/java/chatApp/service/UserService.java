@@ -3,8 +3,6 @@ package chatApp.service;
 import static chatApp.Utilities.ExceptionMessages.*;
 import static chatApp.Utilities.Utility.*;
 
-import chatApp.customEntities.CustomResponse;
-import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
@@ -12,13 +10,9 @@ import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import java.sql.SQLDataException;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,8 +26,10 @@ public class UserService {
     private AuthService authService;
 
     @Autowired
-    private UserRepository userRepository;
+    private MessageService messageService;
 
+    @Autowired
+    private UserRepository userRepository;
 
     public UserService() {
     }
@@ -44,7 +40,7 @@ public class UserService {
      * @param user  - the user's data
      * @param token - the token of the user
      * @return user with updated data
-     * @throws SQLDataException when the Update user failed
+     * @throws IllegalArgumentException when the Update user failed
      */
     public User updateUser(User user, String token) {
         try {
@@ -60,6 +56,12 @@ public class UserService {
                 dbUser.setNickname(user.getNickname());
             }
             if (!user.getEmail().equals("")) {
+                if (!user.getNickname().equals("")) {
+                    dbUser.setNickname(user.getNickname());
+                }else{
+                    messageService.updateUserEmail( userEmail, user.getEmail());
+                    dbUser.setNickname(user.getEmail());
+                }
                 dbUser.setEmail(user.getEmail());
             }
             if (!user.getName().equals("")) {
@@ -81,17 +83,16 @@ public class UserService {
             logger.info("Update the user, and save updating in DB");
 
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
-     * Logout user : delete token & change status to offline, if the user is guest delete him from the DB
-     *
+     *Logout user : delete token & change status to offline, if the user is guest delete him from the DB
      * @param token - the token of the user
      * @return user with offline status
-     * @throws SQLDataException when the logout user failed
+     * @throws IllegalArgumentException when the logout user failed
      */
     public User logoutUser(String token) {
         try {
@@ -104,10 +105,6 @@ public class UserService {
             authService.getKeyTokensValEmails().remove(token);
             authService.getKeyEmailsValTokens().remove(userEmail);
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
-            if (dbUser == null) {
-                logger.error(userNotFound);
-                throw new IllegalArgumentException(userNotFound);
-            }
             logger.info("If the user guest delete him from DB else update his status to offline");
             if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
                 userRepository.delete(dbUser);
@@ -115,7 +112,7 @@ public class UserService {
             }
             dbUser.setUserStatus(UserStatuses.OFFLINE);
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -126,7 +123,7 @@ public class UserService {
      * @param token - the token of the user
      * @param id    - the id of the user
      * @return user with mute/unmute status
-     * @throws SQLDataException when the update mute/unmute user failed
+     * @throws IllegalArgumentException when the update mute/unmute user failed
      */
     public User updateMuteUnmuteUser(Long id, String token) {
         try {
@@ -151,18 +148,17 @@ public class UserService {
 
             dbUser.setMute(!dbUser.isMute());
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
-
     /**
      * Update away/online Users : check token session not expired & the user exist in DB, update user away/online status in DB
      *
      * @param token  - the token of the user
      * @param status - the away/online status of the user
      * @return user with away/online status
-     * @throws SQLDataException when the update away/online status user failed
+     * @throws IllegalArgumentException when the update away/online status user failed
      */
     public User updateStatusUser(String token, String status) {
         try {
@@ -185,32 +181,18 @@ public class UserService {
                 dbUser.setUserStatus(UserStatuses.ONLINE);
             }
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
-     * Calculate Age : calculate the age of the user
-     *
-     * @return the age of the user
-     */
-    private int calcAge(LocalDate dateOfBirth) {
-        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
-    }
-
-    /**
-     * Get all users: get all users from DB
-     *
+     *Get all users: get all users from DB
      * @return all the users sorted by theirs types [ADMIN(0), REGISTERED(1), GUEST(2)] from DB
      */
     public List<User> getAllUsers() {
-        try {
             logger.info("Get all users in users table");
-            return userRepository.findAll().stream().filter(currUser -> !currUser.getUserStatus().equals(UserStatuses.OFFLINE)).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
-        } catch (JpaSystemException e) {
-            throw new IllegalArgumentException(e);
-        }
+            return userRepository.findAll().stream().filter(currUser ->  currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 }
 

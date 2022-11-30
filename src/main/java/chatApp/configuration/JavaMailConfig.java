@@ -1,9 +1,6 @@
 package chatApp.configuration;
 
 import chatApp.chatApp;
-import chatApp.controller.ChatController;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.SimpleMailMessage;

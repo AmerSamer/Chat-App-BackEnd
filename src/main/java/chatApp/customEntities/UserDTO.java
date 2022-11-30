@@ -7,6 +7,7 @@ import chatApp.entities.UserType;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UserDTO {
     private Long id;
@@ -163,6 +164,42 @@ public class UserDTO {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserDTO userDTO = (UserDTO) o;
+
+        if (age != userDTO.age) return false;
+        if (isMute != userDTO.isMute) return false;
+        if (!Objects.equals(id, userDTO.id)) return false;
+        if (!name.equals(userDTO.name)) return false;
+        if (!email.equals(userDTO.email)) return false;
+        if (!Objects.equals(photo, userDTO.photo)) return false;
+        if (!Objects.equals(dateOfBirth, userDTO.dateOfBirth)) return false;
+        if (userStatus != userDTO.userStatus) return false;
+        if (userType != userDTO.userType) return false;
+        if (!nickname.equals(userDTO.nickname)) return false;
+        return Objects.equals(description, userDTO.description);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + email.hashCode();
+        result = 31 * result + (photo != null ? photo.hashCode() : 0);
+        result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
+        result = 31 * result + age;
+        result = 31 * result + (userStatus != null ? userStatus.hashCode() : 0);
+        result = 31 * result + (userType != null ? userType.hashCode() : 0);
+        result = 31 * result + (isMute ? 1 : 0);
+        result = 31 * result + nickname.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        return result;
     }
 
     @Override

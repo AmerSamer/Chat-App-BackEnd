@@ -15,5 +15,11 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByRoomIdAndIssueDateEpochBetween(String roomId, long to, long from);
 
     List<Message> findByRoomId(String roomId, Pageable pageable);
+
+    List<Message> findByContent(String content);
+    List<Message> findBySender(String sender);
+
+    List<Message> findBySenderAndContent(String content, String Sender);
+
 }
 
