@@ -25,6 +25,7 @@ public class AuthController {
 
     /**
      * checks if the email, name, password is valid, and send the user to the addUser method in AuthService
+     *
      * @param user - the user's data
      * @return a saved user with response body
      */
@@ -61,6 +62,7 @@ public class AuthController {
 
     /**
      * checks if the email, password is valid, and send the user to the login method in AuthService
+     *
      * @param user - the user's data
      * @return user with response body
      */
@@ -93,6 +95,7 @@ public class AuthController {
 
     /**
      * checks if the name is valid, and send the user to the addGuest method in AuthService
+     *
      * @param user - the user's data
      * @return user with response body
      */
@@ -120,6 +123,7 @@ public class AuthController {
 
     /**
      * send the user to the verifyEmail method in AuthService
+     *
      * @param user - the user's data
      * @return user with response body
      */

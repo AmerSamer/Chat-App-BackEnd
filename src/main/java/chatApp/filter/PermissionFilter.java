@@ -15,6 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 import static chatApp.utilities.Utility.*;
 
 
@@ -48,12 +49,10 @@ public class PermissionFilter extends GenericFilterBean {
             if (auth == null) {
                 res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Authorization header needed");
                 throw new IllegalAccessError("Not Authorized");
-            }
-            else if (!authService.getKeyTokensValEmails().containsKey(auth)) {
+            } else if (!authService.getKeyTokensValEmails().containsKey(auth)) {
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
                 throw new IllegalAccessError("Not Authorized");
-            }
-            else{
+            } else {
                 String userEmail = authService.getKeyTokensValEmails().get(auth);
                 if (!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))) {
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");

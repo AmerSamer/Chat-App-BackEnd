@@ -111,7 +111,8 @@ public class UserController {
      * @param token  - the token of the user
      * @param status - the away/online status of the user
      * @return user with away/online status
-]     */
+     * ]
+     */
     @RequestMapping(value = "update/status", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser(@RequestParam("token") String token, @RequestParam("status") String status) {
         try {

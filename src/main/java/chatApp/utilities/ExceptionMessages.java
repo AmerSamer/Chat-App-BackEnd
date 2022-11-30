@@ -10,30 +10,20 @@ public class ExceptionMessages {
     public static String updateUserFailedMessage = "Update user failed. Please try again";
     public static String muteUserFailedMessage = "Mute user failed. Please try again";
     public static String updateStatusUserFailedMessage = "Update status of user failed. Please try again";
-
-
     public static String loginAsGuestFailedMessage = "Guest-Name already exists in the system, Please try again.";
-
     public static String logoutUserFailedMessage = "Logout user failed. Please try again";
-
     public static String verificationCodeNotMatch = "Verification code doesn't match. Please try again";
     public static String tokenSessionExpired = "Token session expired, please log-in again.";
     public static String notAdminUser = "you are not an admin user, failed update";
     public static String userIsMutedMessage = "You are muted, can't send messages";
-    public static String downloadMainRoomFailed = "Download Main chat room failed";
     public static String mainChatRoomMessagesFailed = "Main chat room messages failed";
     public static String downloadPrivateRoomFailed = "Download Private chat room failed";
     public static String privateChatRoomMessagesFailed = "Private chat room messages failed";
-    public static String listOfAllUsersFailedMessage = "Failed to return list of all users";
     public static String FailedToSendPrivateMessage = "Failed to send private message";
-    public static String FailedToSendMainChatMessage = "Failed to send main chat message";
     public static String emailNotExistsMessage = "Email doesn't exists in users table";
-    public static String userNotFound = "User not found";
+
     public static String emailNotExistsMessage(String email) {
         return String.format("Email %s doesn't exists in users table", email);
-    }
-    public static String passwordDosentMatchMessage(String password) {
-        return String.format("Password %s doesn't match to email", password);
     }
 
     public static String guestNameExistsMessage(String name) {
@@ -49,8 +39,7 @@ public class ExceptionMessages {
     }
 
     public static String emailIssueTokenPassedMessage(String issueDate) {
-        return String.format( "More than 24 hours passed from last verification code issue at %s, new verification code has been sent", issueDate);
+        return String.format("More than 24 hours passed from last verification code issue at %s, new verification code has been sent", issueDate);
     }
-
 
 }

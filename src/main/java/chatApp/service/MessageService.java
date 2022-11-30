@@ -1,6 +1,5 @@
 package chatApp.service;
 
-
 import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.repository.MessageRepository;
@@ -33,11 +32,12 @@ public class MessageService {
 
     /**
      * finding the room id by the userEmail and the receiverId combination
-     * @param userEmail - user email to get the roomId
+     *
+     * @param userEmail  - user email to get the roomId
      * @param receiverId - user id to get the roomId
      * @return list of messages of specific private room
      */
-    public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
+    public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId) {
         try {
             User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
             User receiverUser = User.dbUser(userRepository.getById(receiverId));
@@ -57,6 +57,7 @@ public class MessageService {
 
     /**
      * adds message to private chat room to the db
+     *
      * @param message - the message`s data
      * @return saved message
      */
@@ -72,6 +73,7 @@ public class MessageService {
 
     /**
      * downloads private room messages
+     *
      * @param roomId - the roomId`s data
      * @return list of messages
      */
@@ -86,6 +88,7 @@ public class MessageService {
 
     /**
      * adding message to db
+     *
      * @param message - the message`s data
      * @return a saved message body
      */
@@ -108,6 +111,7 @@ public class MessageService {
 
     /**
      * find all the main chat room messages in the db
+     *
      * @param size - the number of returned rows
      * @return list of messages sorted by DESC timestamp
      */
@@ -122,11 +126,12 @@ public class MessageService {
 
     /**
      * find all the main chat room messages in the db from specific time till now
+     *
      * @param time - the time in epoch seconds
      * @return list of messages from that time till now
      */
     public List<Message> getMainRoomMessagesByTime(long time) {
-            return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
+        return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
     }
 
     public void updateUserEmailMessages(String oldEmail, String newEmail) {

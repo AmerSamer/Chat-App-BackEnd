@@ -54,7 +54,7 @@ public class UserService {
 
             if (!user.getEmail().equals("")) {
                 messageService.updateUserEmailMessages(dbUser.getEmail(), user.getEmail());
-                if(dbUser.getNickname().equals(dbUser.getEmail())){
+                if (dbUser.getNickname().equals(dbUser.getEmail())) {
                     dbUser.setNickname(user.getEmail());
                 }
                 dbUser.setEmail(user.getEmail());
@@ -88,7 +88,8 @@ public class UserService {
     }
 
     /**
-     *Logout user : delete token & change status to offline, if the user is guest delete him from the DB
+     * Logout user : delete token & change status to offline, if the user is guest delete him from the DB
+     *
      * @param token - the token of the user
      * @return user with offline status
      * @throws IllegalArgumentException when the logout user failed
@@ -144,10 +145,9 @@ public class UserService {
             if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            if(dbUser.getType().equals(UserType.ADMIN)) {
+            if (dbUser.getType().equals(UserType.ADMIN)) {
                 dbUser.setMute(!dbUser.isMute());
-            }
-            else{
+            } else {
                 throw new IllegalArgumentException(notAdminUser);
             }
             return userRepository.save(dbUser);
@@ -155,6 +155,7 @@ public class UserService {
             throw new IllegalArgumentException(e);
         }
     }
+
     /**
      * Update away/online Users : check token session not expired & the user exist in DB, update user away/online status in DB
      *
@@ -190,12 +191,13 @@ public class UserService {
     }
 
     /**
-     *Get all users: get all users from DB
+     * Get all users: get all users from DB
+     *
      * @return all the users sorted by theirs types [ADMIN(0), REGISTERED(1), GUEST(2)] from DB
      */
     public List<User> getAllUsers() {
-            logger.info("Get all users in users table");
-            return userRepository.findAll().stream().filter(currUser ->  currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
+        logger.info("Get all users in users table");
+        return userRepository.findAll().stream().filter(currUser -> currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 }
 
