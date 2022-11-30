@@ -71,6 +71,7 @@ public class PermissionFilter extends GenericFilterBean {
                 if (dbUser.getType() == UserType.REGISTERED) {
                     if (noPermissionsPathsForRegistered.stream().anyMatch(path::contains)) {
                         res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
+                        throw new IllegalAccessError("Not Authorized");
                     }
                 }
             }

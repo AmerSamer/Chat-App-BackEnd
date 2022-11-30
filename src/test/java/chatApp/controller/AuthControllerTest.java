@@ -18,7 +18,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
 
-import static chatApp.Utilities.Utility.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -94,9 +93,14 @@ class AuthControllerTest {
 //    }
 
     @Test
-    void createUser_insertUserInDB_saveUserInDB() throws SQLDataException {
+    void createUser_insertUserInDB_saveUserInDB() {
         User user = User.registerUser("bbb", "bbb222@gmail.com", "bbbBBB222");
-        User user1 = authService.addUser(user);
+        User user1 = null;
+        try {
+            user1 = authService.addUser(user);
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
         assertEquals(user, userRepo.findByEmail(user1.getEmail()));
         userRepo.delete(user1);
     }
