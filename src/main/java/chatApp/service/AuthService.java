@@ -51,6 +51,32 @@ public class AuthService {
         this.keyTokensValEmails = getTokensInstance();
         this.keyEmailsValTokens = getEmailsInstance();
     }
+    /**
+     * Adds a user to the database if it has a unique email
+     *
+     * @param user - the user's data
+     * @return a saved user
+     * @throws SQLDataException when the provided email already exists
+     */
+    public User addUser(User user) {
+        try {
+            logger.debug("Check if the user is exist in DB");
+            if (userRepository.findByEmail(user.getEmail()) != null) {
+                logger.error(emailExistsInSystemMessage(user.getEmail()));
+                throw new IllegalArgumentException(emailExistsInSystemMessage(user.getEmail()));
+            }
+            logger.info("Encrypts password user and sends him email to complete the registration");
+            user.setPassword(encrypt((user.getPassword())));
+            user.setType(UserType.GUEST);
+            user.setNickname(user.getEmail());
+            sendMessage(user);
+            logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
+            return userRepository.save(user);
+        } catch (IllegalArgumentException | JpaSystemException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
 
     /**
      * Adds a user crypt password to the database if the user`s email exist in the db
@@ -67,12 +93,6 @@ public class AuthService {
             }
             User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
 
-            logger.debug("Check if password of " + user.getEmail() + " are correct");
-//        BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
-//        if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-//            logger.error(passwordDosentMatchMessage(user.getPassword()));
-//            throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
-//        }
             logger.info("Create token for " + user.getEmail());
             String sessionToken = randomString();
             keyTokensValEmails.put(sessionToken, dbUser.getEmail());
@@ -116,31 +136,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Adds a user to the database if it has a unique email
-     *
-     * @param user - the user's data
-     * @return a saved user
-     * @throws SQLDataException when the provided email already exists
-     */
-    public User addUser(User user) {
-        try {
-            logger.debug("Check if the user is exist in DB");
-            if (userRepository.findByEmail(user.getEmail()) != null) {
-                logger.error(emailExistsInSystemMessage(user.getEmail()));
-                throw new IllegalArgumentException(emailExistsInSystemMessage(user.getEmail()));
-            }
-            logger.info("Encrypts password user and sends him email to complete the registration");
-            user.setPassword(encrypt((user.getPassword())));
-            user.setType(UserType.GUEST);
-            user.setNickname(user.getEmail());
-            sendMessage(user);
-            logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
-            return userRepository.save(user);
-        } catch (IllegalArgumentException | JpaSystemException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
 
     /**
      * Adds a user to the database with userType field
