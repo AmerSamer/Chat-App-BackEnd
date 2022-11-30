@@ -1,4 +1,4 @@
-package chatApp.Utilities;
+package chatApp.utilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -6,8 +6,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,37 +24,42 @@ public class Utility {
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
 
     /**
-     *Is valid password : check if The length of the password > 6 & At least one capital letter
+     * Is valid password : check if The length of the password > 6 & At least one capital letter
+     *
      * @param password - the password
      * @return true if valid password else false
      */
     public static boolean isValidPassword(String password) {
         logger.debug("Check valid password");
-        if(password != null){
+        if (password != null) {
             return password.matches(".*[A-Z].*") && password.length() >= 6;
         }
         return false;
     }
+
     /**
-     *Is valid name : check if only letters in name
+     * Is valid name : check if only letters in name
+     *
      * @param name - the password
      * @return true if valid name else false
      */
     public static boolean isValidName(String name) {
         logger.debug("Check valid name");
-        if(name != null) {
+        if (name != null) {
             return name.matches("^[ A-Za-z]+$");
         }
         return false;
     }
+
     /**
-     *Is valid email: check if syntax of email is valid
+     * Is valid email: check if syntax of email is valid
+     *
      * @param emailAddress - the password
      * @return true if valid emailAddress else false
      */
     public static boolean isValidEmail(String emailAddress) {
         logger.debug("Check valid email");
-        if(emailAddress != null) {
+        if (emailAddress != null) {
             String regexPattern = "^(.+)@(\\S+)$";
 
             return Pattern.compile(regexPattern)
@@ -65,16 +68,20 @@ public class Utility {
         }
         return false;
     }
+
     /**
-     *Random string: generate random string
+     * Random string: generate random string
+     *
      * @return true if valid emailAddress else false
      */
     public static String randomString() {
         UUID randomUUID = UUID.randomUUID();
         return randomUUID.toString().replaceAll("_", "");
     }
+
     /**
-     *encrypt: encrypt string
+     * encrypt: encrypt string
+     *
      * @param stringToEncrypt - the string to encrypt
      * @return the value encrypted
      */
@@ -84,7 +91,8 @@ public class Utility {
     }
 
     /**
-     *Calculate Age : calculate the age of the user
+     * Calculate Age : calculate the age of the user
+     *
      * @return the age of the user
      */
     public static int calcAge(LocalDate dateOfBirth) {
@@ -92,10 +100,11 @@ public class Utility {
     }
 
     /**
-     *Calculate LocalDateTime : calculate the current date and time
+     * Calculate LocalDateTime : calculate the current date and time
+     *
      * @return the current date and time
      */
-    public static LocalDateTime getLocalDateTimeNow(){
+    public static LocalDateTime getLocalDateTimeNow() {
         return LocalDateTime.now();
     }
 

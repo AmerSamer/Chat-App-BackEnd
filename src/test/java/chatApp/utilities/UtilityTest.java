@@ -1,9 +1,9 @@
-package chatApp.Utilities;
+package chatApp.utilities;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static chatApp.Utilities.Utility.isValidPassword;
+import static chatApp.utilities.Utility.isValidPassword;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UtilityTest {

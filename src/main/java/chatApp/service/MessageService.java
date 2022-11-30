@@ -1,6 +1,5 @@
 package chatApp.service;
 
-
 import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.repository.MessageRepository;
@@ -17,7 +16,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.Utility.*;
 
 @CrossOrigin
 @Service
@@ -33,11 +32,12 @@ public class MessageService {
 
     /**
      * finding the room id by the userEmail and the receiverId combination
-     * @param userEmail - user email to get the roomId
+     *
+     * @param userEmail  - user email to get the roomId
      * @param receiverId - user id to get the roomId
      * @return list of messages of specific private room
      */
-    public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
+    public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId) {
         try {
             User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
             User receiverUser = User.dbUser(userRepository.getById(receiverId));
@@ -51,12 +51,14 @@ public class MessageService {
             }
             return messageList;
         } catch (RuntimeException e) {
+            logger.error("Get new/existing private chat room failed");
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
      * adds message to private chat room to the db
+     *
      * @param message - the message`s data
      * @return saved message
      */
@@ -66,12 +68,14 @@ public class MessageService {
             message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
             return messageRepository.save(message);
         } catch (RuntimeException e) {
+            logger.error("Add message to private chat failed");
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
      * downloads private room messages
+     *
      * @param roomId - the roomId`s data
      * @return list of messages
      */
@@ -80,12 +84,14 @@ public class MessageService {
             logger.info("Try to download private chat room messages");
             return messageRepository.findByRoomId(roomId);
         } catch (RuntimeException e) {
+            logger.error("Get private room messages to download failed");
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
      * adding message to db
+     *
      * @param message - the message`s data
      * @return a saved message body
      */
@@ -102,12 +108,14 @@ public class MessageService {
             message.setReceiver("main");
             return messageRepository.save(message);
         } catch (RuntimeException e) {
+            logger.error("Add message to main chat failed");
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
      * find all the main chat room messages in the db
+     *
      * @param size - the number of returned rows
      * @return list of messages sorted by DESC timestamp
      */
@@ -116,24 +124,44 @@ public class MessageService {
             logger.info("Try to get main chat room messages");
             return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
         } catch (RuntimeException e) {
+            logger.error("Get main chat room messages failed");
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
      * find all the main chat room messages in the db from specific time till now
+     *
      * @param time - the time in epoch seconds
      * @return list of messages from that time till now
      */
     public List<Message> getMainRoomMessagesByTime(long time) {
-            return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
+        return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
     }
 
-    public void updateUserEmail(String oldEmail, String newEmail) {
+    public void updateUserEmailMessages(String oldEmail, String newEmail) {
         User user = User.dbUser(userRepository.findByEmail(oldEmail));
-        List<Message> messages = messageRepository.findBySender(user.getNickname());
-        List<Message> newMessages = messages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
-        newMessages.forEach(message -> message.setSender(newEmail));
-        newMessages.forEach(message -> messageRepository.save(message));
+        List<Message> senderMessages = messageRepository.findBySender(user.getNickname());
+        List<Message> newSenderMessages = senderMessages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
+        newSenderMessages.forEach(message -> message.setSender(newEmail));
+        newSenderMessages.forEach(message -> messageRepository.save(message));
+
+        List<Message> receiverMessages = messageRepository.findByReceiver(user.getNickname());
+        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getReceiver().equals(oldEmail)).collect(Collectors.toList());
+        newReceiverMessages.forEach(message -> message.setReceiver(newEmail));
+        newReceiverMessages.forEach(message -> messageRepository.save(message));
+    }
+
+    public void updateUserNicknameMessages(String oldNickname, String newNickname) {
+        User user = User.dbUser(userRepository.findByNickname(oldNickname));
+        List<Message> senderMessages = messageRepository.findBySender(user.getNickname());
+        List<Message> newSenderMessages = senderMessages.stream().filter(message -> message.getSender().equals(oldNickname)).collect(Collectors.toList());
+        newSenderMessages.forEach(message -> message.setSender(newNickname));
+        newSenderMessages.forEach(message -> messageRepository.save(message));
+
+        List<Message> receiverMessages = messageRepository.findByReceiver(user.getNickname());
+        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getReceiver().equals(oldNickname)).collect(Collectors.toList());
+        newReceiverMessages.forEach(message -> message.setReceiver(newNickname));
+        newReceiverMessages.forEach(message -> messageRepository.save(message));
     }
 }

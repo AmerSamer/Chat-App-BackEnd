@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.SuccessMessages.*;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.SuccessMessages.*;
 
 @RestController
 @CrossOrigin
@@ -64,7 +64,7 @@ public class ChatController {
             Message resMessage = messageService.addMessageToPrivateChat(message);
             CustomResponse<Message> response = new CustomResponse<>(resMessage, privateMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
-        } catch ( IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             CustomResponse<Message> response = new CustomResponse<>(null, FailedToSendPrivateMessage);
             return ResponseEntity.badRequest().body(response);
         }
@@ -77,12 +77,12 @@ public class ChatController {
      */
     @RequestMapping(value = "/getusers", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
-            logger.info("Try to get all users to display in the frontend");
-            List<User> userList = userService.getAllUsers();
-            List<UserDTO> userListDTO = UserDTO.userListToUserListDTO(userList);
-            CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
-            logger.info(listOfAllUsersSuccessfulMessage);
-            return ResponseEntity.ok().body(response);
+        logger.info("Try to get all users to display in the frontend");
+        List<User> userList = userService.getAllUsers();
+        List<UserDTO> userListDTO = UserDTO.userListToUserListDTO(userList);
+        CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
+        logger.info(listOfAllUsersSuccessfulMessage);
+        return ResponseEntity.ok().body(response);
     }
 
     /**
@@ -151,8 +151,8 @@ public class ChatController {
      */
     @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
-            List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
-            CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
-            return ResponseEntity.ok().body(response);
+        List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
+        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
+        return ResponseEntity.ok().body(response);
     }
 }

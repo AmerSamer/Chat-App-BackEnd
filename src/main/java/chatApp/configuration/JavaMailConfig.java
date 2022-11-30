@@ -16,6 +16,7 @@ public class JavaMailConfig {
 
     /**
      * setting the host, port, username, password
+     *
      * @return the mailSender
      */
     @Bean
@@ -47,11 +48,11 @@ public class JavaMailConfig {
 
     /**
      * setting the message with setTo, setFrom, setText
+     *
      * @return message
      */
     @Bean
-    public SimpleMailMessage emailTemplate()
-    {
+    public SimpleMailMessage emailTemplate() {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo("somebody@gmail.com");
         message.setFrom("admin@gmail.com");

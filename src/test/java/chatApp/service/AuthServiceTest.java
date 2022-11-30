@@ -1,6 +1,5 @@
 package chatApp.service;
 
-import chatApp.controller.AuthController;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
@@ -11,13 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.SQLDataException;
 import java.time.LocalDate;
 
-import static chatApp.Utilities.Utility.randomString;
+import static chatApp.utilities.Utility.randomString;
 import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

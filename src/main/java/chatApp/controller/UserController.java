@@ -10,11 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.SuccessMessages.*;
-import static chatApp.Utilities.Utility.*;
-
-import java.sql.SQLDataException;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.SuccessMessages.*;
+import static chatApp.utilities.Utility.*;
 
 @RestController
 @CrossOrigin
@@ -30,7 +28,6 @@ public class UserController {
      * @param user  - the user's data
      * @param token - the token of the user
      * @return user with updated data
-     * @throws SQLDataException when the Update user failed
      */
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<CustomResponse<UserDTO>> updateUser(@RequestBody User user, @RequestParam String token) {
@@ -45,7 +42,7 @@ public class UserController {
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (user.getPassword() != null && !user.getPassword().equals("") && !isValidName(user.getName())) {
+            if (user.getName() != null && !user.getName().equals("") && !isValidName(user.getName())) {
                 logger.error(invalidNameMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
                 return ResponseEntity.badRequest().body(response);
@@ -68,7 +65,6 @@ public class UserController {
      *
      * @param token - the token of the user
      * @return user with offline status
-     * @throws IllegalArgumentException when the logout user failed
      */
     @RequestMapping(value = "logout", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestParam String token) {
@@ -92,7 +88,6 @@ public class UserController {
      * @param token - the token of the user
      * @param id    - the id of the user
      * @return user with mute/unmute status
-     * @throws IllegalArgumentException when the update mute/unmute user failed
      */
     @RequestMapping(value = "update/mute", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser(@RequestParam("token") String token, @RequestParam("id") Long id) {
@@ -104,8 +99,8 @@ public class UserController {
             logger.info(updateMuteUnmuteUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(updateUserFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
+            logger.error(muteUserFailedMessage);
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, muteUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -116,7 +111,7 @@ public class UserController {
      * @param token  - the token of the user
      * @param status - the away/online status of the user
      * @return user with away/online status
-     * @throws IllegalArgumentException when the update away/online status user failed
+     * ]
      */
     @RequestMapping(value = "update/status", method = RequestMethod.PATCH)
     public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser(@RequestParam("token") String token, @RequestParam("status") String status) {
@@ -128,8 +123,8 @@ public class UserController {
             logger.info(updateStatusUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(updateUserFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
+            logger.error(updateStatusUserFailedMessage);
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, updateStatusUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
         }
     }

@@ -1,7 +1,7 @@
 package chatApp.service;
 
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.Utility.*;
 
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
@@ -10,9 +10,11 @@ import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,29 +54,37 @@ public class UserService {
             }
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
 
-            if (!user.getNickname().equals("")) {
-                dbUser.setNickname(user.getNickname());
-            }
             if (!user.getEmail().equals("")) {
-                if (!user.getNickname().equals("")) {
-                    dbUser.setNickname(user.getNickname());
-                }else{
-                    messageService.updateUserEmail( userEmail, user.getEmail());
+                messageService.updateUserEmailMessages(dbUser.getEmail(), user.getEmail());
+                if (dbUser.getNickname().equals(dbUser.getEmail())) {
                     dbUser.setNickname(user.getEmail());
                 }
                 dbUser.setEmail(user.getEmail());
             }
-            if (!user.getName().equals("")) {
+            if (user.getNickname() != null && !user.getNickname().equals("")) {
+                messageService.updateUserNicknameMessages(dbUser.getNickname(), user.getNickname());
+                dbUser.setNickname(user.getNickname());
+            }
+            if (user.getName() != null && !user.getName().equals("")) {
+                if(!isValidName(user.getName())){
+                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid name");
+                }
                 dbUser.setName(user.getName());
             }
-            if (!user.getPassword().equals("")) {
+            if (user.getPassword() != null && !user.getPassword().equals("")) {
                 dbUser.setPassword(encrypt(user.getPassword()));
             }
             if (user.getDateOfBirth() != null) {
+                if(user.getDateOfBirth().isAfter(LocalDate.now())){
+                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid date");
+                }
                 dbUser.setDateOfBirth(user.getDateOfBirth());
                 dbUser.setAge(calcAge(user.getDateOfBirth()));
             }
             if (user.getPhoto() != null && !user.getPhoto().equals("")) {
+                if(!isValidName(user.getPhoto())){
+                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid photo");
+                }
                 dbUser.setPhoto(user.getPhoto());
             }
             if (user.getDescription() != null && !user.getDescription().equals("")) {
@@ -84,12 +94,14 @@ public class UserService {
 
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("Update the user failed");
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
-     *Logout user : delete token & change status to offline, if the user is guest delete him from the DB
+     * Logout user : delete token & change status to offline, if the user is guest delete him from the DB
+     *
      * @param token - the token of the user
      * @return user with offline status
      * @throws IllegalArgumentException when the logout user failed
@@ -105,7 +117,7 @@ public class UserService {
             authService.getKeyTokensValEmails().remove(token);
             authService.getKeyEmailsValTokens().remove(userEmail);
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
-            logger.info("If the user guest delete him from DB else update his status to offline");
+            logger.info("If the user is a guest delete him from DB else update his status to offline");
             if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
                 userRepository.delete(dbUser);
                 return dbUser;
@@ -113,6 +125,7 @@ public class UserService {
             dbUser.setUserStatus(UserStatuses.OFFLINE);
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("logout the user failed");
             throw new IllegalArgumentException(e);
         }
     }
@@ -149,9 +162,11 @@ public class UserService {
             dbUser.setMute(!dbUser.isMute());
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("mute/unmute the user failed");
             throw new IllegalArgumentException(e);
         }
     }
+
     /**
      * Update away/online Users : check token session not expired & the user exist in DB, update user away/online status in DB
      *
@@ -182,17 +197,19 @@ public class UserService {
             }
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
+            logger.error("Update status for user failed");
             throw new IllegalArgumentException(e);
         }
     }
 
     /**
-     *Get all users: get all users from DB
+     * Get all users: get all users from DB
+     *
      * @return all the users sorted by theirs types [ADMIN(0), REGISTERED(1), GUEST(2)] from DB
      */
     public List<User> getAllUsers() {
-            logger.info("Get all users in users table");
-            return userRepository.findAll().stream().filter(currUser ->  currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
+        logger.info("Get all users in users table");
+        return userRepository.findAll().stream().filter(currUser -> currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 }
 
