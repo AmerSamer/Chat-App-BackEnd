@@ -147,7 +147,7 @@ public class MessageService {
         newSenderMessages.forEach(message -> messageRepository.save(message));
 
         List<Message> receiverMessages = messageRepository.findByReceiver(user.getNickname());
-        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
+        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getReceiver().equals(oldEmail)).collect(Collectors.toList());
         newReceiverMessages.forEach(message -> message.setReceiver(newEmail));
         newReceiverMessages.forEach(message -> messageRepository.save(message));
     }

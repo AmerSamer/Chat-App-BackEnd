@@ -158,11 +158,8 @@ public class UserService {
             if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            if (dbUser.getType().equals(UserType.ADMIN)) {
-                dbUser.setMute(!dbUser.isMute());
-            } else {
-                throw new IllegalArgumentException(notAdminUser);
-            }
+
+            dbUser.setMute(!dbUser.isMute());
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("mute/unmute the user failed");

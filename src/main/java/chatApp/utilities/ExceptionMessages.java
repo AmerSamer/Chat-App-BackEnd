@@ -8,7 +8,7 @@ public class ExceptionMessages {
     public static String loginFailedMessage = "Email or Password are wrong";
     public static String activationEmailFailedMessage = "Email activation failed, Couldn't activate email";
     public static String updateUserFailedMessage = "Update user failed. Please try again";
-    public static String muteUserFailedMessage = "Mute user failed. Please try again";
+    public static String muteUserFailedMessage = "Mute or unmute user failed. Please try again";
     public static String updateStatusUserFailedMessage = "Update status of user failed. Please try again";
     public static String loginAsGuestFailedMessage = "Guest-Name already exists in the system, Please try again.";
     public static String logoutUserFailedMessage = "Logout user failed. Please try again";
