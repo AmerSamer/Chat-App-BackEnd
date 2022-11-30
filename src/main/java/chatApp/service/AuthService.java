@@ -52,7 +52,6 @@ public class AuthService {
 
     /**
      * Adds a user crypt password to the database if the user`s email exist in the db
-     *
      * @param user - the user's data
      * @return a saved user
      * @throws IllegalArgumentException when the provided email not exists in the database
