@@ -82,19 +82,12 @@ public class Utility {
         BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
         return bEncoder.encode(stringToEncrypt);
     }
-
-    public static int calcAge (LocalDate dateOfBirth){
-        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
-    }
-
+    /**
+     *getLocalDateTimeNow: gives the current time
+     * @return the local date now
+     */
     public static LocalDateTime getLocalDateTimeNow(){
         return LocalDateTime.now();
     }
 
-//    public static String getDateTimeNow(){
-//        LocalDateTime localDateTime = LocalDateTime.now();
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-//        String dateTimeString = localDateTime.format(dateTimeFormatter);
-//        return dateTimeString.split( " ")[1];
-//    }
 }
