@@ -1,6 +1,7 @@
 package chatApp.controller;
 
 import chatApp.customEntities.CustomResponse;
+import chatApp.customEntities.UserDTO;
 import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.repository.MessageRepository;
@@ -18,9 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
+import java.util.List;
 
-import static chatApp.Utilities.ExceptionMessages.invalidEmailMessage;
 import static chatApp.Utilities.ExceptionMessages.userIsMutedMessage;
+import static chatApp.Utilities.SuccessMessages.listOfAllUsersSuccessfulMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -52,24 +54,39 @@ class ChatControllerTest {
         this.userReceiver = User.registerUser("elisamer", "seselevtion@gmail.com", "Aa12345");
         authService.addUser(this.userReceiver);
         this.mainMessage = new Message("samerelishai@gmail.com", "hello main content", "main", "0");
-        this.privateMessage = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", "1E2");
+        messageService.addMessageToMainChat(mainMessage);
+        this.privateMessage = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", userSender.getId() + "E" + userReceiver.getId());
+        messageService.addMessageToPrivateChat(privateMessage);
     }
 
     @AfterEach
     public void deleteAllTables(){
         userRepository.deleteAll();
+        messageRepository.deleteAll();
     }
 
     @Test
-    void sendMainPlainMessage_contentInDatabaseEqualsContentFromClient_equals() {
+    void sendMainPlainMessage_contentResponseEqualsContentFromClient_equals() {
         ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendMainPlainMessage(mainMessage);
         assertEquals(responseMessage.getBody().getResponse().getContent(), mainMessage.getContent());
     }
 
     @Test
-    void sendMainPlainMessage_senderInDatabaseEqualsSenderFromClient_equals() {
+    void sendMainPlainMessage_contentInDatabaseEqualsContentFromClient_equals() {
+        ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendMainPlainMessage(mainMessage);
+        assertEquals(responseMessage.getBody().getResponse().getContent(), messageRepository.findByContent(responseMessage.getBody().getResponse().getContent()).get(0).getContent());
+    }
+
+    @Test
+    void sendMainPlainMessage_senderResponseEqualsSenderResponse_equals() {
         ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendMainPlainMessage(mainMessage);
         assertEquals(responseMessage.getBody().getResponse().getSender(), mainMessage.getSender());
+    }
+
+    @Test
+    void sendMainPlainMessage_senderInDatabaseEqualsSenderResponse_equals() {
+        ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendMainPlainMessage(mainMessage);
+        assertEquals(responseMessage.getBody().getResponse().getSender(), messageRepository.findBySenderAndContent(responseMessage.getBody().getResponse().getSender(), responseMessage.getBody().getResponse().getContent()).get(0).getSender());
     }
 
     @Test
@@ -85,6 +102,7 @@ class ChatControllerTest {
         ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendMainPlainMessage(mainMessage);
         assertEquals(userIsMutedMessage , responseMessage.getBody().getMessage());
     }
+
 
     @Test
     void sendPrivatePlainMessage_contentInDatabaseEqualsContentFromClient_equals() {
@@ -104,25 +122,64 @@ class ChatControllerTest {
         assertEquals(responseMessage.getBody().getResponse().getReceiver(), privateMessage.getReceiver());
     }
 
+    @Test
+    void sendPrivatePlainMessage_roomIdIs1E2_equals() {
+        ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendPrivatePlainMessage(privateMessage);
+        assertEquals(responseMessage.getBody().getResponse().getRoomId(), privateMessage.getRoomId());
+    }
 
     @Test
-    void getAllUsers() {
+    void sendPrivatePlainMessage_roomIdIsNotZero_equals() {
+        ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendPrivatePlainMessage(privateMessage);
+        assertNotEquals(responseMessage.getBody().getResponse().getRoomId(), "0");
     }
 
 
     @Test
-    void getPrivateRoom() {
+    void getAllUsers_checkIfEmpty_notEmpty() {
+        ResponseEntity<CustomResponse<List<UserDTO>>> responseUsers = chatController.getAllUsers();
+        assertFalse(responseUsers.getBody().getResponse().isEmpty());
     }
 
     @Test
-    void getMainRoom() {
+    void getAllUsers_checkUserInDatabaseEqualsUserResponse_equals() {
+        ResponseEntity<CustomResponse<List<UserDTO>>> responseUsers = chatController.getAllUsers();
+        assertTrue(responseUsers.getBody().getResponse().get(0).equals(UserDTO.userToUserDTO(userRepository.findByEmail(userSender.getEmail()))));
     }
 
     @Test
-    void downloadPrivateRoom() {
+    void getAllUsers_checkIfUserDTOInFirstIndexIsUserSenderDTO_equals() {
+        ResponseEntity<CustomResponse<List<UserDTO>>> responseUsers = chatController.getAllUsers();
+        assertEquals(responseUsers.getBody().getMessage(), listOfAllUsersSuccessfulMessage);
     }
 
     @Test
-    void downloadMainRoom() {
+    void getPrivateRoom_checkIfRoomIdResponseEqualsPrivateMessageId_equals() {
+        ResponseEntity<CustomResponse<List<Message>>> responseMessages = chatController.getPrivateRoom(userSender.getEmail(), userReceiver.getId());
+        assertEquals(responseMessages.getBody().getResponse().get(0).getRoomId(), privateMessage.getRoomId());
+    }
+
+    @Test
+    void getMainRoom_checkIfOneMessageReturnedToClient_true() {
+        ResponseEntity<CustomResponse<List<Message>>> responseMessages = chatController.getMainRoom(1);
+        assertEquals(1, responseMessages.getBody().getResponse().size());
+    }
+
+    @Test
+    void downloadPrivateRoom_messageContentInDatabaseEqualsContentFromClient_equals() {
+        ResponseEntity<CustomResponse<List<Message>>> responseMessages = chatController.downloadPrivateRoom(userSender.getId() + "E" + userReceiver.getId());
+        assertEquals(responseMessages.getBody().getResponse().get(0).getContent(), privateMessage.getContent());
+    }
+
+    @Test
+    void downloadPrivateRoom_roomIdInDatabaseEqualsRoomIdFromClient_equals() {
+        ResponseEntity<CustomResponse<List<Message>>> responseMessages = chatController.downloadPrivateRoom(userSender.getId() + "E" + userReceiver.getId());
+        assertEquals(responseMessages.getBody().getResponse().get(0).getRoomId(), privateMessage.getRoomId());
+    }
+
+    @Test
+    void downloadMainRoom_roomIdInDatabaseEqualsRoomIdFromClient_equals() {
+        ResponseEntity<CustomResponse<List<Message>>> responseMessages = chatController.downloadMainRoom(mainMessage.getIssueDateEpoch() - 1);
+        assertEquals(responseMessages.getBody().getResponse().get(0).getRoomId(), mainMessage.getRoomId());
     }
 }

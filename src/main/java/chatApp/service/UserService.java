@@ -3,6 +3,7 @@ package chatApp.service;
 import static chatApp.Utilities.ExceptionMessages.*;
 import static chatApp.Utilities.Utility.*;
 
+import chatApp.Utilities.Utility;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
@@ -65,7 +66,7 @@ public class UserService {
         }
         if (user.getDateOfBirth() != null) {
             dbUser.setDateOfBirth(user.getDateOfBirth());
-            dbUser.setAge(calcAge(user.getDateOfBirth()));
+            dbUser.setAge(Utility.calcAge(user.getDateOfBirth()));
         }
         if (!user.getPhoto().equals("")) {
             dbUser.setPhoto(user.getPhoto());
@@ -151,20 +152,14 @@ public class UserService {
         }
         return userRepository.save(dbUser);
     }
-    /**
-     *Calculate Age : calculate the age of the user
-     * @return the age of the user
-     */
-    private int calcAge(LocalDate dateOfBirth) {
-        return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
-    }
+
     /**
      *Get all users: get all users from DB
      * @return all the users sorted by theirs types [ADMIN(0), REGISTERED(1), GUEST(2)] from DB
      */
     public List<User> getAllUsers() {
         logger.info("Get all users in users table");
-        return userRepository.findAll().stream().filter(currUser -> !currUser.getUserStatus().equals(UserStatuses.OFFLINE)).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
+        return userRepository.findAll().stream().filter(currUser -> currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 
 

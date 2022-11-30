@@ -1,5 +1,7 @@
 package chatApp.entities;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.*;

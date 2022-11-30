@@ -14,8 +14,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+
 import java.util.List;
 
 import static chatApp.Utilities.ExceptionMessages.*;
@@ -46,7 +45,7 @@ public class ChatController {
             Message resMessage = messageService.addMessageToMainChat(message);
             CustomResponse<Message> response = new CustomResponse<>(resMessage, mainMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException e) {
             CustomResponse<Message> response = new CustomResponse<>(null, userIsMutedMessage);
             return ResponseEntity.badRequest().body(response);
         }
@@ -60,7 +59,7 @@ public class ChatController {
      */
     @MessageMapping("/plain/privatechat/{roomId}")
     @SendTo("/topic/privatechat/{roomId}")
-    public ResponseEntity<CustomResponse<Message>> sendPrivatePlainMessage(Message message) {
+    ResponseEntity<CustomResponse<Message>> sendPrivatePlainMessage(Message message) {
         Message resMessage = messageService.addMessageToPrivateChat(message);
         CustomResponse<Message> response = new CustomResponse<>(resMessage, privateMessageSentSuccessfully);
         return ResponseEntity.ok().body(response);
@@ -72,7 +71,7 @@ public class ChatController {
      * @return list of all users
      */
     @RequestMapping(value = "/getusers", method = RequestMethod.GET)
-    public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
+    ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
         logger.info("Try to get all users to display in the frontend");
         List<User> userList = userService.getAllUsers();
         List<UserDTO> userListDTO = UserDTO.userListToUserListDTO(userList);
@@ -89,7 +88,7 @@ public class ChatController {
      * @return list of messages of private chat room
      */
     @RequestMapping(value = "/privatechatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail,
+    ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail,
                                                                          @RequestParam("receiver") Long receiverId) {
         logger.info("Try to get private chat room");
         List<Message> messageList = messageService.getPrivateRoomMessages(senderEmail, receiverId);
@@ -104,7 +103,7 @@ public class ChatController {
      * @return list of messages of main chat room
      */
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
+    ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
         logger.info("Try to get main chat room");
         List<Message> messageList = messageService.getMainRoomMessages(size);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, mainChatRoomMessagesSentSuccessfully);
@@ -118,15 +117,21 @@ public class ChatController {
      * @return list of messages of specific private chat room
      */
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
+    ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
         logger.info("Try to download specific private chat room");
         List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadPrivateRoomSentSuccessfully);
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * sends the time in epoch-seconds to the downloadMainRoom method in the messageService
+     *
+     * @param time - the LocalDateTime.now() in epoch seconds
+     * @return list of messages of specific main chat room from that time till now
+     */
     @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
+    ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
         List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
         return ResponseEntity.ok().body(response);

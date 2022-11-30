@@ -1,9 +1,10 @@
 package chatApp.entities;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
-
 @Entity
 @Table(name = "user")
 public class User {

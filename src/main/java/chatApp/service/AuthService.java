@@ -113,11 +113,11 @@ public class AuthService {
      * @return a saved user
      * @throws SQLDataException when the provided email already exists
      */
-    public User addUser(User user) throws SQLDataException {
+    public User addUser(User user){
         logger.debug("Check if the user is exist in DB");
         if (userRepository.findByEmail(user.getEmail()) != null) {
             logger.error(emailExistsInSystemMessage(user.getEmail()));
-            throw new SQLDataException(emailExistsInSystemMessage(user.getEmail()));
+            throw new IllegalArgumentException(emailExistsInSystemMessage(user.getEmail()));
         }
         logger.info("Encrypts password user and sends him email to complete the registration");
         user.setPassword(encrypt((user.getPassword())));

@@ -76,12 +76,12 @@ public class MessageService {
      * @param message - the message`s data
      * @return a saved message body
      */
-    public Message addMessageToMainChat(Message message) throws IllegalAccessException {
+    public Message addMessageToMainChat(Message message){
         logger.info("Try to add message to main chat room");
         String userNickname = message.getSender();
         User user = User.dbUser(userRepository.findByNickname(userNickname));
         if(user.isMute()){
-            throw new IllegalAccessException("User is Muted");
+            throw new IllegalArgumentException("User is Muted");
         }
         message.setIssueDate(getLocalDateTimeNow());
         message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
@@ -99,8 +99,13 @@ public class MessageService {
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
     }
 
+    /**
+     * find all the main chat room messages in the db from specific time till now
+     * @param time - the time in epoch seconds
+     * @return list of messages from that time till now
+     */
     public List<Message> getMainRoomMessagesByTime(long time) {
+        logger.info("Try to get main chat room messages from time in epoch seconds till now");
         return messageRepository.findByRoomIdAndIssueDateEpochBetween("0",time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
-
     }
 }
