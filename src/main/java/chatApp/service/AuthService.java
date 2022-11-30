@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLDataException;
@@ -53,57 +54,67 @@ public class AuthService {
 
     /**
      * Adds a user crypt password to the database if the user`s email exist in the db
+     *
      * @param user - the user's data
      * @return a saved user
      * @throws SQLDataException when the provided email not exists in the database
      */
-    public User login(User user) throws SQLDataException {
-        logger.debug("Check if the user is exist in DB");
-        if (userRepository.findByEmail(user.getEmail()) == null) {
-            logger.error(emailNotExistsMessage(user.getEmail()));
-            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
-        }
-        User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
+    public User login(User user) {
+        try {
+            logger.debug("Check if the user is exist in DB");
+            if (userRepository.findByEmail(user.getEmail()) == null) {
+                logger.error(emailNotExistsMessage(user.getEmail()));
+                throw new IllegalArgumentException(emailNotExistsMessage(user.getEmail()));
+            }
+            User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
 
-        logger.debug("Check if password of "+ user.getEmail()+" are correct");
+            logger.debug("Check if password of " + user.getEmail() + " are correct");
 //        BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
 //        if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
 //            logger.error(passwordDosentMatchMessage(user.getPassword()));
 //            throw new SQLDataException(passwordDosentMatchMessage(user.getPassword()));
 //        }
-        logger.info("Create token for " + user.getEmail());
-        String sessionToken = randomString();
-        keyTokensValEmails.put(sessionToken, dbUser.getEmail());
-        keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
-        logger.info("User is logged into the system");
-        dbUser.setUserStatus(UserStatuses.ONLINE);
-        return userRepository.save(dbUser);
+            logger.info("Create token for " + user.getEmail());
+            String sessionToken = randomString();
+            keyTokensValEmails.put(sessionToken, dbUser.getEmail());
+            keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
+            logger.info("User is logged into the system");
+            dbUser.setUserStatus(UserStatuses.ONLINE);
+            return userRepository.save(dbUser);
+        } catch (IllegalArgumentException | JpaSystemException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**
      * Adds a user to the database if it has a unique name
+     *
      * @param user - the user's data
      * @return a saved user
      * @throws SQLDataException when the provided name exists in the database
      */
-    public User addGuest(User user) throws SQLDataException {
-        logger.debug("Check if the guest name is exist in DB");
-        if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
-            logger.error(guestNameExistsMessage(user.getName()));
-            throw new SQLDataException(guestNameExistsMessage(user.getName()));
+    public User addGuest(User user) {
+        try {
+            logger.debug("Check if the guest name is exist in DB");
+            if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
+                logger.error(guestNameExistsMessage(user.getName()));
+                throw new IllegalArgumentException(guestNameExistsMessage(user.getName()));
+            }
+            logger.info("The guest receives token,email,password");
+            user.setEmail(user.getName() + "@chatappsystem.com");
+            user.setName(guestPrefix + user.getName());
+            user.setType(UserType.GUEST);
+            user.setPassword(Utility.randomString());
+            user.setUserStatus(UserStatuses.ONLINE);
+            user.setNickname(user.getName());
+            String sessionToken = randomString();
+            keyTokensValEmails.put(sessionToken, user.getEmail());
+            keyEmailsValTokens.put(user.getEmail(), sessionToken);
+            logger.info("Save the guest in DB");
+            return userRepository.save(user);
+        } catch (IllegalArgumentException | JpaSystemException e) {
+            throw new IllegalArgumentException(e);
         }
-        logger.info("The guest receives token,email,password");
-        user.setEmail(user.getName() + "@chatappsystem.com");
-        user.setName(guestPrefix + user.getName());
-        user.setType(UserType.GUEST);
-        user.setPassword(Utility.randomString());
-        user.setUserStatus(UserStatuses.ONLINE);
-        user.setNickname(user.getName());
-        String sessionToken = randomString();
-        keyTokensValEmails.put(sessionToken, user.getEmail());
-        keyEmailsValTokens.put(user.getEmail(), sessionToken);
-        logger.info("Save the guest in DB");
-        return userRepository.save(user);
     }
 
     /**
@@ -113,19 +124,23 @@ public class AuthService {
      * @return a saved user
      * @throws SQLDataException when the provided email already exists
      */
-    public User addUser(User user) throws SQLDataException {
-        logger.debug("Check if the user is exist in DB");
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            logger.error(emailExistsInSystemMessage(user.getEmail()));
-            throw new SQLDataException(emailExistsInSystemMessage(user.getEmail()));
+    public User addUser(User user) {
+        try {
+            logger.debug("Check if the user is exist in DB");
+            if (userRepository.findByEmail(user.getEmail()) != null) {
+                logger.error(emailExistsInSystemMessage(user.getEmail()));
+                throw new IllegalArgumentException(emailExistsInSystemMessage(user.getEmail()));
+            }
+            logger.info("Encrypts password user and sends him email to complete the registration");
+            user.setPassword(encrypt((user.getPassword())));
+            user.setType(UserType.GUEST);
+            user.setNickname(user.getEmail());
+            sendMessage(user);
+            logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
+            return userRepository.save(user);
+        } catch (IllegalArgumentException | JpaSystemException e) {
+            throw new IllegalArgumentException(e);
         }
-        logger.info("Encrypts password user and sends him email to complete the registration");
-        user.setPassword(encrypt((user.getPassword())));
-        user.setType(UserType.GUEST);
-        user.setNickname(user.getEmail());
-        sendMessage(user);
-        logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
-        return userRepository.save(user);
     }
 
     /**
@@ -137,35 +152,37 @@ public class AuthService {
      * @throws SQLDataException when the provided user activation is true
      * @throws SQLDataException when the provided token Expired
      */
-    public User verifyEmail(User user) throws SQLDataException {
-        logger.debug("Check if the user is exist in DB");
-        if (userRepository.findByEmail(user.getEmail()) == null) {
-            logger.error(emailNotExistsMessage(user.getEmail()));
-            throw new SQLDataException(emailNotExistsMessage(user.getEmail()));
-        }
+    public User verifyEmail(User user) {
+        try {
+            logger.debug("Check if the user is exist in DB");
+            if (userRepository.findByEmail(user.getEmail()) == null) {
+                logger.error(emailNotExistsMessage(user.getEmail()));
+                throw new IllegalArgumentException(emailNotExistsMessage(user.getEmail()));
+            }
 
-        User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
+            User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
 
-        logger.debug("Check if the user already activated");
-        if(dbUser.isEnabled()){
-            logger.error(emailAlreadyActivatedMessage(user.getEmail()));
-            throw new SQLDataException(emailAlreadyActivatedMessage(user.getEmail()));
-        }
-        else if(LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))){
-            logger.error(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-            sendMessage(user);
-            throw new SQLDataException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-        }
-        else if(!dbUser.getVerifyCode().equals(user.getVerifyCode())){
-            logger.error(verificationCodeNotMatch);
-            throw new SQLDataException(verificationCodeNotMatch);
-        }
+            logger.debug("Check if the user already activated");
+            if (dbUser.isEnabled()) {
+                logger.error(emailAlreadyActivatedMessage(user.getEmail()));
+                throw new IllegalArgumentException(emailAlreadyActivatedMessage(user.getEmail()));
+            } else if (LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))) {
+                logger.error(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
+                sendMessage(user);
+                throw new IllegalArgumentException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
+            } else if (!dbUser.getVerifyCode().equals(user.getVerifyCode())) {
+                logger.error(verificationCodeNotMatch);
+                throw new IllegalArgumentException(verificationCodeNotMatch);
+            }
 
-        dbUser.setEnabled(true);
-        dbUser.setVerifyCode(null);
-        dbUser.setType(UserType.REGISTERED);
-        logger.info("Save the"+ user.getEmail()+ "in DB as registered user");
-        return userRepository.save(dbUser);
+            dbUser.setEnabled(true);
+            dbUser.setVerifyCode(null);
+            dbUser.setType(UserType.REGISTERED);
+            logger.info("Save the" + user.getEmail() + "in DB as registered user");
+            return userRepository.save(dbUser);
+        } catch (IllegalArgumentException | JpaSystemException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**

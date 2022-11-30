@@ -56,7 +56,7 @@ public class UserController {
                 logger.info("Update the client the update was successful");
                 return ResponseEntity.ok().body(response);
 
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(updateUserFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
             return ResponseEntity.badRequest().body(response);
@@ -77,7 +77,7 @@ public class UserController {
                 CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, logoutSuccessfulMessage);
                 logger.info(logoutSuccessfulMessage);
                 return ResponseEntity.ok().body(response);
-            } catch (SQLDataException e) {
+            } catch (IllegalArgumentException e) {
                 logger.error(logoutUserFailedMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, logoutUserFailedMessage);
                 return ResponseEntity.badRequest().body(response);
@@ -102,7 +102,7 @@ public class UserController {
                 logger.info(updateMuteUnmuteUserSuccessfulMessage);
                 return ResponseEntity.ok().body(response);
 
-            } catch (SQLDataException e) {
+            } catch (IllegalArgumentException e) {
                 logger.error(updateUserFailedMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
                 return ResponseEntity.badRequest().body(response);
@@ -127,7 +127,7 @@ public class UserController {
                 logger.info(updateStatusUserSuccessfulMessage);
                 return ResponseEntity.ok().body(response);
 
-            } catch (SQLDataException e) {
+            } catch (IllegalArgumentException e) {
                 logger.error(updateUserFailedMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
                 return ResponseEntity.badRequest().body(response);
