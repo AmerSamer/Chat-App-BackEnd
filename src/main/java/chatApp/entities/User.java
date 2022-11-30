@@ -84,6 +84,17 @@ public class User {
         return user;
     }
 
+    public static User guestUserForTest(String name, String email, String password) {
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setEnabled(false);
+        user.setMute(false);
+        user.setType(UserType.GUEST);
+        return user;
+    }
+
     public String getPhoto() {
         return photo;
     }

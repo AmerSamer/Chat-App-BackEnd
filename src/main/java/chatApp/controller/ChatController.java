@@ -15,6 +15,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static chatApp.Utilities.ExceptionMessages.*;
@@ -136,7 +138,7 @@ public class ChatController {
      * @return list of messages of specific private chat room
      */
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("roomId") String roomId) {
+    private ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
         try {
             logger.info("Try to download specific private chat room");
             List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
@@ -149,9 +151,9 @@ public class ChatController {
     }
 
     @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("date") String date, @RequestParam("time") String time) {
+    private ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
         try {
-            List<Message> messageList = messageService.getMainRoomMessagesByTime(date, time);
+            List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
             CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (JpaSystemException e) {

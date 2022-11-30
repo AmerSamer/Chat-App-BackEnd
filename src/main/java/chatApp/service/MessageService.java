@@ -14,7 +14,8 @@ import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static chatApp.Utilities.Utility.*;
@@ -39,21 +40,17 @@ public class MessageService {
      * @return list of messages of specific private room
      */
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId) {
-        try {
-            User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
-            User receiverUser = User.dbUser(userRepository.getById(receiverId));
-            Long senderId = senderUser.getId();
-            List<Message> messageList = messageRepository.findByRoomId(senderId + "E" + receiverId);
+        User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
+        User receiverUser = User.dbUser(userRepository.getById(receiverId));
+        Long senderId = senderUser.getId();
+        List<Message> messageList = messageRepository.findByRoomId(senderId + "E" + receiverId);
+        if (messageList.isEmpty()) {
+            messageList = messageRepository.findByRoomId(receiverId + "E" + senderId);
             if (messageList.isEmpty()) {
-                messageList = messageRepository.findByRoomId(receiverId + "E" + senderId);
-                if (messageList.isEmpty()) {
-                    messageList.add(messageRepository.save(new Message(userEmail, "New Private Chat Room", receiverUser.getEmail(), receiverId + "E" + senderId)));
-                }
+                messageList.add(messageRepository.save(new Message(userEmail, "New Private Chat Room", receiverUser.getEmail(), receiverId + "E" + senderId)));
             }
-            return messageList;
-        } catch (JpaSystemException e) {
-            throw new IllegalArgumentException(e);
         }
+        return messageList;
     }
 
     /**
@@ -64,10 +61,11 @@ public class MessageService {
      */
     public Message addMessageToPrivateChat(Message message) {
         try {
-            message.setIssueDate(getDateNow());
-            message.setIssueDateTime(getDateTimeNow());
+            message.setIssueDate(getLocalDateTimeNow());
+            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
             return messageRepository.save(message);
-        } catch (JpaSystemException e) {
+        } catch (
+                JpaSystemException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -101,8 +99,8 @@ public class MessageService {
             if (user.isMute()) {
                 throw new IllegalArgumentException("User is Muted");
             }
-            message.setIssueDate(getDateNow());
-            message.setIssueDateTime(getDateTimeNow());
+            message.setIssueDate(getLocalDateTimeNow());
+            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
             message.setReceiver("main");
             return messageRepository.save(message);
         } catch (IllegalArgumentException | JpaSystemException e) {
@@ -125,13 +123,9 @@ public class MessageService {
         }
     }
 
-    public List<Message> getMainRoomMessagesByTime(String date, String time) {
+    public List<Message> getMainRoomMessagesByTime(long time) {
         try {
-            if (Integer.parseInt(time.replaceAll(":", "")) < Integer.parseInt(getDateTimeNow().replaceAll(":", ""))) {
-                return messageRepository.findByRoomIdAndIssueDateTimeBetweenAndIssueDateBetween("0", time, getDateTimeNow(), getDateNow(), date);
-            } else {
-                return messageRepository.findByRoomIdAndIssueDateBetween("0", date, getDateNow());
-            }
+            return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
         } catch (JpaSystemException e) {
             throw new IllegalArgumentException(e);
         }
