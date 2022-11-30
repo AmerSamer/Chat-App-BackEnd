@@ -15,12 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
 import java.util.List;
 
+import static chatApp.Utilities.ExceptionMessages.FailedToSendPrivateMessage;
 import static chatApp.Utilities.ExceptionMessages.userIsMutedMessage;
 import static chatApp.Utilities.SuccessMessages.listOfAllUsersSuccessfulMessage;
 import static org.junit.jupiter.api.Assertions.*;
@@ -129,6 +131,13 @@ class ChatControllerTest {
     }
 
     @Test
+    void sendPrivatePlainMessage_roomIdNull_badRequestResponse() {
+        privateMessage.setRoomId(null);
+        ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendPrivatePlainMessage(privateMessage);
+        assertEquals(HttpStatus.BAD_REQUEST, responseMessage.getStatusCode());
+    }
+
+    @Test
     void sendPrivatePlainMessage_roomIdIsNotZero_equals() {
         ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendPrivatePlainMessage(privateMessage);
         assertNotEquals(responseMessage.getBody().getResponse().getRoomId(), "0");
@@ -141,6 +150,11 @@ class ChatControllerTest {
         assertFalse(responseUsers.getBody().getResponse().isEmpty());
     }
 
+    @Test
+    void getAllUsers__badRequestResponse() {
+        ResponseEntity<CustomResponse<List<UserDTO>>> responseUsers = chatController.getAllUsers();
+        assertFalse(responseUsers.getBody().getResponse().isEmpty());
+    }
     @Test
     void getAllUsers_checkUserInDatabaseEqualsUserResponse_equals() {
         ResponseEntity<CustomResponse<List<UserDTO>>> responseUsers = chatController.getAllUsers();
@@ -182,4 +196,5 @@ class ChatControllerTest {
         ResponseEntity<CustomResponse<List<Message>>> responseMessages = chatController.downloadMainRoom(mainMessage.getIssueDateEpoch() - 1);
         assertEquals(responseMessages.getBody().getResponse().get(0).getRoomId(), mainMessage.getRoomId());
     }
+
 }

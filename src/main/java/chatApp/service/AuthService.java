@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -80,7 +79,7 @@ public class AuthService {
             logger.info("User is logged into the system");
             dbUser.setUserStatus(UserStatuses.ONLINE);
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -111,7 +110,7 @@ public class AuthService {
             keyEmailsValTokens.put(user.getEmail(), sessionToken);
             logger.info("Save the guest in DB");
             return userRepository.save(user);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -137,7 +136,7 @@ public class AuthService {
             sendMessage(user);
             logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
             return userRepository.save(user);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -179,7 +178,7 @@ public class AuthService {
             dbUser.setType(UserType.REGISTERED);
             logger.info("Save the" + user.getEmail() + "in DB as registered user");
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }

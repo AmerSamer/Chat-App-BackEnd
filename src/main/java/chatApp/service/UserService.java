@@ -10,7 +10,6 @@ import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -25,6 +24,9 @@ public class UserService {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private MessageService messageService;
 
     @Autowired
     private UserRepository userRepository;
@@ -54,6 +56,12 @@ public class UserService {
                 dbUser.setNickname(user.getNickname());
             }
             if (!user.getEmail().equals("")) {
+                if (!user.getNickname().equals("")) {
+                    dbUser.setNickname(user.getNickname());
+                }else{
+                    messageService.updateUserEmail( userEmail, user.getEmail());
+                    dbUser.setNickname(user.getEmail());
+                }
                 dbUser.setEmail(user.getEmail());
             }
             if (!user.getName().equals("")) {
@@ -75,7 +83,7 @@ public class UserService {
             logger.info("Update the user, and save updating in DB");
 
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -97,10 +105,6 @@ public class UserService {
             authService.getKeyTokensValEmails().remove(token);
             authService.getKeyEmailsValTokens().remove(userEmail);
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
-            if (dbUser == null) {
-                logger.error(userNotFound);
-                throw new IllegalArgumentException(userNotFound);
-            }
             logger.info("If the user guest delete him from DB else update his status to offline");
             if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
                 userRepository.delete(dbUser);
@@ -108,7 +112,7 @@ public class UserService {
             }
             dbUser.setUserStatus(UserStatuses.OFFLINE);
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -144,7 +148,7 @@ public class UserService {
 
             dbUser.setMute(!dbUser.isMute());
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -177,7 +181,7 @@ public class UserService {
                 dbUser.setUserStatus(UserStatuses.ONLINE);
             }
             return userRepository.save(dbUser);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -185,17 +189,10 @@ public class UserService {
     /**
      *Get all users: get all users from DB
      * @return all the users sorted by theirs types [ADMIN(0), REGISTERED(1), GUEST(2)] from DB
-     * @throws IllegalArgumentException when users from the DB failed
      */
     public List<User> getAllUsers() {
-        try {
             logger.info("Get all users in users table");
-            return userRepository.findAll().stream().filter(currUser -> !currUser.getUserStatus().equals(UserStatuses.OFFLINE)).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
-        } catch (JpaSystemException e) {
-            throw new IllegalArgumentException(e);
-        }
+            return userRepository.findAll().stream().filter(currUser ->  currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
-
-
 }
 

@@ -10,12 +10,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static chatApp.Utilities.Utility.*;
 
@@ -38,17 +38,21 @@ public class MessageService {
      * @return list of messages of specific private room
      */
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId){
-        User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
-        User receiverUser = User.dbUser(userRepository.getById(receiverId));
-        Long senderId = senderUser.getId();
-        List<Message> messageList =  messageRepository.findByRoomId(senderId + "E" + receiverId);
-        if(messageList.isEmpty()){
-            messageList =  messageRepository.findByRoomId(receiverId + "E" + senderId);
-            if(messageList.isEmpty()){
-                messageList.add(messageRepository.save(new Message(userEmail, "New Private Chat Room" , receiverUser.getEmail(), receiverId + "E" + senderId)));
+        try {
+            User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
+            User receiverUser = User.dbUser(userRepository.getById(receiverId));
+            Long senderId = senderUser.getId();
+            List<Message> messageList = messageRepository.findByRoomId(senderId + "E" + receiverId);
+            if (messageList.isEmpty()) {
+                messageList = messageRepository.findByRoomId(receiverId + "E" + senderId);
+                if (messageList.isEmpty()) {
+                    messageList.add(messageRepository.save(new Message(senderUser.getNickname(), "New Private Chat Room", receiverUser.getNickname(), receiverId + "E" + senderId)));
+                }
             }
+            return messageList;
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException(e);
         }
-        return messageList;
     }
 
     /**
@@ -61,8 +65,7 @@ public class MessageService {
             message.setIssueDate(getLocalDateTimeNow());
             message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
             return messageRepository.save(message);
-        } catch (
-                JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -76,7 +79,7 @@ public class MessageService {
         try {
             logger.info("Try to download private chat room messages");
             return messageRepository.findByRoomId(roomId);
-        } catch (JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -98,7 +101,7 @@ public class MessageService {
             message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
             message.setReceiver("main");
             return messageRepository.save(message);
-        } catch (IllegalArgumentException | JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -112,7 +115,7 @@ public class MessageService {
         try {
             logger.info("Try to get main chat room messages");
             return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
-        } catch (JpaSystemException e) {
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -123,10 +126,14 @@ public class MessageService {
      * @return list of messages from that time till now
      */
     public List<Message> getMainRoomMessagesByTime(long time) {
-        try {
             return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
-        } catch (JpaSystemException e) {
-            throw new IllegalArgumentException(e);
-        }
+    }
+
+    public void updateUserEmail(String oldEmail, String newEmail) {
+        User user = User.dbUser(userRepository.findByEmail(oldEmail));
+        List<Message> messages = messageRepository.findBySender(user.getNickname());
+        List<Message> newMessages = messages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
+        newMessages.forEach(message -> message.setSender(newEmail));
+        newMessages.forEach(message -> messageRepository.save(message));
     }
 }

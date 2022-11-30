@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
@@ -63,6 +64,11 @@ class MessageServiceTest {
         assertTrue(messages.stream().allMatch(message -> Objects.equals(message.getRoomId(), privateMessage.getRoomId())));
     }
 
+    @Test
+    void addMessageToMainChat_roomIdNull_throwIllegalArgument() {
+        privateMessage.setRoomId(null);
+        assertThrows(IllegalArgumentException.class, () -> messageService.addMessageToMainChat(privateMessage));
+    }
 
     @Test
     void getPrivateRoomMessages_roomIdExistsInTheOppositeWay_NotEquals() {
@@ -77,6 +83,12 @@ class MessageServiceTest {
         List<Message> messages = messageService.getPrivateRoomMessages(userReceiver.getEmail(), dbuser.getId());
         assertEquals(messages.get(0).getContent(), "New Private Chat Room");
     }
+
+    @Test
+    void getPrivateRoomMessages_receiverIdDosentExists_throwsIllegalArgument() {
+        assertThrows(IllegalArgumentException.class, () -> messageService.getPrivateRoomMessages(userSender.getEmail(), 5000L));
+    }
+
 
     @Test
     void addMessageToPrivateChat_roomIdEqualsToRetrievedMessageRoomId_equals() {
@@ -107,13 +119,19 @@ class MessageServiceTest {
 
 
     @Test
-    void getMainRoomMessages() {
+    void getMainRoomMessages_getOneMessage_equals() {
         List<Message> messages = messageService.getMainRoomMessages(1);
         assertEquals(messages.size(), 1);
     }
 
     @Test
-    void getMainRoomMessagesByTime(){
+    void getMainRoomMessages_getMinusOneMessage_throwsIllegalException() {
+        assertThrows(IllegalArgumentException.class, () -> messageService.getMainRoomMessages(-1));
+    }
+
+
+    @Test
+    void getMainRoomMessagesByTime_checkMessagesByTimeNotFromMainChatRoom_equalsZero(){
         List<Message> messages = messageService.getMainRoomMessagesByTime(mainMessage.getIssueDateEpoch() - 1);
         assertEquals(0, messages.stream().filter(msg -> !Objects.equals(msg.getRoomId(), "0")).count());
     }

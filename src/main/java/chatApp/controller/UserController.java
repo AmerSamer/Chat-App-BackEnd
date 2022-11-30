@@ -68,7 +68,7 @@ public class UserController {
      *
      * @param token - the token of the user
      * @return user with offline status
-     * @throws SQLDataException when the logout user failed
+     * @throws IllegalArgumentException when the logout user failed
      */
     @RequestMapping(value = "logout", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestParam String token) {
@@ -103,7 +103,6 @@ public class UserController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, updateMuteUnmuteUserSuccessfulMessage);
             logger.info(updateMuteUnmuteUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-
         } catch (IllegalArgumentException e) {
             logger.error(updateUserFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
