@@ -29,6 +29,7 @@ public class Message {
     @Column(name = "issue_date_time")
     private String issueDateTime;
 
+
     private Message() {
     }
     public Message(String sender, String content, String receiver, String roomId) {

@@ -116,7 +116,7 @@ public class ChatController {
      * @return list of messages of specific private chat room
      */
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("roomId") String roomId) {
+    private ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
         logger.info("Try to download specific private chat room");
         List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadPrivateRoomSentSuccessfully);

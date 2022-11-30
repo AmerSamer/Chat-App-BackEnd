@@ -77,7 +77,7 @@ public class MessageService {
      * @return a saved message body
      */
     public Message addMessageToMainChat(Message message) throws IllegalAccessException {
-            logger.info("Try to add message to main chat room");
+        logger.info("Try to add message to main chat room");
         String userNickname = message.getSender();
         User user = User.dbUser(userRepository.findByNickname(userNickname));
         if(user.isMute()){
