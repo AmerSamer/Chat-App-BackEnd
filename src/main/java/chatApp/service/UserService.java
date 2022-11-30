@@ -66,10 +66,10 @@ public class UserService {
                 dbUser.setDateOfBirth(user.getDateOfBirth());
                 dbUser.setAge(calcAge(user.getDateOfBirth()));
             }
-            if (!user.getPhoto().equals("")) {
+            if (user.getPhoto() != null && !user.getPhoto().equals("")) {
                 dbUser.setPhoto(user.getPhoto());
             }
-            if (!user.getDescription().equals("")) {
+            if (user.getDescription() != null && !user.getDescription().equals("")) {
                 dbUser.setDescription(user.getDescription());
             }
             logger.info("Update the user, and save updating in DB");
@@ -90,9 +90,17 @@ public class UserService {
         try {
             logger.info("Delete the user token");
             String userEmail = authService.getKeyTokensValEmails().get(token);
+            if (userRepository.findByEmail(userEmail) == null) {
+                logger.error(emailNotExistsMessage);
+                throw new IllegalArgumentException(emailNotExistsMessage);
+            }
             authService.getKeyTokensValEmails().remove(token);
             authService.getKeyEmailsValTokens().remove(userEmail);
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
+            if (dbUser == null) {
+                logger.error(userNotFound);
+                throw new IllegalArgumentException(userNotFound);
+            }
             logger.info("If the user guest delete him from DB else update his status to offline");
             if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
                 userRepository.delete(dbUser);
@@ -100,7 +108,7 @@ public class UserService {
             }
             dbUser.setUserStatus(UserStatuses.OFFLINE);
             return userRepository.save(dbUser);
-        } catch (JpaSystemException e) {
+        } catch (IllegalArgumentException | JpaSystemException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -119,6 +127,10 @@ public class UserService {
             if (userEmail == null) {
                 logger.error(tokenSessionExpired);
                 throw new IllegalArgumentException(tokenSessionExpired);
+            }
+            if (userRepository.findByEmail(userEmail).getType() != UserType.ADMIN) {
+                logger.error(notAdminUser);
+                throw new IllegalArgumentException(notAdminUser);
             }
             if (userRepository.getById(id) == null) {
                 throw new IllegalArgumentException(emailNotExistsMessage(userEmail));

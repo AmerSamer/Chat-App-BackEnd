@@ -109,7 +109,7 @@ class AuthControllerTest {
     @Test
     void login_existingUser_emailNotExist() {
         user.setEmail("aaa111@gmail.com");
-        assertThrows(SQLDataException.class, () ->{authService.login(user);} );
+        assertThrows(SQLDataException.class, () ->{authService.login(user);}  );
     }
 
     @Test
