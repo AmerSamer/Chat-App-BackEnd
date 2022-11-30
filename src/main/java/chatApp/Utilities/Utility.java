@@ -87,18 +87,14 @@ public class Utility {
         return LocalDate.now().minusYears(dateOfBirth.getYear()).getYear();
     }
 
-//    public static long getDateNow(){
-////        LocalDateTime localDateTime = LocalDateTime.now();
-////        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-////        String dateTimeString = localDateTime.format(dateTimeFormatter);
-//        ZoneOffset zone = ZoneOffset.of("Z");
-//        return LocalDateTime.now().toEpochSecond(zone);
-//    }
-
-    public static String getDateTimeNow(){
-        LocalDateTime localDateTime = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        String dateTimeString = localDateTime.format(dateTimeFormatter);
-        return dateTimeString.split( " ")[1];
+    public static LocalDateTime getLocalDateTimeNow(){
+        return LocalDateTime.now();
     }
+
+//    public static String getDateTimeNow(){
+//        LocalDateTime localDateTime = LocalDateTime.now();
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+//        String dateTimeString = localDateTime.format(dateTimeFormatter);
+//        return dateTimeString.split( " ")[1];
+//    }
 }

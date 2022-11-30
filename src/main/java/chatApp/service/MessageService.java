@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static chatApp.Utilities.Utility.*;
@@ -56,8 +56,8 @@ public class MessageService {
      * @return saved message
      */
     public Message addMessageToPrivateChat(Message message) {
-        message.setIssueDate(getDateNow());
-        message.setIssueDateTime(getDateTimeNow());
+        message.setIssueDate(getLocalDateTimeNow());
+        message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
         return messageRepository.save(message);
     }
 
@@ -83,8 +83,8 @@ public class MessageService {
         if(user.isMute()){
             throw new IllegalAccessException("User is Muted");
         }
-        message.setIssueDate(getDateNow());
-        message.setIssueDateTime(getDateTimeNow());
+        message.setIssueDate(getLocalDateTimeNow());
+        message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
         message.setReceiver("main");
         return messageRepository.save(message);
     }
@@ -99,12 +99,8 @@ public class MessageService {
         return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
     }
 
-    public List<Message> getMainRoomMessagesByTime(String date, String time) {
-        if(Integer.parseInt(time.replaceAll(":","")) < Integer.parseInt(getDateTimeNow().replaceAll(":",""))) {
-            return messageRepository.findByRoomIdAndIssueDateTimeBetweenAndIssueDateBetween("0", time, getDateTimeNow(), getDateNow(), date);
-        }
-        else{
-            return messageRepository.findByRoomIdAndIssueDateBetween("0", date,  getDateNow());
-        }
+    public List<Message> getMainRoomMessagesByTime(long time) {
+        return messageRepository.findByRoomIdAndIssueDateEpochBetween("0",time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
+
     }
 }

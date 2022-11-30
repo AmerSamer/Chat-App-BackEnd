@@ -4,9 +4,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
-import static chatApp.Utilities.Utility.getDateNow;
-import static chatApp.Utilities.Utility.getDateTimeNow;
+import static chatApp.Utilities.Utility.getLocalDateTimeNow;
 
 @Entity
 @Table(name = "message")
@@ -23,11 +23,12 @@ public class Message {
     private String content;
     @Column(nullable = false)
     private String roomId;
+
     @Column(name = "issue_date")
-    private String issueDate;
+    private LocalDateTime issueDate;
 
     @Column(name = "issue_date_time")
-    private String issueDateTime;
+    private long issueDateEpoch;
 
 
     private Message() {
@@ -37,8 +38,8 @@ public class Message {
         this.content = content;
         this.roomId = roomId;
         this.receiver = receiver;
-        this.issueDate = getDateNow();
-        this.issueDateTime = getDateTimeNow();
+        this.issueDate = getLocalDateTimeNow();
+        this.issueDateEpoch = this.issueDate.toEpochSecond(ZoneOffset.of("Z"));
     }
 
     public String getRoomId() {
@@ -81,20 +82,19 @@ public class Message {
         this.receiver = receiver;
     }
 
-    public String getIssueDate() {
+    public LocalDateTime getIssueDate() {
         return issueDate;
     }
 
-    public void setIssueDate(String issueDate) {
+    public void setIssueDate(LocalDateTime issueDate) {
         this.issueDate = issueDate;
     }
 
-    public String getIssueDateTime() {
-        return issueDateTime;
+    public long getIssueDateEpoch() {
+        return issueDateEpoch;
     }
 
-    public void setIssueDateTime(String issueDateTime) {
-        this.issueDateTime = issueDateTime;
+    public void setIssueDateEpoch(long issueDateEpoch) {
+        this.issueDateEpoch = issueDateEpoch;
     }
-
 }

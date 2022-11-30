@@ -39,13 +39,13 @@ public class AuthFilter extends GenericFilterBean {
             if (permissionPathsForAll.stream().noneMatch(path::contains)) {
                 if(!authService.getKeyTokensValEmails().containsKey(auth)){
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
-                    throw new IllegalAccessError("Authorization header needed");
+                    throw new IllegalAccessError("Not Authorized");
                 }
                 else{
                     String userEmail = authService.getKeyTokensValEmails().get(auth);
                     if(!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))){
                         res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
-                        throw new IllegalAccessError("Authorization header needed");
+                        throw new IllegalAccessError("Not Authorized");
                     }
                 }
             }

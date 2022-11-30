@@ -14,6 +14,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static chatApp.Utilities.ExceptionMessages.*;
@@ -124,9 +126,8 @@ public class ChatController {
     }
 
     @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("date") String date,
-                                                                           @RequestParam("time") String time) {
-        List<Message> messageList = messageService.getMainRoomMessagesByTime(date, time);
+    private ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
+        List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
         return ResponseEntity.ok().body(response);
     }
