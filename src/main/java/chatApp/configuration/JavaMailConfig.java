@@ -1,5 +1,6 @@
 package chatApp.configuration;
 
+import chatApp.chatApp;
 import chatApp.controller.ChatController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +10,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 @Configuration
@@ -20,12 +23,19 @@ public class JavaMailConfig {
      */
     @Bean
     public JavaMailSender getJavaMailSender() {
+        Properties prop = new Properties();
+        try (InputStream inputStream = chatApp.class.getResourceAsStream("/mail.properties")) {
+            prop.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace(System.out);
+        }
+
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername("seselevtion@gmail.com");
-        mailSender.setPassword("");
+        mailSender.setUsername(prop.getProperty("spring.mail.username2"));
+        mailSender.setPassword(prop.getProperty("spring.mail.password2"));
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");

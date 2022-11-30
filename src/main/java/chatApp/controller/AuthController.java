@@ -55,7 +55,7 @@ public class AuthController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, registrationSuccessfulMessage);
             logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(emailExistsInSystemMessage(user.getEmail()));
             CustomResponse<UserDTO> response = new CustomResponse<>(null, emailExistsInSystemMessage(user.getEmail()));
             return ResponseEntity.badRequest().body(response);
@@ -88,7 +88,7 @@ public class AuthController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(loginFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginFailedMessage);
             return ResponseEntity.badRequest().body(response);
@@ -116,7 +116,7 @@ public class AuthController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(loginAsGuestFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);
             return ResponseEntity.badRequest().body(response);
@@ -138,7 +138,7 @@ public class AuthController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, activationEmailSuccessfulMessage);
             logger.info(activationEmailSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(activationEmailFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, activationEmailFailedMessage);
             return ResponseEntity.badRequest().body(response);
