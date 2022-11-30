@@ -29,7 +29,6 @@ public class AuthController {
      * checks if the email, name, password is valid, and send the user to the addUser method in AuthService
      * @param user - the user's data
      * @return a saved user with response body
-     * @throws SQLDataException when the provided email already exists
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> createUser(@RequestBody User user) {
@@ -66,7 +65,6 @@ public class AuthController {
      * checks if the email, password is valid, and send the user to the login method in AuthService
      * @param user - the user's data
      * @return user with response body
-     * @throws SQLDataException when the provided email not exists in the database
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
@@ -88,7 +86,7 @@ public class AuthController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(loginFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginFailedMessage);
             return ResponseEntity.badRequest().body(response);
@@ -99,7 +97,6 @@ public class AuthController {
      * checks if the name is valid, and send the user to the addGuest method in AuthService
      * @param user - the user's data
      * @return user with response body
-     * @throws SQLDataException when the provided name exists in the database
      */
     @RequestMapping(value = "login/guest", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> loginAsGuest(@RequestBody User user) {
@@ -116,7 +113,7 @@ public class AuthController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(loginAsGuestFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);
             return ResponseEntity.badRequest().body(response);
@@ -127,7 +124,6 @@ public class AuthController {
      * send the user to the verifyEmail method in AuthService
      * @param user - the user's data
      * @return user with response body
-     * @throws SQLDataException when the provided name exists in the database
      */
     @RequestMapping(value = "activate", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {
@@ -138,7 +134,7 @@ public class AuthController {
             CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, activationEmailSuccessfulMessage);
             logger.info(activationEmailSuccessfulMessage);
             return ResponseEntity.ok().body(response);
-        } catch (SQLDataException e) {
+        } catch (IllegalArgumentException e) {
             logger.error(activationEmailFailedMessage);
             CustomResponse<UserDTO> response = new CustomResponse<>(null, activationEmailFailedMessage);
             return ResponseEntity.badRequest().body(response);

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -56,9 +57,14 @@ public class MessageService {
      * @return saved message
      */
     public Message addMessageToPrivateChat(Message message) {
-        message.setIssueDate(getLocalDateTimeNow());
-        message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
-        return messageRepository.save(message);
+        try {
+            message.setIssueDate(getLocalDateTimeNow());
+            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
+            return messageRepository.save(message);
+        } catch (
+                JpaSystemException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**
@@ -67,8 +73,12 @@ public class MessageService {
      * @return list of messages
      */
     public List<Message> downloadPrivateRoomMessages(String roomId) {
-        logger.info("Try to download private chat room messages");
-        return messageRepository.findByRoomId(roomId);
+        try {
+            logger.info("Try to download private chat room messages");
+            return messageRepository.findByRoomId(roomId);
+        } catch (JpaSystemException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**
@@ -76,17 +86,21 @@ public class MessageService {
      * @param message - the message`s data
      * @return a saved message body
      */
-    public Message addMessageToMainChat(Message message){
-        logger.info("Try to add message to main chat room");
-        String userNickname = message.getSender();
-        User user = User.dbUser(userRepository.findByNickname(userNickname));
-        if(user.isMute()){
-            throw new IllegalArgumentException("User is Muted");
+    public Message addMessageToMainChat(Message message) {
+        try {
+            logger.info("Try to add message to main chat room");
+            String userNickname = message.getSender();
+            User user = User.dbUser(userRepository.findByNickname(userNickname));
+            if (user.isMute()) {
+                throw new IllegalArgumentException("User is Muted");
+            }
+            message.setIssueDate(getLocalDateTimeNow());
+            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
+            message.setReceiver("main");
+            return messageRepository.save(message);
+        } catch (IllegalArgumentException | JpaSystemException e) {
+            throw new IllegalArgumentException(e);
         }
-        message.setIssueDate(getLocalDateTimeNow());
-        message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
-        message.setReceiver("main");
-        return messageRepository.save(message);
     }
 
     /**
@@ -95,8 +109,12 @@ public class MessageService {
      * @return list of messages sorted by DESC timestamp
      */
     public List<Message> getMainRoomMessages(int size) {
-        logger.info("Try to get main chat room messages");
-        return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
+        try {
+            logger.info("Try to get main chat room messages");
+            return messageRepository.findByRoomId("0", PageRequest.of(0, size, Sort.Direction.DESC, "id"));
+        } catch (JpaSystemException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**
@@ -105,7 +123,10 @@ public class MessageService {
      * @return list of messages from that time till now
      */
     public List<Message> getMainRoomMessagesByTime(long time) {
-        logger.info("Try to get main chat room messages from time in epoch seconds till now");
-        return messageRepository.findByRoomIdAndIssueDateEpochBetween("0",time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
+        try {
+            return messageRepository.findByRoomIdAndIssueDateEpochBetween("0", time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of("Z")));
+        } catch (JpaSystemException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }
