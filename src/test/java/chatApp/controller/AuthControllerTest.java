@@ -13,11 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
+import java.time.LocalDate;
 
+import static chatApp.Utilities.ExceptionMessages.*;
+import static chatApp.Utilities.SuccessMessages.registrationSuccessfulMessage;
+import static chatApp.Utilities.Utility.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -33,15 +39,6 @@ class AuthControllerTest {
     @Autowired
     private UserRepository userRepo;
 
-//    @Autowired
-//    private TestEntityManager testEntityManager;
-//
-//    @AfterEach
-//    @BeforeEach
-//    public void deleteAllTables(){
-//        userRepo.deleteAll();
-//    }
-
     User user;
 
     @BeforeEach
@@ -49,7 +46,220 @@ class AuthControllerTest {
         this.user = User.registerUser("abcd", "abcd123@gmail.com", "abcdABCD123");
     }
 
+    @AfterEach
+    void delete(){ userRepo.delete(user);}
 
+    @Test
+    void createUser_checkValidEmail_inValidEmail() {
+        try {
+            user.setEmail("k");
+            ResponseEntity<CustomResponse<UserDTO>> user1 = authController.createUser(user);
+            assertEquals(invalidEmailMessage, user1.getBody().getMessage());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void createUser_checkValidName_inValidName() {
+        try {
+            user.setName("k09");
+            ResponseEntity<CustomResponse<UserDTO>> user1 = authController.createUser(user);
+            assertEquals(invalidNameMessage, user1.getBody().getMessage());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void createUser_checkValidPassword_inValidPassword() {
+        try {
+            user.setPassword("jks87k09");
+            ResponseEntity<CustomResponse<UserDTO>> user1 = authController.createUser(user);
+            assertEquals(invalidPasswordMessage, user1.getBody().getMessage());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void createUser_checkCreateUser_ok() {
+        try {
+            ResponseEntity<CustomResponse<UserDTO>> user1 = authController.createUser(user);
+            assertEquals(HttpStatus.OK, user1.getStatusCode());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void createUser_checkCreateUser_badRequest() {
+        try {
+            User user1 = user.registerUser("abcdCopy", "abcd123@gmail.com", "abcdABCD123Copy");
+            authController.createUser(user);
+            assertEquals(HttpStatus.BAD_REQUEST, authController.createUser(user1).getStatusCode());
+            userRepo.delete(user1);
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void login_checkValidEmail_inValidEmail() {
+        try {
+            user.setEmail("k");
+            ResponseEntity<CustomResponse<UserDTO>> user1 = authController.login(user);
+            assertEquals(invalidEmailMessage, user1.getBody().getMessage());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void login_checkValidPassword_inValidPassword() {
+        try {
+            user.setPassword("jks87k09");
+            ResponseEntity<CustomResponse<UserDTO>> user1 = authController.login(user);
+            assertEquals(invalidPasswordMessage, user1.getBody().getMessage());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void login_checkLoginUser_ok() {
+        try {
+            authController.createUser(user);
+            assertEquals(HttpStatus.OK, authController.login(user).getStatusCode());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void login_checkLoginUser__badRequest() {
+        try {
+            assertEquals(HttpStatus.BAD_REQUEST, authController.login(user).getStatusCode());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void loginAsGuest_checkValidName_inValidName() {
+        try {
+            user.setName("k09");
+            assertEquals(invalidNameMessage,authController.loginAsGuest(user).getBody().getMessage());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    @Test
+    void loginAsGuest_checkLoginGuest_ok() {
+        try {
+            assertEquals(HttpStatus.OK, authController.loginAsGuest(user).getStatusCode());
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void loginAsGuest_checkLoginGuest_badRequest() {
+        try {
+            User user1 = user.registerUser("abcd", "abcd123@copygmail.com", "abcdABCD123Copy");
+            authController.loginAsGuest(user);
+            assertEquals(HttpStatus.BAD_REQUEST, authController.loginAsGuest(user1).getStatusCode());
+            userRepo.delete(user1);
+
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+    @Test
+    void verifyEmail_ok() throws SQLDataException {
+        user.setVerifyCode(randomString());
+        user.setIssueDate(LocalDate.now());
+        assertEquals(HttpStatus.OK, authController.verifyEmail(authService.addUser(user)).getStatusCode());
+
+    }
+    @Test
+    void verifyEmail_badRequest() throws SQLDataException {
+        user.setEnabled(true);
+        assertEquals(HttpStatus.BAD_REQUEST, authController.verifyEmail(authService.addUser(user)).getStatusCode());
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+//    assertEquals(userRepo.findByEmail(user.getEmail()), authService.addGuest(user));
+
+
+
+
+
+
+
+
+//    @Test
+//    void createUser_insertUserInDB_saveUserInDB() throws SQLDataException {
+//        User user = User.registerUser("bbb", "bbb222@gmail.com", "bbbBBB222");
+//        User user1 = authService.addUser(user);
+//        assertEquals(user, userRepo.findByEmail(user1.getEmail()));
+//        userRepo.delete(user1);
+//    }
+//    @Test
+//    void login_existingUser_tokenNotNull() {
+//        ResponseEntity<CustomResponse<UserDTO>> user1 = authController.login(user);
+//        assertNotNull(user1.getBody().getHeaders());
+//    }
+//
+//    @Test
+//    void login_existingUser_emailNotExist() {
+//        user.setEmail("aaa111@gmail.com");
+//        assertThrows(SQLDataException.class, () ->{authService.login(user);}  );
+//    }
+//
+//    @Test
+//    void loginAsGuest_checkName_addPrefixGuest() throws SQLDataException {
+//        user.setName("a");
+//        User user1 = authService.addGuest(user);
+//        assertEquals(user.getName(), user1.getName());
+//        userRepo.delete(user1);
+//    }
+//    @Test
+//    void loginAsGuest_checkEmail_addEmailGuest() throws SQLDataException {
+//        user.setName("b");
+//        User user1 = authService.addGuest(user);
+//        assertEquals(user.getEmail() ,user1.getEmail());
+//        userRepo.delete(user1);
+//    }
+//
+//    @Test
+//    void verifyEmail_ok() throws SQLDataException {
+//
+//        User user1 = authService.addUser(user);
+//        ResponseEntity<CustomResponse<UserDTO>> response = authController.verifyEmail(user1);
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        userRepo.delete(user1);
+//    }
+//    @Test
+//    void verifyEmail_badRequest() throws SQLDataException {
+//        User user1 = authService.addUser(user);
+//        ResponseEntity<CustomResponse<UserDTO>> response = authController.verifyEmail(user1);
+//        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+//        userRepo.delete(user1);
+//    }=================================================================================
+    //=================================================================================
 //    @Test
 //    void createUser_validateUserInput_isValid() {
 //        assertTrue(isValidEmail(user.getEmail()) && isValidName(user.getName())
@@ -91,54 +301,4 @@ class AuthControllerTest {
 //        user.setName(null);
 //        assertNull(user.getName());
 //    }
-
-    @Test
-    void createUser_insertUserInDB_saveUserInDB() {
-        User user = User.registerUser("bbb", "bbb222@gmail.com", "bbbBBB222");
-        User user1 = null;
-//        try {
-//            user1 = authService.addUser(user);
-//        } catch (SQLDataException e) {
-//            throw new RuntimeException(e);
-//        }
-        assertEquals(user, userRepo.findByEmail(user1.getEmail()));
-        userRepo.delete(user1);
-    }
-
-    @Test
-    void login_existingUser_tokenNotNull() {
-        ResponseEntity<CustomResponse<UserDTO>> user1 = authController.login(user);
-        assertNotNull(user1.getBody().getHeaders());
-    }
-    @Test
-    void login_existingUser_emailNotExist() {
-        user.setEmail("aaa111@gmail.com");
-        assertThrows(SQLDataException.class, () ->{authService.login(user);}  );
-    }
-
-    @Test
-    void loginAsGuest_checkName_addPrefixGuest() throws SQLDataException {
-        user.setName("a");
-        User user1 = authService.addGuest(user);
-        assertEquals(user.getName(), user1.getName());
-        userRepo.delete(user1);
-    }
-    @Test
-    void loginAsGuest_checkEmail_addEmailGuest() throws SQLDataException {
-        user.setName("b");
-        User user1 = authService.addGuest(user);
-        assertEquals(user.getEmail() ,user1.getEmail());
-        userRepo.delete(user1);
-    }
-
-
-    @Test
-    void loginAsGuest() {
-    }
-
-    @Test
-    void verifyEmail() {
-
-    }
-
 }

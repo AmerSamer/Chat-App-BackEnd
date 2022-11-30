@@ -25,7 +25,9 @@ public class JavaMailConfig {
     public JavaMailSender getJavaMailSender() {
         Properties prop = new Properties();
         try (InputStream inputStream = chatApp.class.getResourceAsStream("/mail.properties")) {
+
             prop.load(inputStream);
+
         } catch (IOException e) {
             e.printStackTrace(System.out);
         }
