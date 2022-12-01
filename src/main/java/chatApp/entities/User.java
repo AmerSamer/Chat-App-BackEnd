@@ -95,6 +95,11 @@ public class User {
 //        return user;
 //    }
 
+    public User copyOf(User user){
+        return dbUser(user);
+    }
+
+
     public String getPhoto() {
         return photo;
     }
@@ -176,11 +181,11 @@ public class User {
     }
 
     public LocalDate getIssueDate() {
-        return issueDate;
+        return LocalDate.of(issueDate.getYear(), issueDate.getMonthValue(), issueDate.getDayOfMonth());
     }
 
     public void setIssueDate(LocalDate issueDate) {
-        this.issueDate = issueDate;
+        this.issueDate = LocalDate.of(issueDate.getYear(), issueDate.getMonthValue(), issueDate.getDayOfMonth());
     }
 
     public UserStatuses getUserStatus() {

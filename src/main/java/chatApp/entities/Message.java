@@ -84,11 +84,11 @@ public class Message {
     }
 
     public LocalDateTime getIssueDate() {
-        return issueDate;
+        return LocalDateTime.of(issueDate.getYear(), issueDate.getMonthValue(), issueDate.getDayOfMonth(), issueDate.getHour(), issueDate.getMinute(), issueDate.getSecond(), issueDate.getNano());
     }
 
     public void setIssueDate(LocalDateTime issueDate) {
-        this.issueDate = issueDate;
+        this.issueDate = LocalDateTime.of(issueDate.getYear(), issueDate.getMonthValue(), issueDate.getDayOfMonth(), issueDate.getHour(), issueDate.getMinute(), issueDate.getSecond(), issueDate.getNano());
     }
 
     public long getIssueDateEpoch() {

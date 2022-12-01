@@ -97,8 +97,8 @@ public class UserDTO {
         this.photo = photo;
     }
 
-    private void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = LocalDate.of(dateOfBirth.getYear(), dateOfBirth.getMonthValue(), dateOfBirth.getDayOfMonth());
     }
 
     private void setAge(int age) {
@@ -129,6 +129,10 @@ public class UserDTO {
         return id;
     }
 
+    public LocalDate getDateOfBirth() {
+        return LocalDate.of(dateOfBirth.getYear(), dateOfBirth.getMonthValue(), dateOfBirth.getDayOfMonth());
+    }
+
     public String getName() {
         return name;
     }
@@ -139,10 +143,6 @@ public class UserDTO {
 
     public String getPhoto() {
         return photo;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
     }
 
     public int getAge() {

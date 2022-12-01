@@ -9,6 +9,9 @@
         </File>
     </Appenders>
     <Loggers>
+        <logger name="org" level="WARN"/>
+        <logger name="_org" level="WARN"/>
+        <logger name="com" level="WARN"/>
         <Root level="trace">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="MyFile"/>
