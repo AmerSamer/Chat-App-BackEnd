@@ -82,9 +82,6 @@ public class UserService {
                 dbUser.setAge(calcAge(user.getDateOfBirth()));
             }
             if (user.getPhoto() != null && !user.getPhoto().equals("")) {
-                if(!isValidName(user.getPhoto())){
-                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid photo");
-                }
                 dbUser.setPhoto(user.getPhoto());
             }
             if (user.getDescription() != null && !user.getDescription().equals("")) {
