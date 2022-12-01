@@ -65,7 +65,7 @@ public class User {
         return currUser;
     }
 
-    public static User registerUser(String name, String email, String password) {
+    public static User createUser(String name, String email, String password) {
         User user = new User();
         user.setName(name);
         user.setEmail(email);
@@ -75,25 +75,25 @@ public class User {
         return user;
     }
 
-    public static User loginUser(String email, String password) {
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setEnabled(false);
-        user.setMute(false);
-        return user;
-    }
+//    public static User loginUser(String email, String password) {
+//        User user = new User();
+//        user.setEmail(email);
+//        user.setPassword(password);
+//        user.setEnabled(false);
+//        user.setMute(false);
+//        return user;
+//    }
 
-    public static User guestUserForTest(String name, String email, String password) {
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setEnabled(false);
-        user.setMute(false);
-        user.setType(UserType.GUEST);
-        return user;
-    }
+//    public static User guestUserForTest(String name, String email, String password) {
+//        User user = new User();
+//        user.setName(name);
+//        user.setEmail(email);
+//        user.setPassword(password);
+//        user.setEnabled(false);
+//        user.setMute(false);
+//        user.setType(UserType.GUEST);
+//        return user;
+//    }
 
     public String getPhoto() {
         return photo;

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
@@ -40,10 +39,11 @@ class MessageServiceTest {
 
     @BeforeEach
     void newMessage() throws SQLDataException {
-        this.userSender = User.registerUser("shai", "samerelishai@gmail.com", "Aa12345");
+        this.userSender = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
         authService.addUser(this.userSender);
+        this.userSender.setPassword("Aa12345");
         authService.login(this.userSender);
-        this.userReceiver = User.registerUser("elisamer", "seselevtion@gmail.com", "Aa12345");
+        this.userReceiver = User.createUser("elisamer", "seselevtion@gmail.com", "Aa12345");
         authService.addUser(this.userReceiver);
         this.mainMessage = new Message("samerelishai@gmail.com", "hello main content", "main", "0");
         messageService.addMessageToMainChat(mainMessage);
@@ -78,7 +78,7 @@ class MessageServiceTest {
 
     @Test
     void getPrivateRoomMessages_roomIdDosentExits_equals() {
-        User newUser = User.registerUser("new", "new123@gmail.com", "Aa12345");
+        User newUser = User.createUser("new", "new123@gmail.com", "Aa12345");
         User dbuser = User.dbUser(authService.addUser(newUser));
         List<Message> messages = messageService.getPrivateRoomMessages(userReceiver.getEmail(), dbuser.getId());
         assertEquals(messages.get(0).getContent(), "New Private Chat Room");

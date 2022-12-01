@@ -29,7 +29,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void newUser(){
-        this.user = User.registerUser("abcd", "abcd1234567@gmail.com", "abcdABCD123");
+        this.user = User.createUser("abcd", "abcd1234567@gmail.com", "abcdABCD123");
     }
 
     @AfterEach
@@ -46,18 +46,21 @@ class AuthServiceTest {
     @Test
     void login_checkStatus_statusOnline()  {
         authService.addUser(user);
-        assertNotEquals(UserStatuses.OFFLINE, userRepo.findByEmail(authService.login(user).getUserStatus().toString()));
+        user.setPassword("abcdABCD123");
+        authService.login(user);
+        User dbuser = userRepo.findByEmail(user.getEmail());
+        assertNotEquals(UserStatuses.OFFLINE, dbuser.getUserStatus().toString());
     }
     @Test
     void addUser_checkEmailExists_IllegalArgumentException()  {
-        User user1 = user.registerUser("abcdCopy", "abcd1234567@gmail.com", "abcdABCD123Copy");
+        User user1 = User.createUser("abcdCopy", "abcd1234567@gmail.com", "abcdABCD123Copy");
         authService.addUser(user);
         assertThrows(IllegalArgumentException.class, () ->{authService.addUser(user);} );
         userRepo.delete(user1);
     }
     @Test
     void addGuest_checkNameExists_IllegalArgumentException()  {
-        User user1 = user.registerUser("abcd", "abcd123@copygmail.com", "abcdABCD123Copy");
+        User user1 = user.createUser("abcd", "abcd123@copygmail.com", "abcdABCD123Copy");
         authService.addGuest(user1);
         assertThrows(IllegalArgumentException.class, () ->{authService.addGuest(user);} );
         userRepo.delete(user1);
@@ -75,7 +78,7 @@ class AuthServiceTest {
     @Test
     void verifyEmail_checkIfPassDay_IllegalArgumentException()  {
 
-        User user1 = user.registerUser("abcde", "abc486@comail.com", "abcdABCD1234");
+        User user1 = user.createUser("abcde", "abc486@comail.com", "abcdABCD1234");
         authService.addUser(user1);
         user1.setIssueDate(LocalDate.now().minusDays(5));
         userRepo.save(user1);

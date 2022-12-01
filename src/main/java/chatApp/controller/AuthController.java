@@ -30,7 +30,7 @@ public class AuthController {
      * @return a saved user with response body
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<UserDTO>> createUser(@RequestBody User user) {
+    public ResponseEntity<CustomResponse<UserDTO>> registerUser(@RequestBody User user) {
         try {
             if (!isValidEmail(user.getEmail())) {
                 logger.error(invalidEmailMessage);

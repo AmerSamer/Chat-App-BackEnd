@@ -43,12 +43,12 @@ class UserControllerTest {
 
     @BeforeEach
     void newUser() throws SQLDataException {
-        this.user = User.registerUser("test", "test@gmail.com", "aA11");
+        this.user = User.createUser("test", "test@gmail.com", "aA12345");
         authService.addUser(this.user);
+        this.user.setPassword("aA12345");
         authService.login(this.user);
-        this.user1 = User.registerUser("testt", "testt@gmail.com", "aA11");
+        this.user1 = User.createUser("testt", "testt@gmail.com", "aA12345");
         authService.addUser(this.user1);
-//        authService.login(this.user1);
     }
 
     @AfterEach
