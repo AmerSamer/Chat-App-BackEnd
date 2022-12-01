@@ -22,12 +22,11 @@ public class UserDTO {
     private String nickname;
     private String description;
 
-    private UserDTO() {
+    private UserDTO(){
     }
 
     /**
-     * User DTO: get user and convert him to userDTO
-     *
+     *User DTO: get user and convert him to userDTO
      * @param user - the user
      * @return the userDTO
      */
@@ -48,14 +47,13 @@ public class UserDTO {
     }
 
     /**
-     * UserListToUserListDTO: get users list and convert them to userDTO list
-     *
+     *UserListToUserListDTO: get users list and convert them to userDTO list
      * @param users - the users list
      * @return the userDTO list
      */
     public static List<UserDTO> userListToUserListDTO(List<User> users) {
         List<UserDTO> listUsers = new ArrayList<>();
-        for (User user : users) {
+        for (User user: users) {
             UserDTO userDTO = UserDTO.userToUserDTO(user);
             listUsers.add(userDTO);
         }
@@ -64,8 +62,7 @@ public class UserDTO {
 
 
     /**
-     * User DTO: get user guest and convert him to userDTO
-     *
+     *User DTO: get user guest and convert him to userDTO
      * @param user - the guest
      * @return the userDTO
      */
@@ -97,8 +94,8 @@ public class UserDTO {
         this.photo = photo;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = LocalDate.of(dateOfBirth.getYear(), dateOfBirth.getMonthValue(), dateOfBirth.getDayOfMonth());
+    private void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     private void setAge(int age) {
@@ -129,10 +126,6 @@ public class UserDTO {
         return id;
     }
 
-    public LocalDate getDateOfBirth() {
-        return LocalDate.of(dateOfBirth.getYear(), dateOfBirth.getMonthValue(), dateOfBirth.getDayOfMonth());
-    }
-
     public String getName() {
         return name;
     }
@@ -143,6 +136,10 @@ public class UserDTO {
 
     public String getPhoto() {
         return photo;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
     public int getAge() {
