@@ -1,6 +1,5 @@
 package chatApp.service;
 
-import chatApp.controller.UserController;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.repository.UserRepository;
@@ -29,8 +28,9 @@ class UserServiceTest {
 
     @BeforeEach
     void newUser() {
-        this.user = User.registerUser("a", "a11222222@gmail.com", "aA11");
+        this.user = User.createUser("a", "a11222222@gmail.com", "aA12345");
         authService.addUser(user);
+        user.setPassword("aA12345");
         authService.login(user);
     }
 
@@ -43,7 +43,7 @@ class UserServiceTest {
     void logoutUser_checkLogoutGuestUser_changeStatusToOffline() {
         user.setUserStatus(UserStatuses.OFFLINE);
         userRepository.save(user);
-        authService.login(user);
+        user.setPassword("aA12345");
         assertEquals(UserStatuses.OFFLINE , userService.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail())).getUserStatus());
     }
 

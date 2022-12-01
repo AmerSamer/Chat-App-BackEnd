@@ -49,10 +49,11 @@ class ChatControllerTest {
 
     @BeforeEach
     void newMessage() throws SQLDataException {
-        this.userSender = User.registerUser("shai", "samerelishai@gmail.com", "Aa12345");
+        this.userSender = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
         authService.addUser(this.userSender);
+        this.userSender.setPassword("Aa12345");
         authService.login(this.userSender);
-        this.userReceiver = User.registerUser("elisamer", "seselevtion@gmail.com", "Aa12345");
+        this.userReceiver = User.createUser("elisamer", "seselevtion@gmail.com", "Aa12345");
         authService.addUser(this.userReceiver);
         this.mainMessage = new Message("samerelishai@gmail.com", "hello main content", "main", "0");
         messageService.addMessageToMainChat(mainMessage);
