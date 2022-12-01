@@ -12,15 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+
 import java.util.List;
 
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.SuccessMessages.*;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.SuccessMessages.*;
 
 @RestController
 @CrossOrigin
@@ -48,7 +46,7 @@ public class ChatController {
             CustomResponse<Message> response = new CustomResponse<>(resMessage, mainMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<Message> response = new CustomResponse<>(null, FailedToSendMainChatMessage);
+            CustomResponse<Message> response = new CustomResponse<>(null, userIsMutedMessage);
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -66,7 +64,7 @@ public class ChatController {
             Message resMessage = messageService.addMessageToPrivateChat(message);
             CustomResponse<Message> response = new CustomResponse<>(resMessage, privateMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
-        } catch (JpaSystemException e) {
+        } catch (IllegalArgumentException e) {
             CustomResponse<Message> response = new CustomResponse<>(null, FailedToSendPrivateMessage);
             return ResponseEntity.badRequest().body(response);
         }
@@ -79,17 +77,12 @@ public class ChatController {
      */
     @RequestMapping(value = "/getusers", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
-        try {
-            logger.info("Try to get all users to display in the frontend");
-            List<User> userList = userService.getAllUsers();
-            List<UserDTO> userListDTO = UserDTO.userListToUserListDTO(userList);
-            CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
-            logger.info(listOfAllUsersSuccessfulMessage);
-            return ResponseEntity.ok().body(response);
-        } catch (JpaSystemException e) {
-            CustomResponse<List<UserDTO>> response = new CustomResponse<>(null, listOfAllUsersFailedMessage);
-            return ResponseEntity.badRequest().body(response);
-        }
+        logger.info("Try to get all users to display in the frontend");
+        List<User> userList = userService.getAllUsers();
+        List<UserDTO> userListDTO = UserDTO.userListToUserListDTO(userList);
+        CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
+        logger.info(listOfAllUsersSuccessfulMessage);
+        return ResponseEntity.ok().body(response);
     }
 
     /**
@@ -100,13 +93,13 @@ public class ChatController {
      * @return list of messages of private chat room
      */
     @RequestMapping(value = "/privatechatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail, @RequestParam("receiver") Long receiverId) {
+    public ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail, @RequestParam("receiver") Long receiverId) {
         try {
             logger.info("Try to get private chat room");
             List<Message> messageList = messageService.getPrivateRoomMessages(senderEmail, receiverId);
             CustomResponse<List<Message>> response = new CustomResponse<>(messageList, privateChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
-        } catch (JpaSystemException e) {
+        } catch (IllegalArgumentException e) {
             CustomResponse<List<Message>> response = new CustomResponse<>(null, privateChatRoomMessagesFailed);
             return ResponseEntity.badRequest().body(response);
         }
@@ -119,13 +112,13 @@ public class ChatController {
      * @return list of messages of main chat room
      */
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
+    public ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
         try {
             logger.info("Try to get main chat room");
             List<Message> messageList = messageService.getMainRoomMessages(size);
             CustomResponse<List<Message>> response = new CustomResponse<>(messageList, mainChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
-        } catch (JpaSystemException e) {
+        } catch (IllegalArgumentException e) {
             CustomResponse<List<Message>> response = new CustomResponse<>(null, mainChatRoomMessagesFailed);
             return ResponseEntity.badRequest().body(response);
         }
@@ -138,27 +131,28 @@ public class ChatController {
      * @return list of messages of specific private chat room
      */
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
+    public ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
         try {
             logger.info("Try to download specific private chat room");
             List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
             CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadPrivateRoomSentSuccessfully);
             return ResponseEntity.ok().body(response);
-        } catch (JpaSystemException e) {
+        } catch (IllegalArgumentException e) {
             CustomResponse<List<Message>> response = new CustomResponse<>(null, downloadPrivateRoomFailed);
             return ResponseEntity.badRequest().body(response);
         }
     }
 
+    /**
+     * sends the time in epoch-seconds to the downloadMainRoom method in the messageService
+     *
+     * @param time - the LocalDateTime.now() in epoch seconds
+     * @return list of messages of specific main chat room from that time till now
+     */
     @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
-    private ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
-        try {
-            List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
-            CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
-            return ResponseEntity.ok().body(response);
-        } catch (JpaSystemException e) {
-            CustomResponse<List<Message>> response = new CustomResponse<>(null, downloadMainRoomFailed);
-            return ResponseEntity.badRequest().body(response);
-        }
+    public ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
+        List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
+        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
+        return ResponseEntity.ok().body(response);
     }
 }

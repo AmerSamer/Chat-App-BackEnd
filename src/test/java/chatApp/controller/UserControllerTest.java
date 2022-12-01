@@ -19,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
 
-import static chatApp.Utilities.ExceptionMessages.*;
+import static chatApp.utilities.ExceptionMessages.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -43,12 +43,12 @@ class UserControllerTest {
 
     @BeforeEach
     void newUser() throws SQLDataException {
-        this.user = User.registerUser("test", "test@gmail.com", "aA11");
+        this.user = User.createUser("test", "test@gmail.com", "aA12345");
         authService.addUser(this.user);
+        this.user.setPassword("aA12345");
         authService.login(this.user);
-        this.user1 = User.registerUser("testt", "testt@gmail.com", "aA11");
+        this.user1 = User.createUser("testt", "testt@gmail.com", "aA12345");
         authService.addUser(this.user1);
-//        authService.login(this.user1);
     }
 
     @AfterEach
@@ -95,14 +95,14 @@ class UserControllerTest {
     void updateMuteUser_updateMute_successfulUpdate() {
         user.setType(UserType.ADMIN);
         userRepository.save(user);
-        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(user.getEmail()), user1.getId());
-        assertEquals(!user1.isMute(), userTestRes.getBody().getResponse().isMute());
+        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(user.getEmail()), user.getId());
+        assertEquals(!user.isMute(), userTestRes.getBody().getResponse().isMute());
     }
 
     @Test
     void updateMuteUser_updateMute_failedCatch() {
         ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(user.getEmail()), user1.getId());
-        assertEquals(updateUserFailedMessage, userTestRes.getBody().getMessage());
+        assertEquals(muteUserFailedMessage, userTestRes.getBody().getMessage());
     }
 
     @Test
@@ -114,7 +114,7 @@ class UserControllerTest {
     @Test
     void updateStatusUser_updateStatus_failedCatch() {
         ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateStatusUser(null, "online");
-        assertEquals(updateUserFailedMessage, userTestRes.getBody().getMessage());
+        assertEquals(updateStatusUserFailedMessage, userTestRes.getBody().getMessage());
     }
     @Test
     void logoutUser_logout_successLogout() {

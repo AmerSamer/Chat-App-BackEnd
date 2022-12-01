@@ -10,11 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLDataException;
-
-import static chatApp.Utilities.ExceptionMessages.*;
-import static chatApp.Utilities.SuccessMessages.*;
-import static chatApp.Utilities.Utility.*;
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.SuccessMessages.*;
+import static chatApp.utilities.Utility.*;
 
 @RestController
 @CrossOrigin
@@ -27,12 +25,12 @@ public class AuthController {
 
     /**
      * checks if the email, name, password is valid, and send the user to the addUser method in AuthService
+     *
      * @param user - the user's data
      * @return a saved user with response body
-     * @throws SQLDataException when the provided email already exists
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<UserDTO>> createUser(@RequestBody User user) {
+    public ResponseEntity<CustomResponse<UserDTO>> registerUser(@RequestBody User user) {
         try {
             if (!isValidEmail(user.getEmail())) {
                 logger.error(invalidEmailMessage);
@@ -64,9 +62,9 @@ public class AuthController {
 
     /**
      * checks if the email, password is valid, and send the user to the login method in AuthService
+     *
      * @param user - the user's data
      * @return user with response body
-     * @throws SQLDataException when the provided email not exists in the database
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
@@ -97,9 +95,9 @@ public class AuthController {
 
     /**
      * checks if the name is valid, and send the user to the addGuest method in AuthService
+     *
      * @param user - the user's data
      * @return user with response body
-     * @throws SQLDataException when the provided name exists in the database
      */
     @RequestMapping(value = "login/guest", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> loginAsGuest(@RequestBody User user) {
@@ -125,9 +123,9 @@ public class AuthController {
 
     /**
      * send the user to the verifyEmail method in AuthService
+     *
      * @param user - the user's data
      * @return user with response body
-     * @throws SQLDataException when the provided name exists in the database
      */
     @RequestMapping(value = "activate", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {

@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static chatApp.Utilities.Utility.getLocalDateTimeNow;
+import static chatApp.utilities.Utility.getLocalDateTimeNow;
 
 @Entity
 @Table(name = "message")
@@ -33,6 +33,7 @@ public class Message {
 
     private Message() {
     }
+
     public Message(String sender, String content, String receiver, String roomId) {
         this.sender = sender;
         this.content = content;

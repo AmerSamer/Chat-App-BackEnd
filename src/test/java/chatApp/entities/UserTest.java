@@ -31,38 +31,6 @@ class UserTest {
     }
 
     @Test
-    public void testCreateUser() {
-        User user = User.registerUser("shai", "shai@gmail.com", "Aa12345");
-        User savedUser = userRepo.save(user);
-
-        User existUser = testEntityManager.find(User.class, savedUser.getId());
-
-        assertThat(user.getEmail()).isEqualTo(existUser.getEmail());
-    }
-
-    @Test
-    public void testCreateUserTwo() {
-        User user = User.registerUser("shai", "taltal@gmail.com", "Aa12345");
-
-        User savedUser = userRepo.save(user);
-
-        User existUser = testEntityManager.find(User.class, savedUser.getId());
-
-        assertThat(user.getEmail()).isEqualTo(existUser.getEmail());
-    }
-
-    @Test
-    public void testCreateUserThree() {
-        User user = User.registerUser("shai", "taltal@gmail.com", "Aa12345");
-
-        User savedUser = userRepo.save(user);
-
-        User existUser = testEntityManager.find(User.class, savedUser.getId());
-
-        assertThat(user.getEmail()).isEqualTo(existUser.getEmail());
-    }
-
-    @Test
     void setId() {
     }
 
