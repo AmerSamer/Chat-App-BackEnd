@@ -6,7 +6,7 @@
         </Console>
         <File name="MyFile" fileName="logs/app.log">
             <PatternLayout pattern="%d %-7level %logger{36} - %msg%n"/>
-        </File>
+        </File>a
     </Appenders>
     <Loggers>
         <logger name="org" level="WARN"/>
