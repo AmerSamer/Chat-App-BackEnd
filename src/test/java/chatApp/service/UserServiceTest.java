@@ -7,12 +7,17 @@ import chatApp.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLDataException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 class UserServiceTest {
 
     @Autowired
@@ -27,15 +32,14 @@ class UserServiceTest {
     @Autowired
     UserRepository userRepository;
     User user;
-
+    User user1;
     @BeforeEach
     void newUser() throws SQLDataException {
-        this.user = new User();
-        user.setEmail("a11222222@gmail.com");
-        user.setPassword("aA11");
-        user.setName("a");
-        authService.addUser(user);
-        authService.login(user);
+        this.user = User.registerUser("test", "test@gmail.com", "Sse12345");
+        authService.addUser(this.user);
+        authService.login(this.user);
+//        this.user1 = User.registerUser("testt", "testt@gmail.com", "Sse12345");
+//        authService.addUser(this.user1);
     }
 
     @AfterEach
@@ -51,13 +55,15 @@ class UserServiceTest {
 
     @Test
     void logoutUser_checkLogoutRegisteredUser_deleteToken() throws SQLDataException {
-
         authService.verifyEmail(user);
         userService.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail()));
         assertNull(authService.getKeyEmailsValTokens().get(user.getEmail()));
     }
     @Test
     void updateUser() {
+        user.setName("testupdated");
+        User returnedUser = userService.updateUser(user, authService.getKeyEmailsValTokens().get(user.getEmail()));
+        assertEquals(user.getName(), returnedUser.getName());
     }
 
     @Test
