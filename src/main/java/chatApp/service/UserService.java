@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,44 +41,38 @@ public class UserService {
      * Update user : check if data is valid syntax & the user exist in DB, update user data in DB
      *
      * @param user  - the user's data
-     * @param token - the token of the user
+     * @param userEmail - the userEmail from the token hash
      * @return user with updated data
      * @throws IllegalArgumentException when the Update user failed
      */
-    public User updateUser(User user, String token) {
+    public User updateUser(User user, String userEmail) {
         try {
             logger.debug("Check if the user is exist in DB");
-            String userEmail = authService.getKeyTokensValEmails().get(token);
-            if (userRepository.findByEmail(userEmail) == null) {
+            User u = userRepository.findByEmail(userEmail);
+            if (u == null) {
                 logger.error(emailNotExistsMessage(user.getEmail()));
                 throw new IllegalArgumentException(emailNotExistsMessage(user.getEmail()));
             }
-            User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
+            User dbUser = User.dbUser(u);
 
             if (!user.getEmail().equals("")) {
-                messageService.updateUserEmailMessages(dbUser.getEmail(), user.getEmail());
+//                messageService.updateUserEmailMessages(dbUser.getEmail(), user.getEmail());
                 if (dbUser.getNickname().equals(dbUser.getEmail())) {
                     dbUser.setNickname(user.getEmail());
                 }
                 dbUser.setEmail(user.getEmail());
             }
             if (user.getNickname() != null && !user.getNickname().equals("")) {
-                messageService.updateUserNicknameMessages(dbUser.getNickname(), user.getNickname());
+//                messageService.updateUserNicknameMessages(dbUser.getNickname(), user.getNickname());
                 dbUser.setNickname(user.getNickname());
             }
             if (user.getName() != null && !user.getName().equals("")) {
-                if(!isValidName(user.getName())){
-                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid name");
-                }
                 dbUser.setName(user.getName());
             }
             if (user.getPassword() != null && !user.getPassword().equals("")) {
                 dbUser.setPassword(encrypt(user.getPassword()));
             }
             if (user.getDateOfBirth() != null) {
-                if(user.getDateOfBirth().isAfter(LocalDate.now())){
-                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid date");
-                }
                 dbUser.setDateOfBirth(user.getDateOfBirth());
                 dbUser.setAge(calcAge(user.getDateOfBirth()));
             }
@@ -88,7 +83,6 @@ public class UserService {
                 dbUser.setDescription(user.getDescription());
             }
             logger.info("Update the user, and save updating in DB");
-
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("Update the user failed");
@@ -99,21 +93,19 @@ public class UserService {
     /**
      * Logout user : delete token & change status to offline, if the user is guest delete him from the DB
      *
-     * @param token - the token of the user
+     * @param userEmail - the userEmail gets by the token
      * @return user with offline status
      * @throws IllegalArgumentException when the logout user failed
      */
-    public User logoutUser(String token) {
+    public User logoutUser(String userEmail) {
         try {
             logger.info("Delete the user token");
-            String userEmail = authService.getKeyTokensValEmails().get(token);
-            if (userRepository.findByEmail(userEmail) == null) {
+            User user = userRepository.findByEmail(userEmail);
+            if (user == null) {
                 logger.error(emailNotExistsMessage);
                 throw new IllegalArgumentException(emailNotExistsMessage);
             }
-            authService.getKeyTokensValEmails().remove(token);
-            authService.getKeyEmailsValTokens().remove(userEmail);
-            User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
+            User dbUser = User.dbUser(user);
             logger.info("If the user is a guest delete him from DB else update his status to offline");
             if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
                 userRepository.delete(dbUser);
@@ -130,32 +122,22 @@ public class UserService {
     /**
      * Update Mute/unmute Users : check token session not expired & the user exist in DB, update user mute/unmute status in DB
      *
-     * @param token - the token of the user
+     * @param userEmail - the userEmail from the token hash
      * @param id    - the id of the user
      * @return user with mute/unmute status
      * @throws IllegalArgumentException when the update mute/unmute user failed
      */
-    public User updateMuteUnmuteUser(Long id, String token) {
+    public User updateMuteUnmuteUser(Long id, String userEmail) {
         try {
-            String userEmail = authService.getKeyTokensValEmails().get(token);
-            if (userEmail == null) {
-                logger.error(tokenSessionExpired);
-                throw new IllegalArgumentException(tokenSessionExpired);
-            }
             if (userRepository.findByEmail(userEmail).getType() != UserType.ADMIN) {
                 logger.error(notAdminUser);
                 throw new IllegalArgumentException(notAdminUser);
             }
-            if (userRepository.getById(id) == null) {
+            User user = userRepository.getById(id);
+            if (user == null) {
                 throw new IllegalArgumentException(emailNotExistsMessage(userEmail));
             }
-
-            User dbUser = User.dbUser(userRepository.getById(id));
-
-            if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
-                throw new IllegalArgumentException(tokenSessionExpired);
-            }
-
+            User dbUser = User.dbUser(user);
             dbUser.setMute(!dbUser.isMute());
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
@@ -167,26 +149,18 @@ public class UserService {
     /**
      * Update away/online Users : check token session not expired & the user exist in DB, update user away/online status in DB
      *
-     * @param token  - the token of the user
+     * @param userEmail  - the userEmail from the token hash
      * @param status - the away/online status of the user
      * @return user with away/online status
      * @throws IllegalArgumentException when the update away/online status user failed
      */
-    public User updateStatusUser(String token, String status) {
+    public User updateStatusUser(String userEmail, String status) {
         try {
-            String userEmail = authService.getKeyTokensValEmails().get(token);
-            if (userEmail == null) {
-                throw new IllegalArgumentException(tokenSessionExpired);
-            }
-            if (userRepository.findByEmail(userEmail) == null) {
+            User user = userRepository.findByEmail(userEmail);
+            if (user == null) {
                 throw new IllegalArgumentException(emailNotExistsMessage(userEmail));
             }
-
-            User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
-
-            if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
-                throw new IllegalArgumentException(tokenSessionExpired);
-            }
+            User dbUser = User.dbUser(user);
             if (status.equals("away")) {
                 dbUser.setUserStatus(UserStatuses.AWAY);
             } else if (status.equals("online")) {
