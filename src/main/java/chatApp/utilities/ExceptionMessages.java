@@ -2,7 +2,9 @@ package chatApp.utilities;
 
 public class ExceptionMessages {
 
-    public static String invalidEmailMessage = "Invalid Email, Please try again. Example: 'sample@test.com' ";
+    public static String invalidEmailMessage = "Invalid Email, Please try again. Example: 'sample@gmail.com' ";
+    public static String invalidRegistrationEmailMessage = "Can't register with email of @chatappsystem.com, Please try again. Example: 'sample@gmail.com' ";
+
     public static String invalidNameMessage = "Invalid Name, Please try again without numbers. Example: 'Some Name' ";
     public static String invalidPasswordMessage = "Invalid Password, Please try again with at least 1 capital letter and minimum 6 letters. Example: 'passWord'(not recommended) ";
     public static String loginFailedMessage = "Email or Password are wrong";
