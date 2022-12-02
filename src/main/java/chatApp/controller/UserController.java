@@ -3,6 +3,8 @@ package chatApp.controller;
 import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
+import chatApp.service.AuthService;
+import chatApp.service.MessageService;
 import chatApp.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 import static chatApp.utilities.LoggerMessages.*;
+import java.time.LocalDate;
+import java.util.List;
+
+import static chatApp.utilities.ExceptionMessages.*;
 import static chatApp.utilities.SuccessMessages.*;
 import static chatApp.utilities.Utility.*;
 
@@ -23,6 +29,10 @@ public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class.getName());
     @Autowired
     private UserService userService;
+    @Autowired
+    private AuthService authService;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * Update user : check if data is valid syntax & the user exist in DB, update user data in DB
@@ -36,6 +46,12 @@ public class UserController {
         Optional<CustomResponse<UserDTO>> isValid;
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
+            logger.info(beforeAnAction(user.getEmail(), "update"));
+            String userEmail = authService.getKeyTokensValEmails().get(token);
+            if (userEmail == null) {
+                logger.error(tokenSessionExpired);
+                throw new IllegalArgumentException(tokenSessionExpired);
+            }
             isValid = checkValidEmail(user.getEmail(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
             isValid = checkValidPassword(user.getPassword(), response);
@@ -43,7 +59,6 @@ public class UserController {
             isValid = checkValidName(user.getName(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
-            logger.info(beforeAnAction(user.getEmail(), "update"));
             response.setResponse(UserDTO.userToUserDTO(userService.updateUser(user, token)));
             response.setMessage(updateUserSuccessfulMessage);
             logger.info(updateUserSuccessfulMessage);
@@ -66,6 +81,16 @@ public class UserController {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeLogout);
+            String userEmail = authService.getKeyTokensValEmails().get(token);
+            if (userEmail == null) {
+                logger.error(tokenSessionExpired);
+                throw new IllegalArgumentException(tokenSessionExpired);
+            }
+            User logoutUser = userService.logoutUser(userEmail);
+            if (logoutUser != null) {
+                authService.getKeyTokensValEmails().remove(token);
+                authService.getKeyEmailsValTokens().remove(userEmail);
+            }
             response.setResponse(UserDTO.userToUserDTO(userService.logoutUser(token)));
             response.setMessage(logoutSuccessfulMessage);
             logger.info(logoutSuccessfulMessage);
@@ -89,6 +114,14 @@ public class UserController {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeMuteUnmute);
+            String userEmail = authService.getKeyTokensValEmails().get(token);
+            if (userEmail == null) {
+                logger.error(tokenSessionExpired);
+                throw new IllegalArgumentException(tokenSessionExpired);
+            }
+            if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
+                throw new IllegalArgumentException(tokenSessionExpired);
+            }
             response.setResponse(UserDTO.userToUserDTO(userService.updateMuteUnmuteUser(id, token)));
             response.setMessage(updateMuteUnmuteUserSuccessfulMessage);
             logger.info(updateMuteUnmuteUserSuccessfulMessage);
@@ -113,6 +146,13 @@ public class UserController {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeUpdateStatus);
+            String userEmail = authService.getKeyTokensValEmails().get(token);
+            if (userEmail == null) {
+                throw new IllegalArgumentException(tokenSessionExpired);
+            }
+            if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
+                throw new IllegalArgumentException(tokenSessionExpired);
+            }
             response.setResponse(UserDTO.userToUserDTO(userService.updateStatusUser(token, status)));
             response.setMessage(updateStatusUserSuccessfulMessage);
             logger.info(updateStatusUserSuccessfulMessage);
