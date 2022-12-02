@@ -41,7 +41,7 @@ public class User {
     @Column(length = 200)
     private String description;
 
-    User() {
+    public User() {
     }
 
 

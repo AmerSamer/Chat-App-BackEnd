@@ -41,23 +41,28 @@ public class PermissionFilter extends GenericFilterBean {
         String path = req.getRequestURI();
         if (permissionPathsForAll.stream().noneMatch(path::contains)) {
             if (auth == null) {
-                throw new IllegalAccessError("Not Authorized");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
+                throw new Error("Not Authorized");
             } else if (!authService.getKeyTokensValEmails().containsKey(auth)) {
-                throw new IllegalAccessError("Not Authorized");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
+                throw new Error("Not Authorized");
             } else {
                 String userEmail = authService.getKeyTokensValEmails().get(auth);
                 if (!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))) {
-                    throw new IllegalAccessError("Not Authorized");
+                    res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
+                    throw new Error("Not Authorized");
                 }
                 User dbUser = userRepository.findByEmail(userEmail);
                 if (dbUser.getType() == UserType.GUEST) {
                     if (permissionPathsForGuest.stream().noneMatch(path::contains)) {
-                        throw new IllegalAccessError("Not Authorized");
+                        res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
+                        throw new Error("Not Authorized");
                     }
                 }
                 if (dbUser.getType() == UserType.REGISTERED) {
                     if (noPermissionsPathsForRegistered.stream().anyMatch(path::contains)) {
-                        throw new IllegalAccessError("Not Authorized");
+                        res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
+                        throw new Error("Not Authorized");
                     }
                 }
             }

@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 import static chatApp.utilities.LoggerMessages.*;
-import java.time.LocalDate;
-import java.util.List;
-
 import static chatApp.utilities.ExceptionMessages.*;
 import static chatApp.utilities.SuccessMessages.*;
 import static chatApp.utilities.Utility.*;
@@ -59,7 +56,7 @@ public class UserController {
             isValid = checkValidName(user.getName(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
-            response.setResponse(UserDTO.userToUserDTO(userService.updateUser(user, token)));
+            response.setResponse(UserDTO.userToUserDTO(userService.updateUser(user, userEmail)));
             response.setMessage(updateUserSuccessfulMessage);
             logger.info(updateUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
@@ -77,8 +74,8 @@ public class UserController {
      * @return user with offline status
      */
     @RequestMapping(value = "logout", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestParam String token) {
-        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
+    public ResponseEntity<CustomResponse<String>> logoutUser(@RequestParam String token) {
+        CustomResponse<String> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeLogout);
             String userEmail = authService.getKeyTokensValEmails().get(token);
@@ -91,7 +88,6 @@ public class UserController {
                 authService.getKeyTokensValEmails().remove(token);
                 authService.getKeyEmailsValTokens().remove(userEmail);
             }
-            response.setResponse(UserDTO.userToUserDTO(userService.logoutUser(token)));
             response.setMessage(logoutSuccessfulMessage);
             logger.info(logoutSuccessfulMessage);
             return ResponseEntity.ok().body(response);
@@ -122,7 +118,7 @@ public class UserController {
             if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            response.setResponse(UserDTO.userToUserDTO(userService.updateMuteUnmuteUser(id, token)));
+            response.setResponse(UserDTO.userToUserDTO(userService.updateMuteUnmuteUser(id, userEmail)));
             response.setMessage(updateMuteUnmuteUserSuccessfulMessage);
             logger.info(updateMuteUnmuteUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
@@ -153,7 +149,7 @@ public class UserController {
             if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            response.setResponse(UserDTO.userToUserDTO(userService.updateStatusUser(token, status)));
+            response.setResponse(UserDTO.userToUserDTO(userService.updateStatusUser(userEmail, status)));
             response.setMessage(updateStatusUserSuccessfulMessage);
             logger.info(updateStatusUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);

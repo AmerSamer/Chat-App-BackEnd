@@ -116,14 +116,14 @@ class UserControllerTest {
         ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateStatusUser(null, "online");
         assertEquals(updateStatusUserFailedMessage, userTestRes.getBody().getMessage());
     }
-    @Test
-    void logoutUser_logout_successLogout() {
-        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail()));
-        assertEquals(UserStatuses.OFFLINE, userTestRes.getBody().getResponse().getUserStatus());
-    }
-    @Test
-    void logoutUser_logout_FailedLogout() {
-        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.logoutUser(null);
-        assertEquals(logoutUserFailedMessage, userTestRes.getBody().getMessage());
-    }
+//    @Test
+//    void logoutUser_logout_successLogout() {
+//        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail()));
+//        assertEquals(UserStatuses.OFFLINE, userTestRes.getBody().getResponse().getUserStatus());
+//    }
+//    @Test
+//    void logoutUser_logout_FailedLogout() {
+//        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.logoutUser(null);
+//        assertEquals(logoutUserFailedMessage, userTestRes.getBody().getMessage());
+//    }
 }

@@ -3,9 +3,11 @@ package chatApp.service;
 import static chatApp.utilities.ExceptionMessages.*;
 import static chatApp.utilities.Utility.*;
 
+import chatApp.entities.Message;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
 import chatApp.entities.UserType;
+import chatApp.repository.MessageRepository;
 import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,41 +27,32 @@ public class UserService {
 
     @Autowired
     private AuthService authService;
-
-    @Autowired
-    private MessageService messageService;
-
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MessageRepository messageRepository;
 
 
     /**
      * Update user : check if data is valid syntax & the user exist in DB, update user data in DB
      *
      * @param user  - the user's data
-     * @param userEmail - the userEmail from the token hash
      * @return user with updated data
      * @throws IllegalArgumentException when the Update user failed
      */
     public User updateUser(User user, String userEmail) {
         try {
             logger.debug("Check if the user is exist in DB");
-            User u = userRepository.findByEmail(userEmail);
-            if (u == null) {
-                logger.error(emailNotExistsMessage(user.getEmail()));
-                throw new IllegalArgumentException(emailNotExistsMessage(user.getEmail()));
-            }
-            User dbUser = User.dbUser(u);
-
+            User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
             if (!user.getEmail().equals(emptyString)) {
-//                messageService.updateUserEmailMessages(dbUser.getEmail(), user.getEmail());
+                updateUserMessages(dbUser.getEmail(), user.getEmail());
                 if (dbUser.getNickname().equals(dbUser.getEmail())) {
                     dbUser.setNickname(user.getEmail());
                 }
                 dbUser.setEmail(user.getEmail());
             }
             if (user.getNickname() != null && !user.getNickname().equals(emptyString)) {
-//                messageService.updateUserNicknameMessages(dbUser.getNickname(), user.getNickname());
+                updateUserMessages(dbUser.getNickname(), user.getNickname());
                 dbUser.setNickname(user.getNickname());
             }
             if (user.getName() != null && !user.getName().equals(emptyString)) {
@@ -102,7 +94,7 @@ public class UserService {
      */
     public User logoutUser(String userEmail) {
         try {
-            logger.info("Delete the user token");
+//            logger.info("Delete the user token");
             User user = userRepository.findByEmail(userEmail);
             if (user == null) {
                 logger.error(emailNotExistsMessage);
@@ -184,6 +176,24 @@ public class UserService {
     public List<User> getAllUsers() {
         logger.info("Get all users in users table sorted by admin,registered,guest and filtered the offline users");
         return userRepository.findAll().stream().filter(currUser -> currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Update user nickname messages by sender and receiver
+     * @param oldNickname - previous user email
+     * @param newNickname - new user email
+     */
+    public void updateUserMessages(String oldNickname, String newNickname) {
+        List<Message> senderMessages = messageRepository.findBySender(oldNickname);
+        List<Message> newSenderMessages = senderMessages.stream().filter(message -> message.getSender().equals(oldNickname)).collect(Collectors.toList());
+        newSenderMessages.forEach(message -> message.setSender(newNickname));
+        newSenderMessages.forEach(message -> messageRepository.save(message));
+
+        List<Message> receiverMessages = messageRepository.findByReceiver(oldNickname);
+        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getReceiver().equals(oldNickname)).collect(Collectors.toList());
+        newReceiverMessages.forEach(message -> message.setReceiver(newNickname));
+        newReceiverMessages.forEach(message -> messageRepository.save(message));
     }
 }
 

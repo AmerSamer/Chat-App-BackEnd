@@ -150,30 +150,4 @@ public class MessageService {
     public List<Message> getMainRoomMessagesByTime(long time) {
         return messageRepository.findByRoomIdAndIssueDateEpochBetween(mainRoomId, time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
     }
-
-    public void updateUserEmailMessages(String oldEmail, String newEmail) {
-        User user = User.dbUser(userRepository.findByEmail(oldEmail));
-        List<Message> senderMessages = messageRepository.findBySender(user.getNickname());
-        List<Message> newSenderMessages = senderMessages.stream().filter(message -> message.getSender().equals(oldEmail)).collect(Collectors.toList());
-        newSenderMessages.forEach(message -> message.setSender(newEmail));
-        newSenderMessages.forEach(message -> messageRepository.save(message));
-
-        List<Message> receiverMessages = messageRepository.findByReceiver(user.getNickname());
-        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getReceiver().equals(oldEmail)).collect(Collectors.toList());
-        newReceiverMessages.forEach(message -> message.setReceiver(newEmail));
-        newReceiverMessages.forEach(message -> messageRepository.save(message));
-    }
-
-    public void updateUserNicknameMessages(String oldNickname, String newNickname) {
-        User user = User.dbUser(userRepository.findByNickname(oldNickname));
-        List<Message> senderMessages = messageRepository.findBySender(user.getNickname());
-        List<Message> newSenderMessages = senderMessages.stream().filter(message -> message.getSender().equals(oldNickname)).collect(Collectors.toList());
-        newSenderMessages.forEach(message -> message.setSender(newNickname));
-        newSenderMessages.forEach(message -> messageRepository.save(message));
-
-        List<Message> receiverMessages = messageRepository.findByReceiver(user.getNickname());
-        List<Message> newReceiverMessages = receiverMessages.stream().filter(message -> message.getReceiver().equals(oldNickname)).collect(Collectors.toList());
-        newReceiverMessages.forEach(message -> message.setReceiver(newNickname));
-        newReceiverMessages.forEach(message -> messageRepository.save(message));
-    }
 }
