@@ -1,5 +1,7 @@
 package chatApp.utilities;
 
+import chatApp.customEntities.CustomResponse;
+import chatApp.customEntities.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -8,8 +10,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.ExceptionMessages.invalidPasswordMessage;
 
 public class Utility {
 
@@ -20,7 +26,7 @@ public class Utility {
     public static String mainRoomId = "0";
 
     public static String guestPrefix = "Guest-";
-//    public static String systemEmail = "seselevtion@gmail.com";
+    public static String innerSystemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
     private static Logger logger = LogManager.getLogger(Utility.class.getName());
 
@@ -112,6 +118,40 @@ public class Utility {
      */
     public static LocalDateTime getLocalDateTimeNow() {
         return LocalDateTime.now();
+    }
+
+
+    public static Optional<CustomResponse<UserDTO>> checkValidEmail(String email, CustomResponse<UserDTO> response){
+        if (!isValidEmail(email)){
+            logger.error(invalidEmailMessage);
+            response.setMessage(invalidEmailMessage);
+            return Optional.of(response);
+        }
+
+        if(email.contains(systemEmail)){
+            logger.error(invalidRegistrationEmailMessage);
+            response.setMessage(invalidRegistrationEmailMessage);
+            return Optional.of(response);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<CustomResponse<UserDTO>> checkValidName(String name, CustomResponse<UserDTO> response){
+        if (!isValidName(name)) {
+            logger.error(invalidNameMessage);
+            response.setMessage(invalidNameMessage);
+            return Optional.of(response);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<CustomResponse<UserDTO>> checkValidPassword(String password, CustomResponse<UserDTO> response){
+        if (!isValidPassword(password)) {
+            logger.error(invalidPasswordMessage);
+            response.setMessage(invalidPasswordMessage);
+            return Optional.of(response);
+        }
+        return Optional.empty();
     }
 
 }

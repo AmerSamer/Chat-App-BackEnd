@@ -3,7 +3,6 @@ package chatApp.controller;
 import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.Message;
-import chatApp.entities.User;
 import chatApp.service.MessageService;
 import chatApp.service.UserService;
 import org.apache.logging.log4j.LogManager;
@@ -17,14 +16,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static chatApp.utilities.ExceptionMessages.*;
 import static chatApp.utilities.SuccessMessages.*;
+import static chatApp.utilities.Utility.*;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/chat")
 public class ChatController {
-    private static Logger logger = LogManager.getLogger(ChatController.class.getName());
+    private static final Logger logger = LogManager.getLogger(ChatController.class.getName());
 
     @Autowired
     private UserService userService;
@@ -41,12 +40,14 @@ public class ChatController {
     @MessageMapping("/plain")
     @SendTo("/topic/mainChat")
     public ResponseEntity<CustomResponse<Message>> sendMainPlainMessage(Message message) {
+        CustomResponse<Message> response = new CustomResponse<>(null, emptyString);
         try {
-            Message resMessage = messageService.addMessageToMainChat(message);
-            CustomResponse<Message> response = new CustomResponse<>(resMessage, mainMessageSentSuccessfully);
+            response.setResponse(messageService.addMessageToMainChat(message));
+            response.setMessage(mainMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<Message> response = new CustomResponse<>(null, e.getMessage());
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -60,12 +61,16 @@ public class ChatController {
     @MessageMapping("/plain/privatechat/{roomId}")
     @SendTo("/topic/privatechat/{roomId}")
     public ResponseEntity<CustomResponse<Message>> sendPrivatePlainMessage(Message message) {
+        CustomResponse<Message> response = new CustomResponse<>(null, emptyString);
         try {
-            Message resMessage = messageService.addMessageToPrivateChat(message);
-            CustomResponse<Message> response = new CustomResponse<>(resMessage, privateMessageSentSuccessfully);
+            logger.info("Try to send private message");
+            response.setResponse(messageService.addMessageToPrivateChat(message));
+            response.setMessage(privateMessageSentSuccessfully);
+            logger.info(privateMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<Message> response = new CustomResponse<>(null, e.getMessage());
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -78,9 +83,7 @@ public class ChatController {
     @RequestMapping(value = "/getusers", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
         logger.info("Try to get all users to display in the frontend");
-        List<User> userList = userService.getAllUsers();
-        List<UserDTO> userListDTO = UserDTO.userListToUserListDTO(userList);
-        CustomResponse<List<UserDTO>> response = new CustomResponse<>(userListDTO, listOfAllUsersSuccessfulMessage);
+        CustomResponse<List<UserDTO>> response = new CustomResponse<>(UserDTO.userListToUserListDTO(userService.getAllUsers()), listOfAllUsersSuccessfulMessage);
         logger.info(listOfAllUsersSuccessfulMessage);
         return ResponseEntity.ok().body(response);
     }
@@ -94,13 +97,16 @@ public class ChatController {
      */
     @RequestMapping(value = "/privatechatroom", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail, @RequestParam("receiver") Long receiverId) {
+        CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info("Try to get private chat room");
-            List<Message> messageList = messageService.getPrivateRoomMessages(senderEmail, receiverId);
-            CustomResponse<List<Message>> response = new CustomResponse<>(messageList, privateChatRoomMessagesSentSuccessfully);
+            response.setResponse(messageService.getPrivateRoomMessages(senderEmail, receiverId));
+            response.setMessage(privateChatRoomMessagesSentSuccessfully);
+            logger.info(privateChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<List<Message>> response = new CustomResponse<>(null, e.getMessage());
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -113,13 +119,16 @@ public class ChatController {
      */
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
+        CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("Try to get main chat room");
-            List<Message> messageList = messageService.getMainRoomMessages(size);
-            CustomResponse<List<Message>> response = new CustomResponse<>(messageList, mainChatRoomMessagesSentSuccessfully);
+            logger.info("Try to get main chat room messages");
+            response.setResponse(messageService.getMainRoomMessages(size));
+            response.setMessage(mainChatRoomMessagesSentSuccessfully);
+            logger.info(mainChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<List<Message>> response = new CustomResponse<>(null, e.getMessage());
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -132,13 +141,16 @@ public class ChatController {
      */
     @RequestMapping(value = "/downloadprivatechatroom", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
+        CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info("Try to download specific private chat room");
-            List<Message> messageList = messageService.downloadPrivateRoomMessages(roomId);
-            CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadPrivateRoomSentSuccessfully);
+            response.setResponse(messageService.downloadPrivateRoomMessages(roomId));
+            response.setMessage(downloadPrivateRoomSentSuccessfully);
+            logger.info(downloadPrivateRoomSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<List<Message>> response = new CustomResponse<>(null, e.getMessage());
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -151,8 +163,9 @@ public class ChatController {
      */
     @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
-        List<Message> messageList = messageService.getMainRoomMessagesByTime(time);
-        CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadMainRoomSentSuccessfully);
+        logger.info("Try to download main chat room from specific time");
+        CustomResponse<List<Message>> response = new CustomResponse<>(messageService.getMainRoomMessagesByTime(time), downloadMainRoomSentSuccessfully);
+        logger.info(downloadMainRoomSentSuccessfully);
         return ResponseEntity.ok().body(response);
     }
 }

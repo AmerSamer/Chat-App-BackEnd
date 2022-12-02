@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @Service
 public class AuthService {
 
-    private static Logger logger = LogManager.getLogger(AuthService.class.getName());
+    private static final Logger logger = LogManager.getLogger(AuthService.class.getName());
     @Autowired
     private UserRepository userRepository;
 
@@ -197,7 +197,7 @@ public class AuthService {
         String verifyCode = randomString();
         user.setVerifyCode(verifyCode);
         user.setIssueDate(LocalDate.now());
-        preConfiguredMessage.setFrom(systemEmail);
+        preConfiguredMessage.setFrom(innerSystemEmail);
         preConfiguredMessage.setTo(user.getEmail());
         preConfiguredMessage.setSubject(emailContent);
         preConfiguredMessage.setText(verifyCode);

@@ -23,7 +23,7 @@ import static chatApp.utilities.Utility.*;
 @Service
 public class MessageService {
 
-    private static Logger logger = LogManager.getLogger(MessageService.class.getName());
+    private static final Logger logger = LogManager.getLogger(MessageService.class.getName());
 
     @Autowired
     private UserRepository userRepository;

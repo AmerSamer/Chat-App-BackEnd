@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @Service
 public class UserService {
-    private static Logger logger = LogManager.getLogger(UserService.class.getName());
+    private static final Logger logger = LogManager.getLogger(UserService.class.getName());
 
     @Autowired
     private AuthService authService;
