@@ -36,18 +36,13 @@ public class UserController {
         Optional<CustomResponse<UserDTO>> isValid;
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            if (!user.getEmail().equals(emptyString)) {
-                isValid = checkValidEmail(user.getEmail(), response);
-                if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-            }
-            if (!user.getPassword().equals(emptyString)) {
-                isValid = checkValidPassword(user.getPassword(), response);
-                if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-            }
-            if (!user.getName().equals(emptyString)) {
-                isValid = checkValidName(user.getName(), response);
-                if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
-            }
+            isValid = checkValidEmail(user.getEmail(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+            isValid = checkValidPassword(user.getPassword(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+            isValid = checkValidName(user.getName(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+
             logger.info(beforeAnAction(user.getEmail(), "update"));
             response.setResponse(UserDTO.userToUserDTO(userService.updateUser(user, token)));
             response.setMessage(updateUserSuccessfulMessage);

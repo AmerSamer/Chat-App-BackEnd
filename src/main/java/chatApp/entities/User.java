@@ -41,7 +41,7 @@ public class User {
     @Column(length = 200)
     private String description;
 
-    public User() {
+    User() {
     }
 
 
@@ -74,26 +74,6 @@ public class User {
         user.setMute(false);
         return user;
     }
-
-//    public static User loginUser(String email, String password) {
-//        User user = new User();
-//        user.setEmail(email);
-//        user.setPassword(password);
-//        user.setEnabled(false);
-//        user.setMute(false);
-//        return user;
-//    }
-
-//    public static User guestUserForTest(String name, String email, String password) {
-//        User user = new User();
-//        user.setName(name);
-//        user.setEmail(email);
-//        user.setPassword(password);
-//        user.setEnabled(false);
-//        user.setMute(false);
-//        user.setType(UserType.GUEST);
-//        return user;
-//    }
 
     public String getPhoto() {
         return photo;

@@ -117,7 +117,7 @@ public class ChatController {
     /**
      * sends the size to the getMainRoomMessages method in the messageService
      *
-     * @param size - the number of returned rows
+     * @param size - the number of returned messages
      * @return list of messages of main chat room
      */
     @RequestMapping(value = "/mainchatroom", method = RequestMethod.GET)

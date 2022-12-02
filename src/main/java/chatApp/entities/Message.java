@@ -5,8 +5,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Objects;
 
 import static chatApp.utilities.Utility.getLocalDateTimeNow;
+import static chatApp.utilities.Utility.zoneOffsetId;
 
 @Entity
 @Table(name = "message")
@@ -16,22 +18,19 @@ public class Message {
     private Long id;
     @Column(nullable = false)
     private String sender;
-
     @Column(nullable = false)
     private String receiver;
     @Column(nullable = false)
     private String content;
     @Column(nullable = false)
     private String roomId;
-
-    @Column(name = "issue_date")
+    @Column(nullable = false, name = "issue_date")
     private LocalDateTime issueDate;
-
-    @Column(name = "issue_date_time")
+    @Column(nullable = false, name = "issue_date_time")
     private long issueDateEpoch;
 
 
-    private Message() {
+    Message() {
     }
 
     public Message(String sender, String content, String receiver, String roomId) {
@@ -40,7 +39,7 @@ public class Message {
         this.roomId = roomId;
         this.receiver = receiver;
         this.issueDate = getLocalDateTimeNow();
-        this.issueDateEpoch = this.issueDate.toEpochSecond(ZoneOffset.of("Z"));
+        this.issueDateEpoch = this.issueDate.toEpochSecond(ZoneOffset.of(zoneOffsetId));
     }
 
     public String getRoomId() {
@@ -97,5 +96,46 @@ public class Message {
 
     public void setIssueDateEpoch(long issueDateEpoch) {
         this.issueDateEpoch = issueDateEpoch;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Message message = (Message) o;
+
+        if (issueDateEpoch != message.issueDateEpoch) return false;
+        if (!Objects.equals(id, message.id)) return false;
+        if (!sender.equals(message.sender)) return false;
+        if (!receiver.equals(message.receiver)) return false;
+        if (!content.equals(message.content)) return false;
+        if (!roomId.equals(message.roomId)) return false;
+        return issueDate.equals(message.issueDate);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + sender.hashCode();
+        result = 31 * result + receiver.hashCode();
+        result = 31 * result + content.hashCode();
+        result = 31 * result + roomId.hashCode();
+        result = 31 * result + issueDate.hashCode();
+        result = 31 * result + (int) (issueDateEpoch ^ (issueDateEpoch >>> 32));
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", sender='" + sender + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", content='" + content + '\'' +
+                ", roomId='" + roomId + '\'' +
+                ", issueDate=" + issueDate +
+                ", issueDateEpoch=" + issueDateEpoch +
+                '}';
     }
 }
