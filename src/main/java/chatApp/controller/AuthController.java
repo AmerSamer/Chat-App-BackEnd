@@ -32,6 +32,11 @@ public class AuthController {
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> registerUser(@RequestBody User user) {
         try {
+            if(user.getEmail().contains("@chatappsystem.com")){
+                logger.error(invalidRegistrationEmailMessage);
+                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidRegistrationEmailMessage);
+                return ResponseEntity.badRequest().body(response);
+            }
             if (!isValidEmail(user.getEmail())) {
                 logger.error(invalidEmailMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
