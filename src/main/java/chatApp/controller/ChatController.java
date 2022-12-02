@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static chatApp.utilities.LoggerMessages.*;
 import static chatApp.utilities.SuccessMessages.*;
 import static chatApp.utilities.Utility.*;
 
@@ -42,8 +43,10 @@ public class ChatController {
     public ResponseEntity<CustomResponse<Message>> sendMainPlainMessage(Message message) {
         CustomResponse<Message> response = new CustomResponse<>(null, emptyString);
         try {
+            logger.info(beforeSendMessageInMain);
             response.setResponse(messageService.addMessageToMainChat(message));
             response.setMessage(mainMessageSentSuccessfully);
+            logger.info(mainMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage());
@@ -63,7 +66,7 @@ public class ChatController {
     public ResponseEntity<CustomResponse<Message>> sendPrivatePlainMessage(Message message) {
         CustomResponse<Message> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("Try to send private message");
+            logger.info(beforeSendPrivateMessage);
             response.setResponse(messageService.addMessageToPrivateChat(message));
             response.setMessage(privateMessageSentSuccessfully);
             logger.info(privateMessageSentSuccessfully);
@@ -82,7 +85,7 @@ public class ChatController {
      */
     @RequestMapping(value = "/getusers", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<UserDTO>>> getAllUsers() {
-        logger.info("Try to get all users to display in the frontend");
+        logger.info(beforeGettingAllUsers);
         CustomResponse<List<UserDTO>> response = new CustomResponse<>(UserDTO.userListToUserListDTO(userService.getAllUsers()), listOfAllUsersSuccessfulMessage);
         logger.info(listOfAllUsersSuccessfulMessage);
         return ResponseEntity.ok().body(response);
@@ -99,7 +102,7 @@ public class ChatController {
     public ResponseEntity<CustomResponse<List<Message>>> getPrivateRoom(@RequestParam("sender") String senderEmail, @RequestParam("receiver") Long receiverId) {
         CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("Try to get private chat room");
+            logger.info(beforeGettingPrivateRoomMessages);
             response.setResponse(messageService.getPrivateRoomMessages(senderEmail, receiverId));
             response.setMessage(privateChatRoomMessagesSentSuccessfully);
             logger.info(privateChatRoomMessagesSentSuccessfully);
@@ -121,7 +124,7 @@ public class ChatController {
     public ResponseEntity<CustomResponse<List<Message>>> getMainRoom(@RequestParam("size") int size) {
         CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("Try to get main chat room messages");
+            logger.info(beforeGettingMainRoomMessages);
             response.setResponse(messageService.getMainRoomMessages(size));
             response.setMessage(mainChatRoomMessagesSentSuccessfully);
             logger.info(mainChatRoomMessagesSentSuccessfully);
@@ -143,7 +146,7 @@ public class ChatController {
     public ResponseEntity<CustomResponse<List<Message>>> downloadPrivateRoom(@RequestParam("roomId") String roomId) {
         CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("Try to download specific private chat room");
+            logger.info(beforeDownloadingPrivateRoom);
             response.setResponse(messageService.downloadPrivateRoomMessages(roomId));
             response.setMessage(downloadPrivateRoomSentSuccessfully);
             logger.info(downloadPrivateRoomSentSuccessfully);
@@ -163,7 +166,7 @@ public class ChatController {
      */
     @RequestMapping(value = "/downloadmainchatroom", method = RequestMethod.GET)
     public ResponseEntity<CustomResponse<List<Message>>> downloadMainRoom(@RequestParam("time") long time) {
-        logger.info("Try to download main chat room from specific time");
+        logger.info(beforeDownloadingMainRoom);
         CustomResponse<List<Message>> response = new CustomResponse<>(messageService.getMainRoomMessagesByTime(time), downloadMainRoomSentSuccessfully);
         logger.info(downloadMainRoomSentSuccessfully);
         return ResponseEntity.ok().body(response);

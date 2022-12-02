@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+import static chatApp.utilities.LoggerMessages.*;
 import static chatApp.utilities.SuccessMessages.*;
 import static chatApp.utilities.Utility.*;
 
@@ -42,7 +43,7 @@ public class AuthController {
             isValid = checkValidPassword(user.getPassword(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
-            logger.info("Try to register " + user.getEmail() + " to the system");
+            logger.info(beforeAnAction(user.getEmail(), "register"));
             response.setResponse(UserDTO.userToUserDTO(authService.addUser(user)));
             response.setMessage(registrationSuccessfulMessage);
             logger.info(registrationSuccessfulMessage);
@@ -70,10 +71,10 @@ public class AuthController {
             isValid = checkValidPassword(user.getPassword(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
-            logger.info("Try to login : " + user.getEmail() + " to the system");
+            logger.info(beforeAnAction(user.getEmail(), "login"));
             response.setResponse(UserDTO.userToUserDTO(authService.login(user)));
-            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
             response.setMessage(loginSuccessfulMessage);
+            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
@@ -97,10 +98,10 @@ public class AuthController {
             isValid = checkValidName(user.getName(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
-            logger.info("Try to login as guest to the system");
+            logger.info(beforeLoginAsGuest);
             response.setResponse(UserDTO.userGuestToUserDTO(authService.addGuest(user)));
-            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
             response.setMessage(loginSuccessfulMessage);
+            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
@@ -120,7 +121,7 @@ public class AuthController {
     public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("try to activate email");
+            logger.info(beforeActivateEmail);
             response.setResponse(UserDTO.userToUserDTO(authService.verifyEmail(user)));
             response.setMessage(activationEmailSuccessfulMessage);
             logger.info(activationEmailSuccessfulMessage);

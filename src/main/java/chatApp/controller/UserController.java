@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+import static chatApp.utilities.LoggerMessages.*;
 import static chatApp.utilities.SuccessMessages.*;
 import static chatApp.utilities.Utility.*;
 
@@ -35,22 +36,22 @@ public class UserController {
         Optional<CustomResponse<UserDTO>> isValid;
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            if (user.getEmail() != null && !user.getEmail().equals(emptyString)) {
+            if (!user.getEmail().equals(emptyString)) {
                 isValid = checkValidEmail(user.getEmail(), response);
                 if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
             }
-            if (user.getPassword() != null && !user.getPassword().equals(emptyString)) {
+            if (!user.getPassword().equals(emptyString)) {
                 isValid = checkValidPassword(user.getPassword(), response);
                 if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
             }
-            if (user.getName() != null && !user.getName().equals(emptyString)) {
+            if (!user.getName().equals(emptyString)) {
                 isValid = checkValidName(user.getName(), response);
                 if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
             }
-            logger.info("Try to update " + user.getEmail() + " in the system");
+            logger.info(beforeAnAction(user.getEmail(), "update"));
             response.setResponse(UserDTO.userToUserDTO(userService.updateUser(user, token)));
             response.setMessage(updateUserSuccessfulMessage);
-            logger.info("Update user successful");
+            logger.info(updateUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage());
@@ -69,7 +70,7 @@ public class UserController {
     public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestParam String token) {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("User try to logout in the system");
+            logger.info(beforeLogout);
             response.setResponse(UserDTO.userToUserDTO(userService.logoutUser(token)));
             response.setMessage(logoutSuccessfulMessage);
             logger.info(logoutSuccessfulMessage);
@@ -92,7 +93,7 @@ public class UserController {
     public ResponseEntity<CustomResponse<UserDTO>> updateMuteUser(@RequestParam("token") String token, @RequestParam("id") Long id) {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("Try to mute / unmute user");
+            logger.info(beforeMuteUnmute);
             response.setResponse(UserDTO.userToUserDTO(userService.updateMuteUnmuteUser(id, token)));
             response.setMessage(updateMuteUnmuteUserSuccessfulMessage);
             logger.info(updateMuteUnmuteUserSuccessfulMessage);
@@ -116,7 +117,7 @@ public class UserController {
     public ResponseEntity<CustomResponse<UserDTO>> updateStatusUser(@RequestParam("token") String token, @RequestParam("status") String status) {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("Try to changed the status of the user to ONLINE/AWAY");
+            logger.info(beforeUpdateStatus);
             response.setResponse(UserDTO.userToUserDTO(userService.updateStatusUser(token, status)));
             response.setMessage(updateStatusUserSuccessfulMessage);
             logger.info(updateStatusUserSuccessfulMessage);
