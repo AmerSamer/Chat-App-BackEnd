@@ -46,7 +46,7 @@ public class ChatController {
             CustomResponse<Message> response = new CustomResponse<>(resMessage, mainMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<Message> response = new CustomResponse<>(null, userIsMutedMessage);
+            CustomResponse<Message> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -65,7 +65,7 @@ public class ChatController {
             CustomResponse<Message> response = new CustomResponse<>(resMessage, privateMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<Message> response = new CustomResponse<>(null, FailedToSendPrivateMessage);
+            CustomResponse<Message> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -100,7 +100,7 @@ public class ChatController {
             CustomResponse<List<Message>> response = new CustomResponse<>(messageList, privateChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<List<Message>> response = new CustomResponse<>(null, privateChatRoomMessagesFailed);
+            CustomResponse<List<Message>> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -119,7 +119,7 @@ public class ChatController {
             CustomResponse<List<Message>> response = new CustomResponse<>(messageList, mainChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<List<Message>> response = new CustomResponse<>(null, mainChatRoomMessagesFailed);
+            CustomResponse<List<Message>> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -138,7 +138,7 @@ public class ChatController {
             CustomResponse<List<Message>> response = new CustomResponse<>(messageList, downloadPrivateRoomSentSuccessfully);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            CustomResponse<List<Message>> response = new CustomResponse<>(null, downloadPrivateRoomFailed);
+            CustomResponse<List<Message>> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }

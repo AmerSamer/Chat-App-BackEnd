@@ -13,8 +13,14 @@ import java.util.regex.Pattern;
 
 public class Utility {
 
+    public static String systemEmail = "@chatappsystem.com";
+    public static String emptyString = "";
+    public static String zoneOffsetId = "Z";
+    public static String mainRoomReceiverName = "main";
+    public static String mainRoomId = "0";
+
     public static String guestPrefix = "Guest-";
-    public static String systemEmail = "seselevtion@gmail.com";
+//    public static String systemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
     private static Logger logger = LogManager.getLogger(Utility.class.getName());
 

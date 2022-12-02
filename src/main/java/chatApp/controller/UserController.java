@@ -32,17 +32,17 @@ public class UserController {
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<CustomResponse<UserDTO>> updateUser(@RequestBody User user, @RequestParam String token) {
         try {
-            if (user.getEmail() != null && !user.getEmail().equals("") && !isValidEmail(user.getEmail())) {
+            if (user.getEmail() != null && !user.getEmail().equals(emptyString) && !isValidEmail(user.getEmail())) {
                 logger.error(invalidEmailMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (user.getPassword() != null && !user.getPassword().equals("") && !isValidPassword(user.getPassword())) {
+            if (user.getPassword() != null && !user.getPassword().equals(emptyString) && !isValidPassword(user.getPassword())) {
                 logger.error(invalidPasswordMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
                 return ResponseEntity.badRequest().body(response);
             }
-            if (user.getName() != null && !user.getName().equals("") && !isValidName(user.getName())) {
+            if (user.getName() != null && !user.getName().equals(emptyString) && !isValidName(user.getName())) {
                 logger.error(invalidNameMessage);
                 CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
                 return ResponseEntity.badRequest().body(response);
@@ -54,8 +54,8 @@ public class UserController {
             logger.info("Update the client the update was successful");
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(updateUserFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, updateUserFailedMessage);
+            logger.error(e.getMessage());
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -76,8 +76,8 @@ public class UserController {
             logger.info(logoutSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(logoutUserFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, logoutUserFailedMessage);
+            logger.error(e.getMessage());
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -99,8 +99,8 @@ public class UserController {
             logger.info(updateMuteUnmuteUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(muteUserFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, muteUserFailedMessage);
+            logger.error(e.getMessage());
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -123,8 +123,8 @@ public class UserController {
             logger.info(updateStatusUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(updateStatusUserFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, updateStatusUserFailedMessage);
+            logger.error(e.getMessage());
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }

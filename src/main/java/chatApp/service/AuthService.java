@@ -61,8 +61,8 @@ public class AuthService {
         try {
             logger.debug("Check if the user is exist in DB");
             if (userRepository.findByEmail(user.getEmail()) == null) {
-                logger.error(emailNotExistsMessage(user.getEmail()));
-                throw new IllegalArgumentException(emailNotExistsMessage(user.getEmail()));
+                logger.error(loginFailedMessage);
+                throw new IllegalArgumentException(loginFailedMessage);
             }
             User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
 
@@ -81,7 +81,7 @@ public class AuthService {
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("login user to db failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -113,7 +113,7 @@ public class AuthService {
             return userRepository.save(user);
         } catch (RuntimeException e) {
             logger.error("Add new guest to db failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -141,7 +141,7 @@ public class AuthService {
             return userRepository.save(user);
         } catch (RuntimeException e) {
             logger.error("Add new user to db failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -184,7 +184,7 @@ public class AuthService {
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("Verify email failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

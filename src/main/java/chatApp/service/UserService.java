@@ -54,37 +54,37 @@ public class UserService {
             }
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
 
-            if (!user.getEmail().equals("")) {
+            if (!user.getEmail().equals(emptyString)) {
                 messageService.updateUserEmailMessages(dbUser.getEmail(), user.getEmail());
                 if (dbUser.getNickname().equals(dbUser.getEmail())) {
                     dbUser.setNickname(user.getEmail());
                 }
                 dbUser.setEmail(user.getEmail());
             }
-            if (user.getNickname() != null && !user.getNickname().equals("")) {
+            if (user.getNickname() != null && !user.getNickname().equals(emptyString)) {
                 messageService.updateUserNicknameMessages(dbUser.getNickname(), user.getNickname());
                 dbUser.setNickname(user.getNickname());
             }
-            if (user.getName() != null && !user.getName().equals("")) {
+            if (user.getName() != null && !user.getName().equals(emptyString)) {
                 if(!isValidName(user.getName())){
-                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid name");
+                    throw new IllegalArgumentException(updateUserFailedMessage + invalidNameMessage);
                 }
                 dbUser.setName(user.getName());
             }
-            if (user.getPassword() != null && !user.getPassword().equals("")) {
+            if (user.getPassword() != null && !user.getPassword().equals(emptyString)) {
                 dbUser.setPassword(encrypt(user.getPassword()));
             }
             if (user.getDateOfBirth() != null) {
                 if(user.getDateOfBirth().isAfter(LocalDate.now())){
-                    throw new IllegalArgumentException(updateUserFailedMessage + ", invalid date");
+                    throw new IllegalArgumentException(updateUserFailedMessage + invalidDateMessage);
                 }
                 dbUser.setDateOfBirth(user.getDateOfBirth());
                 dbUser.setAge(calcAge(user.getDateOfBirth()));
             }
-            if (user.getPhoto() != null && !user.getPhoto().equals("")) {
+            if (user.getPhoto() != null && !user.getPhoto().equals(emptyString)) {
                 dbUser.setPhoto(user.getPhoto());
             }
-            if (user.getDescription() != null && !user.getDescription().equals("")) {
+            if (user.getDescription() != null && !user.getDescription().equals(emptyString)) {
                 dbUser.setDescription(user.getDescription());
             }
             logger.info("Update the user, and save updating in DB");
@@ -92,7 +92,7 @@ public class UserService {
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("Update the user failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class UserService {
             authService.getKeyEmailsValTokens().remove(userEmail);
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
             logger.info("If the user is a guest delete him from DB else update his status to offline");
-            if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains("chatappsystem")) {
+            if (dbUser.getType().equals(UserType.GUEST) && dbUser.getEmail().contains(systemEmail)) {
                 userRepository.delete(dbUser);
                 return dbUser;
             }
@@ -123,7 +123,7 @@ public class UserService {
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("logout the user failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -160,7 +160,7 @@ public class UserService {
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("mute/unmute the user failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -187,15 +187,15 @@ public class UserService {
             if (!authService.getKeyEmailsValTokens().get(dbUser.getEmail()).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            if (status.equals("away")) {
+            if (status.equals(UserStatuses.AWAY.name().toLowerCase())) {
                 dbUser.setUserStatus(UserStatuses.AWAY);
-            } else if (status.equals("online")) {
+            } else if (status.equals(UserStatuses.ONLINE.name().toLowerCase())) {
                 dbUser.setUserStatus(UserStatuses.ONLINE);
             }
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error("Update status for user failed");
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -205,7 +205,7 @@ public class UserService {
      * @return all the users sorted by theirs types [ADMIN(0), REGISTERED(1), GUEST(2)] from DB
      */
     public List<User> getAllUsers() {
-        logger.info("Get all users in users table");
+        logger.info("Get all users in users table sorted by admin,registered,guest and filtered the offline users");
         return userRepository.findAll().stream().filter(currUser -> currUser.getUserStatus() != UserStatuses.OFFLINE).sorted(Comparator.comparing(User::getType)).collect(Collectors.toList());
     }
 }

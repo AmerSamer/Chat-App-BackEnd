@@ -31,36 +31,38 @@ public class AuthController {
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> registerUser(@RequestBody User user) {
+        CustomResponse<UserDTO> response = new CustomResponse<>(null, "");
         try {
-            if(user.getEmail().contains("@chatappsystem.com")){
+            if(user.getEmail().contains(systemEmail)){
                 logger.error(invalidRegistrationEmailMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidRegistrationEmailMessage);
+                response.setMessage(invalidRegistrationEmailMessage);
                 return ResponseEntity.badRequest().body(response);
             }
             if (!isValidEmail(user.getEmail())) {
                 logger.error(invalidEmailMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
+                response.setMessage(invalidEmailMessage);
                 return ResponseEntity.badRequest().body(response);
             }
             if (!isValidName(user.getName())) {
                 logger.error(invalidNameMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
+                response.setMessage(invalidNameMessage);
                 return ResponseEntity.badRequest().body(response);
             }
             if (!isValidPassword(user.getPassword())) {
                 logger.error(invalidPasswordMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
+                response.setMessage(invalidPasswordMessage);
                 return ResponseEntity.badRequest().body(response);
             }
             logger.info("Try to register " + user.getEmail() + " to the system");
             User createUser = authService.addUser(user);
             UserDTO userDTO = UserDTO.userToUserDTO(createUser);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, registrationSuccessfulMessage);
+            response.setMessage(registrationSuccessfulMessage);
+            response.setResponse(userDTO);
             logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(emailExistsInSystemMessage(user.getEmail()));
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, emailExistsInSystemMessage(user.getEmail()));
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -92,8 +94,8 @@ public class AuthController {
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(loginFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, loginFailedMessage);
+            logger.error(e.getMessage());
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -120,8 +122,8 @@ public class AuthController {
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(loginAsGuestFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);
+            logger.error(e.getMessage());
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -142,8 +144,8 @@ public class AuthController {
             logger.info(activationEmailSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(activationEmailFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, activationEmailFailedMessage);
+            logger.error(e.getMessage());
+            CustomResponse<UserDTO> response = new CustomResponse<>(null, e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
