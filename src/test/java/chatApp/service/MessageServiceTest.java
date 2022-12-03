@@ -38,7 +38,7 @@ class MessageServiceTest {
     User userReceiver;
 
     @BeforeEach
-    void newMessage() throws SQLDataException {
+    void newMessage() {
         this.userSender = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
         authService.addUser(this.userSender);
         this.userSender.setPassword("Aa12345");
