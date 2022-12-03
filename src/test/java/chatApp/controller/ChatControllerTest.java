@@ -22,9 +22,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.SQLDataException;
 import java.util.List;
 
-import static chatApp.utilities.messages.ExceptionMessages.userIsMutedMessage;
-import static chatApp.utilities.messages.SuccessMessages.listOfAllUsersSuccessfulMessage;
+import static chatApp.utilities.messages.ExceptionMessages.*;
+import static chatApp.utilities.messages.SuccessMessages.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static chatApp.utilities.Utility.*;
+
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -48,16 +50,16 @@ class ChatControllerTest {
     User userReceiver;
 
     @BeforeEach
-    void newMessage() throws SQLDataException {
+    void newMessage() {
         this.userSender = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
         authService.addUser(this.userSender);
         this.userSender.setPassword("Aa12345");
         authService.login(this.userSender);
         this.userReceiver = User.createUser("elisamer", "seselevtion@gmail.com", "Aa12345");
         authService.addUser(this.userReceiver);
-        this.mainMessage = new Message("samerelishai@gmail.com", "hello main content", "main", "0");
+        this.mainMessage = new Message("samerelishai@gmail.com", "hello main content", mainRoomReceiverName, mainRoomId);
         messageService.addMessageToMainChat(mainMessage);
-        this.privateMessage = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", userSender.getId() + "E" + userReceiver.getId());
+        this.privateMessage = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", userSender.getId() + separator + userReceiver.getId());
         messageService.addMessageToPrivateChat(privateMessage);
     }
 

@@ -74,8 +74,8 @@ public class UserController {
      * @return user with offline status
      */
     @RequestMapping(value = "logout", method = RequestMethod.POST)
-    public ResponseEntity<CustomResponse<String>> logoutUser(@RequestParam String token) {
-        CustomResponse<String> response = new CustomResponse<>(null, emptyString);
+    public ResponseEntity<CustomResponse<UserDTO>> logoutUser(@RequestParam String token) {
+        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeLogout);
             String userEmail = authService.getKeyTokensValEmails().get(token);
@@ -83,11 +83,12 @@ public class UserController {
                 logger.error(tokenSessionExpired);
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            User logoutUser = userService.logoutUser(userEmail);
-            if (logoutUser != null) {
+            User user = User.dbUser(userService.logoutUser(userEmail));
+            if (user.getEmail() != null) {
                 authService.getKeyTokensValEmails().remove(token);
                 authService.getKeyEmailsValTokens().remove(userEmail);
             }
+            response.setResponse(UserDTO.userToUserDTO(user));
             response.setMessage(logoutSuccessfulMessage);
             logger.info(logoutSuccessfulMessage);
             return ResponseEntity.ok().body(response);

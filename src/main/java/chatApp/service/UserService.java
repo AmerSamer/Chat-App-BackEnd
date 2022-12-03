@@ -122,23 +122,22 @@ public class UserService {
     /**
      * Update Mute/unmute Users : check token session not expired & the user exist in DB, update user mute/unmute status in DB
      *
-     * @param userEmail - the userEmail from the token hash
-     * @param id    - the id of the user
+     * @param adminEmail - the userEmail from the token hash
+     * @param userToMuteId    - the id of the user
      * @return user with mute/unmute status
      * @throws IllegalArgumentException when the update mute/unmute user failed
      */
-    public User updateMuteUnmuteUser(Long id, String userEmail) {
+    public User updateMuteUnmuteUser(Long userToMuteId, String adminEmail) {
         try {
             logger.info(beforeMuteUnmute);
-            if (userRepository.findByEmail(userEmail).getType() != UserType.ADMIN) {
+            if (userRepository.findByEmail(adminEmail).getType() != UserType.ADMIN) {
                 logger.error(notAdminUser);
                 throw new IllegalArgumentException(notAdminUser);
             }
-            User user = userRepository.getById(id);
-            if (user == null) {
-                throw new IllegalArgumentException(emailNotExistsMessage(userEmail));
+            if (!userRepository.findById(userToMuteId).isPresent()) {
+                throw new IllegalArgumentException(emailNotExistsMessage(adminEmail));
             }
-            User dbUser = User.dbUser(user);
+            User dbUser = User.dbUser(userRepository.findById(userToMuteId).get());
             dbUser.setMute(!dbUser.isMute());
             logger.info(toggledMute);
             return userRepository.save(dbUser);
