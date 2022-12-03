@@ -12,11 +12,6 @@ public class CustomResponse<T> {
         this.message = message;
     }
 
-    public CustomResponse(T response, String message, String headers) {
-        this.response = response;
-        this.message = message;
-        this.headers = headers;
-    }
 
     public T getResponse() {
         return response;

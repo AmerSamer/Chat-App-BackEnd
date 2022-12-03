@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static chatApp.utilities.ExceptionMessages.*;
-import static chatApp.utilities.SuccessMessages.*;
+import java.util.Optional;
+
+import static chatApp.utilities.messages.LoggerMessages.*;
+import static chatApp.utilities.messages.SuccessMessages.*;
 import static chatApp.utilities.Utility.*;
 
 @RestController
@@ -19,7 +21,7 @@ import static chatApp.utilities.Utility.*;
 @RequestMapping("/sign")
 public class AuthController {
 
-    private static Logger logger = LogManager.getLogger(AuthController.class.getName());
+    private static final Logger logger = LogManager.getLogger(AuthController.class.getName());
     @Autowired
     private AuthService authService;
 
@@ -31,36 +33,24 @@ public class AuthController {
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> registerUser(@RequestBody User user) {
+        Optional<CustomResponse<UserDTO>> isValid;
+        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            if(user.getEmail().contains("@chatappsystem.com")){
-                logger.error(invalidRegistrationEmailMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidRegistrationEmailMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (!isValidEmail(user.getEmail())) {
-                logger.error(invalidEmailMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (!isValidName(user.getName())) {
-                logger.error(invalidNameMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (!isValidPassword(user.getPassword())) {
-                logger.error(invalidPasswordMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            logger.info("Try to register " + user.getEmail() + " to the system");
-            User createUser = authService.addUser(user);
-            UserDTO userDTO = UserDTO.userToUserDTO(createUser);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, registrationSuccessfulMessage);
+            isValid = checkValidEmail(user.getEmail(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+            isValid = checkValidName(user.getName(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+            isValid = checkValidPassword(user.getPassword(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+
+            logger.info(beforeAnAction(user.getEmail(), "register"));
+            response.setResponse(UserDTO.userToUserDTO(authService.addUser(user)));
+            response.setMessage(registrationSuccessfulMessage);
             logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(emailExistsInSystemMessage(user.getEmail()));
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, emailExistsInSystemMessage(user.getEmail()));
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -73,27 +63,23 @@ public class AuthController {
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
+        Optional<CustomResponse<UserDTO>> isValid;
+        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            if (!isValidEmail(user.getEmail())) {
-                logger.error(invalidEmailMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidEmailMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            if (!isValidPassword(user.getPassword())) {
-                logger.error(invalidPasswordMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidPasswordMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            logger.info("Try to login : " + user.getEmail() + " to the system");
-            User logUser = authService.login(user);
-            String header = authService.getKeyEmailsValTokens().get(user.getEmail());
-            UserDTO userDTO = UserDTO.userToUserDTO(logUser);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
+            isValid = checkValidEmail(user.getEmail(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+            isValid = checkValidPassword(user.getPassword(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+
+            logger.info(beforeAnAction(user.getEmail(), "login"));
+            response.setResponse(UserDTO.userToUserDTO(authService.login(user)));
+            response.setMessage(loginSuccessfulMessage);
+            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(loginFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, loginFailedMessage);
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -106,22 +92,21 @@ public class AuthController {
      */
     @RequestMapping(value = "login/guest", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> loginAsGuest(@RequestBody User user) {
+        Optional<CustomResponse<UserDTO>> isValid;
+        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            if (!isValidName(user.getName())) {
-                logger.error(invalidNameMessage);
-                CustomResponse<UserDTO> response = new CustomResponse<>(null, invalidNameMessage);
-                return ResponseEntity.badRequest().body(response);
-            }
-            logger.info("Try to login as guest to the system");
-            User userGuest = authService.addGuest(user);
-            String header = authService.getKeyEmailsValTokens().get(user.getEmail());
-            UserDTO userDTO = UserDTO.userGuestToUserDTO(userGuest);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, loginSuccessfulMessage, header);
+            isValid = checkValidName(user.getName(), response);
+            if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
+
+            logger.info(beforeLoginAsGuest);
+            response.setResponse(UserDTO.userGuestToUserDTO(authService.addGuest(user)));
+            response.setMessage(loginSuccessfulMessage);
+            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(loginAsGuestFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, loginAsGuestFailedMessage);
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -134,16 +119,16 @@ public class AuthController {
      */
     @RequestMapping(value = "activate", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> verifyEmail(@RequestBody User user) {
+        CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            logger.info("try to activate email");
-            User userVerify = authService.verifyEmail(user);
-            UserDTO userDTO = UserDTO.userToUserDTO(userVerify);
-            CustomResponse<UserDTO> response = new CustomResponse<>(userDTO, activationEmailSuccessfulMessage);
+            logger.info(beforeActivateEmail);
+            response.setResponse(UserDTO.userToUserDTO(authService.verifyEmail(user)));
+            response.setMessage(activationEmailSuccessfulMessage);
             logger.info(activationEmailSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            logger.error(activationEmailFailedMessage);
-            CustomResponse<UserDTO> response = new CustomResponse<>(null, activationEmailFailedMessage);
+            logger.error(e.getMessage());
+            response.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }

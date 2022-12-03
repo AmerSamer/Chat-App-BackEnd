@@ -22,33 +22,29 @@ public class AuthFilter extends GenericFilterBean {
     AuthService authService;
 
     @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         res.setHeader("Access-Control-Allow-Origin", "http://localhost:9000");
         res.setHeader("Access-Control-Allow-Credentials", "true");
-        res.setHeader("Access-Control-Allow-Methods",
-                "ACL, CANCELUPLOAD, CHECKIN, CHECKOUT, PATCH, COPY, DELETE, GET, HEAD, LOCK, MKCALENDAR, MKCOL, MOVE, OPTIONS, POST, PROPFIND, PROPPATCH, PUT, REPORT, SEARCH, UNCHECKOUT, UNLOCK, UPDATE, VERSION-CONTROL");
+        res.setHeader("Access-Control-Allow-Methods", "ACL, CANCELUPLOAD, CHECKIN, CHECKOUT, PATCH, COPY, DELETE, GET, HEAD, LOCK, MKCALENDAR, MKCOL, MOVE, OPTIONS, POST, PROPFIND, PROPPATCH, PUT, REPORT, SEARCH, UNCHECKOUT, UNLOCK, UPDATE, VERSION-CONTROL");
         res.setHeader("Access-Control-Max-Age", "86400");
-        res.setHeader("Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, Key, Authorization");
+        res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Key, Authorization");
         String auth = req.getParameter("token");
         String path = req.getRequestURI();
         if (permissionPathsForAll.stream().noneMatch(path::contains)) {
             if (!authService.getKeyTokensValEmails().containsKey(auth)) {
-                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
-                throw new IllegalAccessError("Not Authorized");
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
+                throw new Error("Not Authorized");
             } else {
                 String userEmail = authService.getKeyTokensValEmails().get(auth);
                 if (!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))) {
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authorized");
-                    throw new IllegalAccessError("Not Authorized");
+                    res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
+                    throw new Error("Not Authorized");
                 }
             }
         }
         chain.doFilter(request, response);
+
     }
 }

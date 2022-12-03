@@ -1,5 +1,7 @@
 package chatApp.utilities;
 
+import chatApp.customEntities.CustomResponse;
+import chatApp.customEntities.UserDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -8,17 +10,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import static chatApp.utilities.messages.ExceptionMessages.*;
+import static chatApp.utilities.messages.ExceptionMessages.invalidPasswordMessage;
+
 public class Utility {
-
+    private static final Logger logger = LogManager.getLogger(Utility.class.getName());
+    public static String separator = "E";
+    public static String userIdNameInTable = "id";
+    public static String systemEmail = "@chatappsystem.com";
+    public static String emptyString = "";
+    public static String zoneOffsetId = "Z";
+    public static String mainRoomReceiverName = "main";
+    public static String mainRoomId = "0";
     public static String guestPrefix = "Guest-";
-    public static String systemEmail = "seselevtion@gmail.com";
+    public static String innerSystemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
-    private static Logger logger = LogManager.getLogger(Utility.class.getName());
-
-
+    public static String firstPrivateMessage = "New Private Chat Room";
     public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "ws", "/mainchatroom", "/downloadmainchatroom", "/error"));
     public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status", "chat/getusers", "chat/mainchatroom", "chat/downloadmainchatroom", "/topic", "/app", "/plain"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
@@ -40,7 +51,7 @@ public class Utility {
     /**
      * Is valid name : check if only letters in name
      *
-     * @param name - the password
+     * @param name - the name
      * @return true if valid name else false
      */
     public static boolean isValidName(String name) {
@@ -54,7 +65,7 @@ public class Utility {
     /**
      * Is valid email: check if syntax of email is valid
      *
-     * @param emailAddress - the password
+     * @param emailAddress - the user email
      * @return true if valid emailAddress else false
      */
     public static boolean isValidEmail(String emailAddress) {
@@ -92,7 +103,7 @@ public class Utility {
 
     /**
      * Calculate Age : calculate the age of the user
-     *
+     * @param dateOfBirth
      * @return the age of the user
      */
     public static int calcAge(LocalDate dateOfBirth) {
@@ -106,6 +117,57 @@ public class Utility {
      */
     public static LocalDateTime getLocalDateTimeNow() {
         return LocalDateTime.now();
+    }
+
+    /**
+     * Check if email is valid : validates email and check if email dosen't contain "@chatappsystem"
+     * @param email - user email, response - CustomResponse<UserDTO> to edit.
+     * @param response - CustomResponse<UserDTO> to edit from controller.
+     * @return the response edited and wrapped in optional, send it back to controller.
+     */
+    public static Optional<CustomResponse<UserDTO>> checkValidEmail(String email, CustomResponse<UserDTO> response){
+        if (!email.equals(emptyString) && !isValidEmail(email)){
+            logger.error(invalidEmailMessage);
+            response.setMessage(invalidEmailMessage);
+            return Optional.of(response);
+        }
+
+        if(email.contains(systemEmail)){
+            logger.error(invalidRegistrationEmailMessage);
+            response.setMessage(invalidRegistrationEmailMessage);
+            return Optional.of(response);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Check if name is valid : validates name
+     * @param name - user name
+     * @param response - CustomResponse<UserDTO> to edit from controller.
+     * @return the response edited and wrapped in optional, send it back to controller.
+     */
+    public static Optional<CustomResponse<UserDTO>> checkValidName(String name, CustomResponse<UserDTO> response){
+        if (!name.equals(emptyString) && !isValidName(name)) {
+            logger.error(invalidNameMessage);
+            response.setMessage(invalidNameMessage);
+            return Optional.of(response);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Check if email is valid : validates email
+     * @param password - user password
+     * @param response - CustomResponse<UserDTO> to edit from controller.
+     * @return the response edited and wrapped in optional, send it back to controller.
+     */
+    public static Optional<CustomResponse<UserDTO>> checkValidPassword(String password, CustomResponse<UserDTO> response){
+        if (!password.equals(emptyString) && !isValidPassword(password)) {
+            logger.error(invalidPasswordMessage);
+            response.setMessage(invalidPasswordMessage);
+            return Optional.of(response);
+        }
+        return Optional.empty();
     }
 
 }

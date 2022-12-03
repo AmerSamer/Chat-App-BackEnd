@@ -64,7 +64,7 @@ public class UserDTO {
     /**
      *User DTO: get user guest and convert him to userDTO
      * @param user - the guest
-     * @return the userDTO
+     * @return the guest as userDTO
      */
     public static UserDTO userGuestToUserDTO(User user) {
         UserDTO userDTO = new UserDTO();

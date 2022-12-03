@@ -17,8 +17,9 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.messages.ExceptionMessages.*;
 import static chatApp.utilities.Utility.*;
+import static chatApp.utilities.messages.LoggerMessages.*;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @Service
 public class AuthService {
 
-    private static Logger logger = LogManager.getLogger(AuthService.class.getName());
+    private static final Logger logger = LogManager.getLogger(AuthService.class.getName());
     @Autowired
     private UserRepository userRepository;
 
@@ -59,29 +60,29 @@ public class AuthService {
      */
     public User login(User user) {
         try {
-            logger.debug("Check if the user is exist in DB");
+            logger.debug(checkIfExistsAlready);
             if (userRepository.findByEmail(user.getEmail()) == null) {
-                logger.error(emailNotExistsMessage(user.getEmail()));
-                throw new IllegalArgumentException(emailNotExistsMessage(user.getEmail()));
+                logger.error(loginFailedMessage);
+                throw new IllegalArgumentException(loginFailedMessage);
             }
             User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
 
-            logger.debug("Check if password of " + user.getEmail() + " are correct");
+            logger.debug(checkPassword);
             BCryptPasswordEncoder bEncoder = new BCryptPasswordEncoder();
             if (!bEncoder.matches(user.getPassword(), dbUser.getPassword())) {
                 logger.error(loginFailedMessage);
                 throw new IllegalArgumentException(loginFailedMessage);
             }
-            logger.info("Create token for " + user.getEmail());
+            logger.info(createToken);
             String sessionToken = randomString();
             keyTokensValEmails.put(sessionToken, dbUser.getEmail());
             keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
-            logger.info("User is logged into the system");
+            logger.info(userLogged);
             dbUser.setUserStatus(UserStatuses.ONLINE);
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
-            logger.error("login user to db failed");
-            throw new IllegalArgumentException(e);
+            logger.error(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -94,13 +95,13 @@ public class AuthService {
      */
     public User addGuest(User user) {
         try {
-            logger.debug("Check if the guest name is exist in DB");
+            logger.debug(checkIfExistsAlready);
             if (!userRepository.findByName(guestPrefix + user.getName()).isEmpty()) {
                 logger.error(guestNameExistsMessage(user.getName()));
                 throw new IllegalArgumentException(guestNameExistsMessage(user.getName()));
             }
-            logger.info("The guest receives token,email,password");
-            user.setEmail(user.getName() + "@chatappsystem.com");
+            logger.info(guestValid);
+            user.setEmail(user.getName() + systemEmail);
             user.setName(guestPrefix + user.getName());
             user.setType(UserType.GUEST);
             user.setPassword(Utility.randomString());
@@ -109,11 +110,11 @@ public class AuthService {
             String sessionToken = randomString();
             keyTokensValEmails.put(sessionToken, user.getEmail());
             keyEmailsValTokens.put(user.getEmail(), sessionToken);
-            logger.info("Save the guest in DB");
+            logger.info(saveInDB);
             return userRepository.save(user);
         } catch (RuntimeException e) {
-            logger.error("Add new guest to db failed");
-            throw new IllegalArgumentException(e);
+            logger.error(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -126,22 +127,22 @@ public class AuthService {
      */
     public User addUser(User user) {
         try {
-            logger.debug("Check if the user is exist in DB");
+            logger.debug(checkIfExistsAlready);
             if (userRepository.findByEmail(user.getEmail()) != null) {
                 logger.error(emailExistsInSystemMessage(user.getEmail()));
                 throw new IllegalArgumentException(emailExistsInSystemMessage(user.getEmail()));
             }
-            logger.info("Encrypts password user and sends him email to complete the registration");
+            logger.info(userValid);
             user.setPassword(encrypt((user.getPassword())));
             user.setType(UserType.GUEST);
             user.setUserStatus(UserStatuses.OFFLINE);
             user.setNickname(user.getEmail());
             sendMessage(user);
-            logger.info("User is Guest in the system, The system is waiting for activate email to complete the registration");
+            logger.info(saveInDbWaitToActivate);
             return userRepository.save(user);
         } catch (RuntimeException e) {
-            logger.error("Add new user to db failed");
-            throw new IllegalArgumentException(e);
+            logger.error(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -156,7 +157,7 @@ public class AuthService {
      */
     public User verifyEmail(User user) {
         try {
-            logger.debug("Check if the user is exist in DB");
+            logger.debug(checkIfExistsAlready);
             if (userRepository.findByEmail(user.getEmail()) == null) {
                 logger.error(emailNotExistsMessage(user.getEmail()));
                 throw new IllegalArgumentException(emailNotExistsMessage(user.getEmail()));
@@ -164,7 +165,7 @@ public class AuthService {
 
             User dbUser = User.dbUser(userRepository.findByEmail(user.getEmail()));
 
-            logger.debug("Check if the user already activated");
+            logger.debug(checkIfActivatedEmail);
             if (dbUser.isEnabled()) {
                 logger.error(emailAlreadyActivatedMessage(user.getEmail()));
                 throw new IllegalArgumentException(emailAlreadyActivatedMessage(user.getEmail()));
@@ -180,11 +181,11 @@ public class AuthService {
             dbUser.setEnabled(true);
             dbUser.setVerifyCode(null);
             dbUser.setType(UserType.REGISTERED);
-            logger.info("Save the" + user.getEmail() + "in DB as registered user");
+            logger.info(saveInDB);
             return userRepository.save(dbUser);
         } catch (RuntimeException e) {
-            logger.error("Verify email failed");
-            throw new IllegalArgumentException(e);
+            logger.error(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
@@ -197,7 +198,7 @@ public class AuthService {
         String verifyCode = randomString();
         user.setVerifyCode(verifyCode);
         user.setIssueDate(LocalDate.now());
-        preConfiguredMessage.setFrom(systemEmail);
+        preConfiguredMessage.setFrom(innerSystemEmail);
         preConfiguredMessage.setTo(user.getEmail());
         preConfiguredMessage.setSubject(emailContent);
         preConfiguredMessage.setText(verifyCode);

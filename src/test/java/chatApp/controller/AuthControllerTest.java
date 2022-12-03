@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 
-import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.messages.ExceptionMessages.*;
 import static chatApp.utilities.Utility.*;
 import static org.junit.jupiter.api.Assertions.*;
 
