@@ -1,26 +1,13 @@
 package chatApp.service;
 
-import chatApp.customEntities.CustomResponse;
-import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
-import chatApp.entities.UserStatuses;
-import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static chatApp.utilities.ExceptionMessages.updateUserFailedMessage;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

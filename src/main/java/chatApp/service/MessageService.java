@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static chatApp.utilities.ExceptionMessages.*;
+import static chatApp.utilities.messages.ExceptionMessages.*;
 import static chatApp.utilities.Utility.*;
+import static chatApp.utilities.messages.LoggerMessages.*;
+import static chatApp.utilities.messages.LoggerMessages.checkPrivateRoomMessage;
 
 @CrossOrigin
 @Service
@@ -41,19 +42,19 @@ public class MessageService {
      */
     public List<Message> getPrivateRoomMessages(String userEmail, Long receiverId) {
         try {
-            logger.info("Try to get private room messages between 2 users");
+            logger.info(getPrivateRoom);
             User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
             User receiverUser = User.dbUser(userRepository.getById(receiverId));
             Long senderId = senderUser.getId();
-            logger.info("Try to get private room messages between " + senderUser.getNickname() + " and " + receiverUser.getNickname());
-            logger.info("check if the room " + senderId + "E" + receiverId + " exists");
-            List<Message> messageList = messageRepository.findByRoomId(senderId + "E" + receiverId);
+            logger.info(getPrivateRoom + senderUser.getNickname() + " " + receiverUser.getNickname());
+            logger.info(checkPrivateRoomMessage(senderId, receiverId));
+            List<Message> messageList = messageRepository.findByRoomId(senderId + separator + receiverId);
             if (messageList.isEmpty()) {
-                logger.info("check if the room " + receiverId + "E" + senderId + " exists");
-                messageList = messageRepository.findByRoomId(receiverId + "E" + senderId);
+                logger.info(checkPrivateRoomMessage(receiverId, senderId));
+                messageList = messageRepository.findByRoomId(receiverId + separator + senderId);
                 if (messageList.isEmpty()) {
-                    logger.info("creating new room " + senderId + "E" + receiverId + " exists");
-                    messageList.add(messageRepository.save(new Message(senderUser.getNickname(), "New Private Chat Room", receiverUser.getNickname(), senderId + "E" + receiverId)));
+                    logger.info(createPrivateRoomMessage(senderId, receiverId));
+                    messageList.add(messageRepository.save(new Message(senderUser.getNickname(), firstPrivateMessage, receiverUser.getNickname(), senderId + separator + receiverId)));
                 }
             }
             return messageList;
@@ -72,9 +73,9 @@ public class MessageService {
      */
     public Message addMessageToPrivateChat(Message message) {
         try {
-            logger.info("Try to add a message to a private chat room id: " + message.getRoomId());
+            logger.info(addMessageToPrivateRoom(message.getRoomId()));
             message.setIssueDate(getLocalDateTimeNow());
-            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of("Z")));
+            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
             return messageRepository.save(message);
         } catch (RuntimeException e) {
             logger.error(FailedToSendPrivateMessage);
@@ -91,7 +92,7 @@ public class MessageService {
      */
     public List<Message> downloadPrivateRoomMessages(String roomId) {
         try {
-            logger.info("Try to download private chat room messages");
+            logger.info(downloadPrivateChat);
             return messageRepository.findByRoomId(roomId);
         } catch (RuntimeException e) {
             logger.error(downloadPrivateRoomFailed);
@@ -108,7 +109,7 @@ public class MessageService {
      */
     public Message addMessageToMainChat(Message message) {
         try {
-            logger.info("Try to add message to main chat room");
+            logger.info(addMessageInMainChat);
             String userNickname = message.getSender();
             User user = User.dbUser(userRepository.findByNickname(userNickname));
             if (user.isMute()) {
@@ -119,7 +120,7 @@ public class MessageService {
             message.setReceiver(mainRoomReceiverName);
             return messageRepository.save(message);
         } catch (RuntimeException e) {
-            logger.error("Add message to main chat failed");
+            logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
         }
     }
@@ -133,8 +134,8 @@ public class MessageService {
      */
     public List<Message> getMainRoomMessages(int size) {
         try {
-            logger.info("Try to get main chat room messages");
-            return messageRepository.findByRoomId(mainRoomId, PageRequest.of(0, size, Sort.Direction.DESC, "id"));
+            logger.info(getMainChatMessages);
+            return messageRepository.findByRoomId(mainRoomId, PageRequest.of(0, size, Sort.Direction.DESC, userIdNameInTable));
         } catch (RuntimeException e) {
             logger.error(mainChatRoomMessagesFailed);
             throw new IllegalArgumentException(mainChatRoomMessagesFailed);

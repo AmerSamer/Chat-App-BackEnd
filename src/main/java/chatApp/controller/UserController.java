@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static chatApp.utilities.LoggerMessages.*;
-import static chatApp.utilities.ExceptionMessages.*;
-import static chatApp.utilities.SuccessMessages.*;
+import static chatApp.utilities.messages.LoggerMessages.*;
+import static chatApp.utilities.messages.ExceptionMessages.*;
+import static chatApp.utilities.messages.SuccessMessages.*;
 import static chatApp.utilities.Utility.*;
 
 @RestController

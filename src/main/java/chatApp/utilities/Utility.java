@@ -14,11 +14,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static chatApp.utilities.ExceptionMessages.*;
-import static chatApp.utilities.ExceptionMessages.invalidPasswordMessage;
+import static chatApp.utilities.messages.ExceptionMessages.*;
+import static chatApp.utilities.messages.ExceptionMessages.invalidPasswordMessage;
 
 public class Utility {
-
+    private static final Logger logger = LogManager.getLogger(Utility.class.getName());
+    public static String separator = "E";
+    public static String userIdNameInTable = "id";
     public static String systemEmail = "@chatappsystem.com";
     public static String emptyString = "";
     public static String zoneOffsetId = "Z";
@@ -27,7 +29,7 @@ public class Utility {
     public static String guestPrefix = "Guest-";
     public static String innerSystemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
-    private static Logger logger = LogManager.getLogger(Utility.class.getName());
+    public static String firstPrivateMessage = "New Private Chat Room";
     public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "ws", "/mainchatroom", "/downloadmainchatroom", "/error"));
     public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status", "chat/getusers", "chat/mainchatroom", "chat/downloadmainchatroom", "/topic", "/app", "/plain"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
