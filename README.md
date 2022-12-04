@@ -1,14 +1,12 @@
 # Chat-App-BackEnd
-1. **Instructions to run the program:** <br />
+**Instructions to run the program:** <br />
+1. ##Get new password for gmail verification: <br />
   https://www.gmass.co/blog/gmail-smtp/ <br />
   Long story short: <br />
   open your gmail -> go to account settings -> security -> two-factor auth with phone -> go to app passwords -> add new app -> you will get a password -> copy it. <br />
 
 
-2. **Add in resource folder under /src/main 2 files:** <br />
-  I.mail.properties <br />
-  II.application.properties <br />
-
+2. ##**Add in resource folder under /src/main 2 files:** <br />
   I. mail.properties: <br />
         spring.mail.host=smtp.gmail.com  <br /> 
         spring.mail.port=587  <br />
@@ -25,6 +23,6 @@
         spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver  <br />
         server.error.include-message=always  <br />
         
-3.**Activate pom.xml** <br /> 
-4.**Run the code and the front-end code:** <br />
+3.##**Activate pom.xml** <br /> 
+4.##**Run the code and the front-end code:** <br />
     [https://github.com/AmerSamer/Chat-App-FrontEnd/blob/main/README.md](https://github.com/AmerSamer/Chat-App-FrontEnd)
