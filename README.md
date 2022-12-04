@@ -25,6 +25,6 @@
         spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver  <br />
         server.error.include-message=always  <br />
         
-3.**Activate pom.xml**
-4.**Run the code and the front-end code:**
+3.**Activate pom.xml** <br /> 
+4.**Run the code and the front-end code:** <br />
     https://github.com/AmerSamer/Chat-App-FrontEnd/blob/main/README.md
