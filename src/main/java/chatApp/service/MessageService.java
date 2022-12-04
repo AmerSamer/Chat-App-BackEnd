@@ -149,6 +149,11 @@ public class MessageService {
      * @return list of messages from that time till now
      */
     public List<Message> getMainRoomMessagesByTime(long time) {
-        return messageRepository.findByRoomIdAndIssueDateEpochBetween(mainRoomId, time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
+        if(time > 0){
+            return messageRepository.findByRoomIdAndIssueDateEpochBetween(mainRoomId, time, getLocalDateTimeNow().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
+        }
+        else{
+            return messageRepository.findByRoomId(mainRoomId);
+        }
     }
 }
