@@ -13,6 +13,7 @@ import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -41,19 +42,22 @@ public class UserService {
      */
     public User updateUser(User user, String userEmail) {
         try {
+            String oldEmail = emptyString;
+            String oldNickname = emptyString;
             logger.debug(checkIfExistsAlready);
             User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
             logger.info(update);
             if (!user.getEmail().equals(emptyString)) {
-                updateUserMessages(dbUser.getEmail(), user.getEmail());
+                oldEmail = dbUser.getEmail();
                 if (dbUser.getNickname().equals(dbUser.getEmail())) {
+                    oldNickname = dbUser.getEmail();
                     dbUser.setNickname(user.getEmail());
                 }
                 dbUser.setEmail(user.getEmail());
                 logger.info(updateEmail);
             }
             if (user.getNickname() != null && !user.getNickname().equals(emptyString)) {
-                updateUserMessages(dbUser.getNickname(), user.getNickname());
+                oldNickname = dbUser.getNickname();
                 dbUser.setNickname(user.getNickname());
                 logger.info(updateNickname);
             }
@@ -67,7 +71,7 @@ public class UserService {
                 logger.info(updatePassword);
             }
             if (user.getDateOfBirth() != null) {
-                if(user.getDateOfBirth().isAfter(LocalDate.now())){
+                if (user.getDateOfBirth().isAfter(LocalDate.now())) {
                     throw new IllegalArgumentException(updateUserFailedMessage + invalidDateMessage);
                 }
                 dbUser.setDateOfBirth(user.getDateOfBirth());
@@ -83,8 +87,18 @@ public class UserService {
                 logger.info(updateDescription);
             }
             logger.info(saveInDB);
-            return userRepository.save(dbUser);
-        } catch (RuntimeException e) {
+            User returnUser =  User.dbUser(userRepository.save(dbUser));
+            if(!oldEmail.equals(emptyString)){
+                updateUserMessages(oldEmail, user.getEmail());
+            }
+            if(!oldNickname.equals(emptyString)){
+                updateUserMessages(oldNickname, user.getNickname());
+            }
+            return returnUser;
+        } catch (NestedRuntimeException e){
+                throw new IllegalArgumentException(emailExistsInSystemMessage(user.getEmail()));
+        }
+        catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
         }
