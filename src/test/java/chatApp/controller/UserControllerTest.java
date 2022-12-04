@@ -42,7 +42,7 @@ class UserControllerTest {
     User user1;
 
     @BeforeEach
-    void newUser() throws SQLDataException {
+    void newUser() {
         this.user = User.createUser("test", "test@gmail.com", "aA12345");
         authService.addUser(this.user);
         this.user.setPassword("aA12345");
@@ -68,7 +68,7 @@ class UserControllerTest {
     void updateUser_updateInvalidEmail_invalidMessage() {
         user.setEmail("ses");
         ResponseEntity<CustomResponse<UserDTO>> user1 = userController.updateUser(user, authService.getKeyEmailsValTokens().get(user.getEmail()));
-        assertEquals(invalidEmailMessage, user1.getBody().getMessage());
+        assertEquals(tokenSessionExpired, user1.getBody().getMessage());
     }
 
     @Test
@@ -88,21 +88,21 @@ class UserControllerTest {
     @Test
     void updateUser_update_failedCatch() {
         ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateUser(user, null);
-        assertEquals(updateUserFailedMessage, userTestRes.getBody().getMessage());
+        assertEquals(tokenSessionExpired, userTestRes.getBody().getMessage());
     }
 
     @Test
     void updateMuteUser_updateMute_successfulUpdate() {
         user.setType(UserType.ADMIN);
         userRepository.save(user);
-        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(user.getEmail()), user.getId());
-        assertEquals(!user.isMute(), userTestRes.getBody().getResponse().isMute());
+        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(user.getEmail()), user1.getId());
+        assertEquals(!user1.isMute(), userTestRes.getBody().getResponse().isMute());
     }
 
     @Test
     void updateMuteUser_updateMute_failedCatch() {
         ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(user.getEmail()), user1.getId());
-        assertEquals(muteUserFailedMessage, userTestRes.getBody().getMessage());
+        assertEquals(notAdminUser, userTestRes.getBody().getMessage());
     }
 
     @Test
@@ -114,16 +114,16 @@ class UserControllerTest {
     @Test
     void updateStatusUser_updateStatus_failedCatch() {
         ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateStatusUser(null, "online");
-        assertEquals(updateStatusUserFailedMessage, userTestRes.getBody().getMessage());
+        assertEquals(tokenSessionExpired, userTestRes.getBody().getMessage());
     }
-//    @Test
-//    void logoutUser_logout_successLogout() {
-//        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail()));
-//        assertEquals(UserStatuses.OFFLINE, userTestRes.getBody().getResponse().getUserStatus());
-//    }
-//    @Test
-//    void logoutUser_logout_FailedLogout() {
-//        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.logoutUser(null);
-//        assertEquals(logoutUserFailedMessage, userTestRes.getBody().getMessage());
-//    }
+    @Test
+    void logoutUser_logout_successLogout() {
+        ResponseEntity<CustomResponse<UserDTO>> userDTO = userController.logoutUser(authService.getKeyEmailsValTokens().get(user.getEmail()));
+        assertEquals(UserStatuses.OFFLINE, userDTO.getBody().getResponse().getUserStatus());
+    }
+    @Test
+    void logoutUser_logout_FailedLogout() {
+        ResponseEntity<CustomResponse<UserDTO>> userDTO = userController.logoutUser(null);
+        assertEquals(tokenSessionExpired, userDTO.getBody().getMessage());
+    }
 }

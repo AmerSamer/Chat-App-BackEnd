@@ -44,7 +44,7 @@ public class MessageService {
         try {
             logger.info(getPrivateRoom);
             User senderUser = User.dbUser(userRepository.findByEmail(userEmail));
-            User receiverUser = User.dbUser(userRepository.getById(receiverId));
+            User receiverUser = User.dbUser(userRepository.findById(receiverId).get());
             Long senderId = senderUser.getId();
             logger.info(getPrivateRoom + senderUser.getNickname() + " " + receiverUser.getNickname());
             logger.info(checkPrivateRoomMessage(senderId, receiverId));
@@ -89,7 +89,7 @@ public class MessageService {
      * @param roomId - the roomId`s data
      * @return list of messages
      * @throws IllegalArgumentException
-     */
+     **/
     public List<Message> downloadPrivateRoomMessages(String roomId) {
         try {
             logger.info(downloadPrivateChat);
