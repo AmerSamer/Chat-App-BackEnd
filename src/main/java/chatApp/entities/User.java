@@ -107,6 +107,7 @@ public class User {
         User user = new User();
         user.setName(name);
         user.setEmail(email);
+        user.setNickname(email);
         user.setPassword(password);
         user.setEnabled(false);
         user.setMute(false);

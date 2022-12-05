@@ -51,16 +51,17 @@ class ChatControllerTest {
 
     @BeforeEach
     void newMessage() {
-        this.userSender = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
-        authService.addUser(this.userSender);
-        this.userSender.setPassword("Aa12345");
+        User userOne = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
+        this.userSender = User.dbUser(authService.addUser(userOne));
+        userSender.setPassword("Aa12345");
         authService.login(this.userSender);
-        this.userReceiver = User.createUser("elisamer", "seselevtion@gmail.com", "Aa12345");
-        authService.addUser(this.userReceiver);
-        this.mainMessage = new Message("samerelishai@gmail.com", "hello main content", mainRoomReceiverName, mainRoomId);
-        messageService.addMessageToMainChat(mainMessage);
-        this.privateMessage = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", userSender.getId() + separator + userReceiver.getId());
-        messageService.addMessageToPrivateChat(privateMessage);
+        User userTwo = User.createUser("elisamer", "seselevtion@gmail.com", "Aa12345");
+        this.userReceiver = User.dbUser(authService.addUser(userTwo));
+        userReceiver.setPassword("Aa12345");
+        Message mainMsg = new Message("samerelishai@gmail.com", "hello main content", mainRoomReceiverName, mainRoomId);
+        this.mainMessage = Message.MainChatMessageFactory(messageService.addMessageToMainChat(mainMsg));
+        Message privateMsg = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", userSender.getId() + separator + userReceiver.getId());
+        this.privateMessage = Message.PrivateChatMessageFactory(messageService.addMessageToPrivateChat(privateMsg));
     }
 
     @AfterEach
@@ -102,7 +103,8 @@ class ChatControllerTest {
     @Test
     void sendMainPlainMessage_userIsMuted_badRequest() {
         userSender.setMute(true);
-        userRepository.save(userSender);
+        userRepository.deleteAll();
+        User.dbUser(userRepository.save(userSender));
         ResponseEntity<CustomResponse<Message>> responseMessage = chatController.sendMainPlainMessage(mainMessage);
         assertEquals(userIsMutedMessage , responseMessage.getBody().getMessage());
     }

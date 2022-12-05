@@ -39,16 +39,16 @@ class MessageServiceTest {
 
     @BeforeEach
     void newMessage() {
-        this.userSender = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
-        authService.addUser(this.userSender);
+        User userOne = User.createUser("shai", "samerelishai@gmail.com", "Aa12345");
+        this.userSender = User.dbUser(authService.addUser(userOne));
         this.userSender.setPassword("Aa12345");
         authService.login(this.userSender);
-        this.userReceiver = User.createUser("elisamer", "seselevtion@gmail.com", "Aa12345");
-        authService.addUser(this.userReceiver);
-        this.mainMessage = new Message("samerelishai@gmail.com", "hello main content", "main", "0");
-        messageService.addMessageToMainChat(mainMessage);
-        this.privateMessage = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", userSender.getId() + "E" + userReceiver.getId());
-        messageService.addMessageToPrivateChat(privateMessage);
+        User userTwo = User.createUser("elisamer", "seselevtion@gmail.com", "Aa12345");
+        this.userReceiver  = User.dbUser(authService.addUser(userTwo));
+        Message mainMsg = new Message("samerelishai@gmail.com", "hello main content", "main", "0");
+        this.mainMessage = Message.MainChatMessageFactory(messageService.addMessageToMainChat(mainMsg));
+        Message privateMsg = new Message("samerelishai@gmail.com", "hello elisamer content", "seselevtion@gmail.com", userSender.getId() + "E" + userReceiver.getId());
+        this.privateMessage = Message.PrivateChatMessageFactory(messageService.addMessageToPrivateChat(privateMsg));
     }
 
 
@@ -60,7 +60,7 @@ class MessageServiceTest {
 
     @Test
     void getPrivateRoomMessages_checkRoomIdMessagesAreFromTheSameRoom_true() {
-        List<Message> messages = messageService.getPrivateRoomMessages(userSender.getEmail(), userReceiver.getId());
+        List<Message> messages = messageService.getPrivateRoomMessages(userSender.getEmail(), userRepository.findByEmail(userReceiver.getEmail()).getId());
         assertTrue(messages.stream().allMatch(message -> Objects.equals(message.getRoomId(), privateMessage.getRoomId())));
     }
 
@@ -72,8 +72,8 @@ class MessageServiceTest {
 
     @Test
     void getPrivateRoomMessages_roomIdExistsInTheOppositeWay_NotEquals() {
-        List<Message> messages = messageService.getPrivateRoomMessages(userReceiver.getEmail(), userSender.getId());
-        assertNotEquals(messages, messageRepository.findByRoomId(userReceiver.getId() + "E" + userSender.getId()));
+        List<Message> messages = messageService.getPrivateRoomMessages(userReceiver.getEmail(), userRepository.findByEmail(userReceiver.getEmail()).getId());
+        assertNotEquals(messages, messageRepository.findByRoomId(userReceiver.getId() + "E" + userRepository.findByEmail(userReceiver.getEmail()).getId()));
     }
 
     @Test

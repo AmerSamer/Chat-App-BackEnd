@@ -43,18 +43,17 @@ class UserControllerTest {
 
     @BeforeEach
     void newUser() {
-        this.user = User.createUser("test", "test@gmail.com", "aA12345");
-        authService.addUser(this.user);
+        User userOne = User.createUser("test", "test@gmail.com", "aA12345");
+        this.user = User.dbUser(authService.addUser(userOne));
         this.user.setPassword("aA12345");
         authService.login(this.user);
-        this.user1 = User.createUser("testt", "testt@gmail.com", "aA12345");
-        authService.addUser(this.user1);
+        User userTwo = User.createUser("testt", "testt@gmail.com", "aA12345");
+        this.user1  = User.dbUser(authService.addUser(userTwo));
     }
 
     @AfterEach
     void deleteUser() {
-        userRepository.delete(user);
-        userRepository.delete(user1);
+        userRepository.deleteAll();
     }
 
     @Test
@@ -94,9 +93,11 @@ class UserControllerTest {
     @Test
     void updateMuteUser_updateMute_successfulUpdate() {
         user.setType(UserType.ADMIN);
-        userRepository.save(user);
-        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(user.getEmail()), user1.getId());
-        assertEquals(!user1.isMute(), userTestRes.getBody().getResponse().isMute());
+        userRepository.deleteAll();
+        User regularUser = authService.addUser(this.user1);
+        User adminUser = User.dbUser(userRepository.save(user));
+        ResponseEntity<CustomResponse<UserDTO>> userTestRes = userController.updateMuteUser(authService.getKeyEmailsValTokens().get(adminUser.getEmail()), regularUser.getId());
+        assertEquals(!regularUser.isMute(), userTestRes.getBody().getResponse().isMute());
     }
 
     @Test

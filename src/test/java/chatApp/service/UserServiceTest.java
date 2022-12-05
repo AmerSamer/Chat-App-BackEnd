@@ -34,19 +34,18 @@ class UserServiceTest {
     User user2;
     @BeforeEach
     void newUser() {
-        this.user = User.createUser("a", "a11222222@gmail.com", "aA12345");
-        authService.addUser(user);
+        User userOne = User.createUser("a", "a11222222@gmail.com", "aA12345");
+        this.user = User.dbUser(authService.addUser(userOne));
         user.setPassword("aA12345");
-        authService.login(user);
-        this.user2 = User.createUser("a1", "aa11222222@gmail.com", "aA12345");
-        authService.addUser(user2);
+        authService.login(this.user);
+        User userTwo = User.createUser("a1", "aa11222222@gmail.com", "aA12345");
+        this.user2  = User.dbUser(authService.addUser(userTwo));
         user2.setPassword("aA12345");
     }
 
     @AfterEach
-    void deleteUser() {
-        userRepository.delete(user);
-        userRepository.delete(user2);
+    void deleteUsers() {
+        userRepository.deleteAll();
     }
 
     @Test
