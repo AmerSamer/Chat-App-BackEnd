@@ -54,7 +54,7 @@ public class MessageService {
                 messageList = messageRepository.findByRoomId(receiverId + separator + senderId);
                 if (messageList.isEmpty()) {
                     logger.info(createPrivateRoomMessage(senderId, receiverId));
-                    messageList.add(messageRepository.save(new Message(senderUser.getNickname(), firstPrivateMessage, receiverUser.getNickname(), senderId + separator + receiverId)));
+                    messageList.add(messageRepository.save(Message.createFirstPrivateRoomMessageFactory(senderUser.getNickname(), receiverUser.getNickname(), senderId , receiverId)));
                 }
             }
             return messageList;
@@ -74,9 +74,8 @@ public class MessageService {
     public Message addMessageToPrivateChat(Message message) {
         try {
             logger.info(addMessageToPrivateRoom(message.getRoomId()));
-            message.setIssueDate(getLocalDateTimeNow());
-            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
-            return messageRepository.save(message);
+            Message messageFactory = Message.PrivateChatMessageFactory(message);
+            return messageRepository.save(messageFactory);
         } catch (RuntimeException e) {
             logger.error(FailedToSendPrivateMessage);
             throw new IllegalArgumentException(FailedToSendPrivateMessage);
@@ -115,10 +114,8 @@ public class MessageService {
             if (user.isMute()) {
                 throw new IllegalArgumentException(userIsMutedMessage);
             }
-            message.setIssueDate(getLocalDateTimeNow());
-            message.setIssueDateEpoch(message.getIssueDate().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
-            message.setReceiver(mainRoomReceiverName);
-            return messageRepository.save(message);
+            Message messageFactory = Message.MainChatMessageFactory(message);
+            return messageRepository.save(messageFactory);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());

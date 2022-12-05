@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Objects;
 
-import static chatApp.utilities.Utility.getLocalDateTimeNow;
-import static chatApp.utilities.Utility.zoneOffsetId;
+import static chatApp.utilities.Utility.*;
+import static chatApp.utilities.messages.LoggerMessages.createPrivateRoomMessage;
 
 @Entity
 @Table(name = "message")
@@ -41,7 +41,36 @@ public class Message {
         this.issueDate = getLocalDateTimeNow();
         this.issueDateEpoch = this.issueDate.toEpochSecond(ZoneOffset.of(zoneOffsetId));
     }
-
+    public static Message PrivateChatMessageFactory(Message message) {
+        Message m = new Message();
+        m.setSender(message.getSender());
+        m.setContent(message.getContent());
+        m.setRoomId(message.getRoomId());
+        m.setReceiver(message.getReceiver());
+        m.setIssueDate(getLocalDateTimeNow());
+        m.setIssueDateEpoch(m.getIssueDate().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
+       return m;
+    }
+    public static Message MainChatMessageFactory(Message message) {
+        Message m = new Message();
+        m.setSender(message.getSender());
+        m.setContent(message.getContent());
+        m.setRoomId(message.getRoomId());
+        m.setReceiver(mainRoomReceiverName);
+        m.setIssueDate(getLocalDateTimeNow());
+        m.setIssueDateEpoch(m.getIssueDate().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
+        return m;
+    }
+    public static Message createFirstPrivateRoomMessageFactory(String senderUser, String receiverUser, Long senderId ,Long receiverId) {
+        Message m = new Message();
+        m.setSender(senderUser);
+        m.setContent(firstPrivateMessage);
+        m.setRoomId(senderId + separator + receiverId);
+        m.setReceiver(receiverUser);
+        m.setIssueDate(getLocalDateTimeNow());
+        m.setIssueDateEpoch(m.getIssueDate().toEpochSecond(ZoneOffset.of(zoneOffsetId)));
+        return m;
+    }
     public String getRoomId() {
         return roomId;
     }
