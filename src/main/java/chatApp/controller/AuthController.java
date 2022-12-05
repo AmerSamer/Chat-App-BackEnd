@@ -33,10 +33,9 @@ public class AuthController {
      */
     @RequestMapping(value = "register", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> registerUser(@RequestBody User user) {
-        Optional<CustomResponse<UserDTO>> isValid;
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            isValid = checkValidEmail(user.getEmail(), response);
+            Optional<CustomResponse<UserDTO>> isValid = checkValidEmail(user.getEmail(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
             isValid = checkValidName(user.getName(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
@@ -46,6 +45,8 @@ public class AuthController {
             logger.info(beforeAnAction(user.getEmail(), "register"));
             response.setResponse(UserDTO.userToUserDTO(authService.addUser(user)));
             response.setMessage(registrationSuccessfulMessage);
+            //User user = User.staticFactory(user);
+            //send message
             logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
@@ -63,10 +64,9 @@ public class AuthController {
      */
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> login(@RequestBody User user) {
-        Optional<CustomResponse<UserDTO>> isValid;
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            isValid = checkValidEmail(user.getEmail(), response);
+            Optional<CustomResponse<UserDTO>> isValid = checkValidEmail(user.getEmail(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
             isValid = checkValidPassword(user.getPassword(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
@@ -92,10 +92,9 @@ public class AuthController {
      */
     @RequestMapping(value = "login/guest", method = RequestMethod.POST)
     public ResponseEntity<CustomResponse<UserDTO>> loginAsGuest(@RequestBody User user) {
-        Optional<CustomResponse<UserDTO>> isValid;
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
-            isValid = checkValidName(user.getName(), response);
+            Optional<CustomResponse<UserDTO>> isValid = checkValidName(user.getName(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
             logger.info(beforeLoginAsGuest);
