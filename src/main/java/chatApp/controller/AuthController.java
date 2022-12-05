@@ -4,6 +4,7 @@ import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import chatApp.service.AuthService;
+import chatApp.utilities.EmailUtilityFacade;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +44,10 @@ public class AuthController {
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
             logger.info(beforeAnAction(user.getEmail(), "register"));
-            response.setResponse(UserDTO.userToUserDTO(authService.addUser(user)));
+            User registerUser = authService.addUser(user);
+            response.setResponse(UserDTO.userToUserDTO(registerUser));
             response.setMessage(registrationSuccessfulMessage);
-            //User user = User.staticFactory(user);
-            //send message
+            EmailUtilityFacade.sendMessage(registerUser.getEmail(), registerUser.getVerifyCode());
             logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {

@@ -123,7 +123,6 @@ public class AuthService {
             }
             logger.info(userValid);
             User registeredUser = User.registeredUser(user);
-            EmailUtilityFacade.sendMessage(user.getEmail(), user.getVerifyCode());
             logger.info(saveInDbWaitToActivate);
             return userRepository.save(registeredUser);
         } catch (RuntimeException e) {
@@ -156,8 +155,8 @@ public class AuthService {
                 logger.error(emailAlreadyActivatedMessage(user.getEmail()));
                 throw new IllegalArgumentException(emailAlreadyActivatedMessage(user.getEmail()));
             } else if (LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))) {
+                //update verification code in DB to a new code and send it to user mail.
                 logger.error(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-                EmailUtilityFacade.sendMessage(user.getEmail(), user.getVerifyCode());
                 throw new IllegalArgumentException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
             } else if (!dbUser.getVerifyCode().equals(user.getVerifyCode())) {
                 logger.error(verificationCodeNotMatch);
