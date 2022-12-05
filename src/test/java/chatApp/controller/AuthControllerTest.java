@@ -42,7 +42,7 @@ class AuthControllerTest {
     }
 
     @AfterEach
-    void delete(){ userRepo.delete(user);}
+    void delete(){ userRepo.deleteAll();}
 
     @Test
     void createUser_checkValidEmail_inValidEmail() {
