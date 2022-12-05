@@ -92,7 +92,9 @@ public class UserService {
                 updateUserMessages(oldEmail, user.getEmail());
             }
             if(!oldNickname.equals(emptyString)){
-                updateUserMessages(oldNickname, user.getNickname());
+                if(!user.getNickname().equals(emptyString)) {
+                    updateUserMessages(oldNickname, user.getNickname());
+                }
             }
             return returnUser;
         } catch (NestedRuntimeException e){
