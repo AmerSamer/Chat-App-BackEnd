@@ -52,7 +52,8 @@ public class UserController {
             isValid = checkValidName(user.getName(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
-            response.setResponse(UserDTO.userToUserDTO(userService.updateUser(user, userEmail)));
+            User updateUser = userService.updateUser(user, userEmail);
+            response.setResponse(UserDTO.userToUserDTO(updateUser));
             response.setMessage(updateUserSuccessfulMessage);
             logger.info(updateUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
@@ -115,7 +116,8 @@ public class UserController {
             if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            response.setResponse(UserDTO.userToUserDTO(userService.updateMuteUnmuteUser(id, userEmail)));
+            User updateMutedUser = userService.updateMuteUnmuteUser(id, userEmail);
+            response.setResponse(UserDTO.userToUserDTO(updateMutedUser));
             response.setMessage(updateMuteUnmuteUserSuccessfulMessage);
             logger.info(updateMuteUnmuteUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);
@@ -146,7 +148,8 @@ public class UserController {
             if (!authService.getKeyEmailsValTokens().get(userEmail).equals(token)) {
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            response.setResponse(UserDTO.userToUserDTO(userService.updateStatusUser(userEmail, status)));
+            User updateStatusUser = userService.updateStatusUser(userEmail, status);
+            response.setResponse(UserDTO.userToUserDTO(updateStatusUser));
             response.setMessage(updateStatusUserSuccessfulMessage);
             logger.info(updateStatusUserSuccessfulMessage);
             return ResponseEntity.ok().body(response);

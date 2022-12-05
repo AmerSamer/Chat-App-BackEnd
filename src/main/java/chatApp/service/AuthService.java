@@ -68,12 +68,12 @@ public class AuthService {
                 throw new IllegalArgumentException(loginFailedMessage);
             }
             logger.info(createToken);
+            logger.info(userLogged);
             String sessionToken = randomString();
             keyTokensValEmails.put(sessionToken, dbUser.getEmail());
             keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
-            logger.info(userLogged);
-            User loggedInUser = User.loggedInUser(dbUser);
-            return userRepository.save(loggedInUser);
+            dbUser.setUserStatus(UserStatuses.ONLINE);
+            return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
@@ -97,8 +97,8 @@ public class AuthService {
             logger.info(guestValid);
             User guestUser = User.guestUser(user);
             String sessionToken = randomString();
-            keyTokensValEmails.put(sessionToken, user.getEmail());
-            keyEmailsValTokens.put(user.getEmail(), sessionToken);
+            keyTokensValEmails.put(sessionToken, guestUser.getEmail());
+            keyEmailsValTokens.put(guestUser.getEmail(), sessionToken);
             logger.info(saveInDB);
             return userRepository.save(guestUser);
         } catch (RuntimeException e) {
@@ -163,9 +163,9 @@ public class AuthService {
                 throw new IllegalArgumentException(verificationCodeNotMatch);
             }
 
-            User verifiedUser = User.verifyUser(dbUser);
+            User.verifyUser(dbUser);
             logger.info(saveInDB);
-            return userRepository.save(verifiedUser);
+            return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());

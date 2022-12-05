@@ -43,29 +43,29 @@ public class PermissionFilter extends GenericFilterBean {
         if (permissionPathsForAll.stream().noneMatch(path::contains)) {
             if (auth == null) {
                 res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
-                throw new Error("Not Authorized");
+//                throw new Error("Not Authorized");
             } else if (!authService.getKeyTokensValEmails().containsKey(auth)) {
                 res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
-                throw new Error("Not Authorized");
+//                throw new Error("Not Authorized");
             } else {
                 String userEmail = authService.getKeyTokensValEmails().get(auth);
                 if (!auth.equals(authService.getKeyEmailsValTokens().get(userEmail))) {
                     res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
-                    throw new Error("Not Authorized");
+//                    throw new Error("Not Authorized");
                 }
-                User dbUser = userRepository.findByEmail(userEmail);
+                User dbUser = User.dbUser(userRepository.findByEmail(userEmail));
                 if (dbUser.getType() == UserType.GUEST) {
                     if (permissionPathsForGuest.stream().noneMatch(path::contains)) {
 //                        res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 //                        res.getOutputStream().write("Not Authorized".getBytes());
                         res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
-                        throw new Error("Not Authorized");
+//                        throw new Error("Not Authorized");
                     }
                 }
                 if (dbUser.getType() == UserType.REGISTERED) {
                     if (noPermissionsPathsForRegistered.stream().anyMatch(path::contains)) {
                         res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
-                        throw new Error("Not Authorized");
+//                        throw new Error("Not Authorized");
                     }
                 }
             }

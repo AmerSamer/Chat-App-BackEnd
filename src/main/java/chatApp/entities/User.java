@@ -94,35 +94,15 @@ public class User {
         currUser.setType(UserType.GUEST);
         currUser.setPhoto("https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg");
         currUser.setIssueDate(LocalDate.now());
-        user.setVerifyCode(randomString());
+        currUser.setVerifyCode(randomString());
         return currUser;
     }
-    public static User verifyUser(User user) {
-        User currUser = new User();
-        currUser.setName(user.getName());
-        currUser.setEmail(user.getEmail());
-        currUser.setPassword(user.getPassword());
-        currUser.setEnabled(true);
-        currUser.setMute(user.isMute());
-        currUser.setUserStatus(user.getUserStatus());
-        currUser.setNickname(user.getNickname());
-        currUser.setType(UserType.REGISTERED);
-        currUser.setVerifyCode(null);
-        return currUser;
+    public static void verifyUser(User user) {
+        user.setEnabled(true);
+        user.setType(UserType.REGISTERED);
+        user.setVerifyCode(null);
     }
 
-    public static User loggedInUser(User user) {
-        User currUser = new User();
-        currUser.setName(user.getName());
-        currUser.setEmail(user.getEmail());
-        currUser.setPassword(user.getPassword());
-        currUser.setEnabled(user.isEnabled());
-        currUser.setMute(user.isMute());
-        currUser.setUserStatus(UserStatuses.ONLINE);
-        currUser.setNickname(user.getNickname());
-        currUser.setType(user.getType());
-        return currUser;
-    }
     public static User createUser(String name, String email, String password) {
         User user = new User();
         user.setName(name);
