@@ -30,7 +30,7 @@ public class Utility {
     public static String innerSystemEmail = "seselevtion@gmail.com";
     public static String emailContent = "Chat App Verification Code";
     public static String firstPrivateMessage = "New Private Chat Room";
-    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "ws", "/mainchatroom", "/downloadmainchatroom", "/error", "chat/getusers"));
+    public static List<String> permissionPathsForAll = new ArrayList<>(List.of("/sign", "ws", "/mainchatroom", "/downloadmainchatroom", "chat/getusers"));
     public static List<String> permissionPathsForGuest = new ArrayList<>(List.of("/logout", "update/status", "chat/mainchatroom", "chat/downloadmainchatroom", "/topic", "/app", "/plain"));
     public static List<String> noPermissionsPathsForRegistered = new ArrayList<>(List.of("update/mute"));
 

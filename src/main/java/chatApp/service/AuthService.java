@@ -1,5 +1,6 @@
 package chatApp.service;
 
+import chatApp.utilities.EmailUtilityFacade;
 import chatApp.utilities.Utility;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
@@ -8,8 +9,6 @@ import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +31,6 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
-    private SimpleMailMessage preConfiguredMessage;
 
     private Map<String, String> keyTokensValEmails;
     private Map<String, String> keyEmailsValTokens;
@@ -74,12 +68,12 @@ public class AuthService {
                 throw new IllegalArgumentException(loginFailedMessage);
             }
             logger.info(createToken);
+            logger.info(userLogged);
             String sessionToken = randomString();
             keyTokensValEmails.put(sessionToken, dbUser.getEmail());
             keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
-            logger.info(userLogged);
-            User loggedInUser = User.loggedInUser(dbUser);
-            return userRepository.save(loggedInUser);
+            dbUser.setUserStatus(UserStatuses.ONLINE);
+            return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
@@ -103,8 +97,8 @@ public class AuthService {
             logger.info(guestValid);
             User guestUser = User.guestUser(user);
             String sessionToken = randomString();
-            keyTokensValEmails.put(sessionToken, user.getEmail());
-            keyEmailsValTokens.put(user.getEmail(), sessionToken);
+            keyTokensValEmails.put(sessionToken, guestUser.getEmail());
+            keyEmailsValTokens.put(guestUser.getEmail(), sessionToken);
             logger.info(saveInDB);
             return userRepository.save(guestUser);
         } catch (RuntimeException e) {
@@ -129,7 +123,6 @@ public class AuthService {
             }
             logger.info(userValid);
             User registeredUser = User.registeredUser(user);
-            //sendMessage(user);
             logger.info(saveInDbWaitToActivate);
             return userRepository.save(registeredUser);
         } catch (RuntimeException e) {
@@ -162,36 +155,23 @@ public class AuthService {
                 logger.error(emailAlreadyActivatedMessage(user.getEmail()));
                 throw new IllegalArgumentException(emailAlreadyActivatedMessage(user.getEmail()));
             } else if (LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))) {
+                //update verification code in DB to a new code and send it to user mail.
                 logger.error(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-                //sendMessage(user);
                 throw new IllegalArgumentException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
             } else if (!dbUser.getVerifyCode().equals(user.getVerifyCode())) {
                 logger.error(verificationCodeNotMatch);
                 throw new IllegalArgumentException(verificationCodeNotMatch);
             }
 
-            User verifiedUser = User.verifyUser(dbUser);
+            User.verifyUser(dbUser);
             logger.info(saveInDB);
-            return userRepository.save(verifiedUser);
+            return userRepository.save(dbUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
-    /**
-     * Chains a message and sends to an email with a token, uses the JAVAMAIL library
-     *
-     * @param user - the user's data
-     */
-//    public void sendMessage(User user) {
-//        String verifyCode = randomString();
-//        preConfiguredMessage.setFrom(innerSystemEmail);
-//        preConfiguredMessage.setTo(user.getEmail());
-//        preConfiguredMessage.setSubject(emailContent);
-//        preConfiguredMessage.setText(verifyCode);
-//        mailSender.send(preConfiguredMessage);
-//    }
 
     /**
      * Initializes the keyTokensValEmails if the keyTokensValEmails is null

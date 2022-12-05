@@ -44,7 +44,8 @@ public class ChatController {
         CustomResponse<Message> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeSendMessageInMain);
-            response.setResponse(messageService.addMessageToMainChat(message));
+            Message mainMessage = messageService.addMessageToMainChat(message);
+            response.setResponse(mainMessage);
             response.setMessage(mainMessageSentSuccessfully);
             logger.info(mainMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
@@ -67,7 +68,8 @@ public class ChatController {
         CustomResponse<Message> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeSendPrivateMessage);
-            response.setResponse(messageService.addMessageToPrivateChat(message));
+            Message privateMessage = messageService.addMessageToPrivateChat(message);
+            response.setResponse(privateMessage);
             response.setMessage(privateMessageSentSuccessfully);
             logger.info(privateMessageSentSuccessfully);
             return ResponseEntity.ok().body(response);
@@ -103,7 +105,8 @@ public class ChatController {
         CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeGettingPrivateRoomMessages);
-            response.setResponse(messageService.getPrivateRoomMessages(senderEmail, receiverId));
+            List<Message> privateRoomMessages = messageService.getPrivateRoomMessages(senderEmail, receiverId);
+            response.setResponse(privateRoomMessages);
             response.setMessage(privateChatRoomMessagesSentSuccessfully);
             logger.info(privateChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
@@ -125,7 +128,8 @@ public class ChatController {
         CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeGettingMainRoomMessages);
-            response.setResponse(messageService.getMainRoomMessages(size));
+            List<Message> mainRoomMessages = messageService.getMainRoomMessages(size);
+            response.setResponse(mainRoomMessages);
             response.setMessage(mainChatRoomMessagesSentSuccessfully);
             logger.info(mainChatRoomMessagesSentSuccessfully);
             return ResponseEntity.ok().body(response);
@@ -147,7 +151,8 @@ public class ChatController {
         CustomResponse<List<Message>> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeDownloadingPrivateRoom);
-            response.setResponse(messageService.downloadPrivateRoomMessages(roomId));
+            List<Message> downloadPrivateRoom = messageService.downloadPrivateRoomMessages(roomId);
+            response.setResponse(downloadPrivateRoom);
             response.setMessage(downloadPrivateRoomSentSuccessfully);
             logger.info(downloadPrivateRoomSentSuccessfully);
             return ResponseEntity.ok().body(response);

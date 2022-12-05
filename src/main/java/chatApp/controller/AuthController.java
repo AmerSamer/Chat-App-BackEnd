@@ -4,6 +4,7 @@ import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import chatApp.service.AuthService;
+import chatApp.utilities.EmailUtilityFacade;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +44,10 @@ public class AuthController {
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
             logger.info(beforeAnAction(user.getEmail(), "register"));
-            response.setResponse(UserDTO.userToUserDTO(authService.addUser(user)));
+            User registerUser = authService.addUser(user);
+            response.setResponse(UserDTO.userToUserDTO(registerUser));
             response.setMessage(registrationSuccessfulMessage);
-            //User user = User.staticFactory(user);
-            //send message
+            EmailUtilityFacade.sendMessage(registerUser.getEmail(), registerUser.getVerifyCode());
             logger.info(registrationSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
@@ -72,9 +73,10 @@ public class AuthController {
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
             logger.info(beforeAnAction(user.getEmail(), "login"));
-            response.setResponse(UserDTO.userToUserDTO(authService.login(user)));
+            User loginUser = authService.login(user);
+            response.setResponse(UserDTO.userToUserDTO(loginUser));
             response.setMessage(loginSuccessfulMessage);
-            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
+            response.setHeaders(authService.getKeyEmailsValTokens().get(loginUser.getEmail()));
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
@@ -98,9 +100,10 @@ public class AuthController {
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
 
             logger.info(beforeLoginAsGuest);
-            response.setResponse(UserDTO.userGuestToUserDTO(authService.addGuest(user)));
+            User guestUser = authService.addGuest(user);
+            response.setResponse(UserDTO.userGuestToUserDTO(guestUser));
             response.setMessage(loginSuccessfulMessage);
-            response.setHeaders(authService.getKeyEmailsValTokens().get(user.getEmail()));
+            response.setHeaders(authService.getKeyEmailsValTokens().get(guestUser.getEmail()));
             logger.info(loginSuccessfulMessage);
             return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
@@ -121,7 +124,8 @@ public class AuthController {
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeActivateEmail);
-            response.setResponse(UserDTO.userToUserDTO(authService.verifyEmail(user)));
+            User verifyUser = authService.verifyEmail(user);
+            response.setResponse(UserDTO.userToUserDTO(verifyUser));
             response.setMessage(activationEmailSuccessfulMessage);
             logger.info(activationEmailSuccessfulMessage);
             return ResponseEntity.ok().body(response);
