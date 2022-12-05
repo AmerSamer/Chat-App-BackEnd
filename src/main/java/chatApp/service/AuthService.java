@@ -72,8 +72,8 @@ public class AuthService {
             keyTokensValEmails.put(sessionToken, dbUser.getEmail());
             keyEmailsValTokens.put(dbUser.getEmail(), sessionToken);
             logger.info(userLogged);
-            dbUser.setUserStatus(UserStatuses.ONLINE);
-            return userRepository.save(dbUser);
+            User loggedInUser = User.loggedInUser(dbUser);
+            return userRepository.save(loggedInUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
@@ -95,17 +95,12 @@ public class AuthService {
                 throw new IllegalArgumentException(guestNameExistsMessage(user.getName()));
             }
             logger.info(guestValid);
-            user.setEmail(user.getName() + systemEmail);
-            user.setName(guestPrefix + user.getName());
-            user.setType(UserType.GUEST);
-            user.setPassword(Utility.randomString());
-            user.setUserStatus(UserStatuses.ONLINE);
-            user.setNickname(user.getName());
+            User guestUser = User.guestUser(user);
             String sessionToken = randomString();
             keyTokensValEmails.put(sessionToken, user.getEmail());
             keyEmailsValTokens.put(user.getEmail(), sessionToken);
             logger.info(saveInDB);
-            return userRepository.save(user);
+            return userRepository.save(guestUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
@@ -127,14 +122,10 @@ public class AuthService {
                 throw new IllegalArgumentException(emailExistsInSystemMessage(user.getEmail()));
             }
             logger.info(userValid);
-            user.setPassword(encrypt((user.getPassword())));
-            user.setType(UserType.GUEST);
-            user.setUserStatus(UserStatuses.OFFLINE);
-            user.setNickname(user.getEmail());
-            user.setPhoto("https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg");
+            User registeredUser = User.registeredUser(user);
             EmailUtilityFacade.sendMessage(user.getEmail(), user.getVerifyCode());
             logger.info(saveInDbWaitToActivate);
-            return userRepository.save(user);
+            return userRepository.save(registeredUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
@@ -173,11 +164,9 @@ public class AuthService {
                 throw new IllegalArgumentException(verificationCodeNotMatch);
             }
 
-            dbUser.setEnabled(true);
-            dbUser.setVerifyCode(null);
-            dbUser.setType(UserType.REGISTERED);
+            User verifiedUser = User.verifyUser(dbUser);
             logger.info(saveInDB);
-            return userRepository.save(dbUser);
+            return userRepository.save(verifiedUser);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
