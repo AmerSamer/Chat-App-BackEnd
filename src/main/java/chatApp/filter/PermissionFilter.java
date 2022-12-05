@@ -4,6 +4,7 @@ import chatApp.entities.User;
 import chatApp.entities.UserType;
 import chatApp.repository.UserRepository;
 import chatApp.service.AuthService;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
@@ -55,6 +56,8 @@ public class PermissionFilter extends GenericFilterBean {
                 User dbUser = userRepository.findByEmail(userEmail);
                 if (dbUser.getType() == UserType.GUEST) {
                     if (permissionPathsForGuest.stream().noneMatch(path::contains)) {
+//                        res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//                        res.getOutputStream().write("Not Authorized".getBytes());
                         res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Not Authorized");
                         throw new Error("Not Authorized");
                     }

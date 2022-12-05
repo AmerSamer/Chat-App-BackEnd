@@ -1,5 +1,6 @@
 package chatApp.service;
 
+import chatApp.utilities.EmailUtilityFacade;
 import chatApp.utilities.Utility;
 import chatApp.entities.User;
 import chatApp.entities.UserStatuses;
@@ -8,8 +9,6 @@ import chatApp.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +31,6 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
-    private SimpleMailMessage preConfiguredMessage;
 
     private Map<String, String> keyTokensValEmails;
     private Map<String, String> keyEmailsValTokens;
@@ -138,7 +132,7 @@ public class AuthService {
             user.setUserStatus(UserStatuses.OFFLINE);
             user.setNickname(user.getEmail());
             user.setPhoto("https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg");
-            sendMessage(user);
+            EmailUtilityFacade.sendMessage(user.getEmail(), user.getVerifyCode());
             logger.info(saveInDbWaitToActivate);
             return userRepository.save(user);
         } catch (RuntimeException e) {
@@ -172,7 +166,7 @@ public class AuthService {
                 throw new IllegalArgumentException(emailAlreadyActivatedMessage(user.getEmail()));
             } else if (LocalDate.now().isAfter(dbUser.getIssueDate().plusDays(1))) {
                 logger.error(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
-                sendMessage(user);
+                EmailUtilityFacade.sendMessage(user.getEmail(), user.getVerifyCode());
                 throw new IllegalArgumentException(emailIssueTokenPassedMessage(user.getIssueDate().toString()));
             } else if (!dbUser.getVerifyCode().equals(user.getVerifyCode())) {
                 logger.error(verificationCodeNotMatch);
@@ -190,21 +184,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * Chains a message and sends to an email with a token, uses the JAVAMAIL library
-     *
-     * @param user - the user's data
-     */
-    public void sendMessage(User user) {
-        String verifyCode = randomString();
-        user.setVerifyCode(verifyCode);
-        user.setIssueDate(LocalDate.now());
-        preConfiguredMessage.setFrom(innerSystemEmail);
-        preConfiguredMessage.setTo(user.getEmail());
-        preConfiguredMessage.setSubject(emailContent);
-        preConfiguredMessage.setText(verifyCode);
-        mailSender.send(preConfiguredMessage);
-    }
 
     /**
      * Initializes the keyTokensValEmails if the keyTokensValEmails is null
