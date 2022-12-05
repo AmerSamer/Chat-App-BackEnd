@@ -4,7 +4,6 @@ import chatApp.customEntities.CustomResponse;
 import chatApp.customEntities.UserDTO;
 import chatApp.entities.User;
 import chatApp.service.AuthService;
-import chatApp.service.MessageService;
 import chatApp.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +27,6 @@ public class UserController {
     private UserService userService;
     @Autowired
     private AuthService authService;
-    @Autowired
-    private MessageService messageService;
 
     /**
      * Update user : check if data is valid syntax & the user exist in DB, update user data in DB
@@ -40,7 +37,6 @@ public class UserController {
      */
     @RequestMapping(value = "update", method = RequestMethod.PUT)
     public ResponseEntity<CustomResponse<UserDTO>> updateUser(@RequestBody User user, @RequestParam String token) {
-        Optional<CustomResponse<UserDTO>> isValid;
         CustomResponse<UserDTO> response = new CustomResponse<>(null, emptyString);
         try {
             logger.info(beforeAnAction(user.getEmail(), "update"));
@@ -49,7 +45,7 @@ public class UserController {
                 logger.error(tokenSessionExpired);
                 throw new IllegalArgumentException(tokenSessionExpired);
             }
-            isValid = checkValidEmail(user.getEmail(), response);
+            Optional<CustomResponse<UserDTO>> isValid = checkValidEmail(user.getEmail(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
             isValid = checkValidPassword(user.getPassword(), response);
             if(isValid.isPresent()){ return ResponseEntity.badRequest().body(isValid.get());}
